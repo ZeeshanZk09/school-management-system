@@ -1,56 +1,110 @@
-import 'dotenv/config';
+import "dotenv/config";
 
-import prisma from '../src/lib/prisma';
-import { hashPassword } from '../src/lib/security/password';
+import { randomBytes } from "node:crypto";
+
+import prisma from "../src/lib/prisma";
+import { hashPassword } from "../src/lib/security/password";
 
 const ROLE_DEFINITIONS = [
-  { name: 'SUPER_ADMIN', description: 'Full system control', isImmutable: true },
-  { name: 'ADMIN', description: 'Administrative operations', isImmutable: false },
-  { name: 'MANAGER', description: 'Operational management role', isImmutable: false },
-  { name: 'USER', description: 'Standard product user', isImmutable: false },
+  { name: "ADMIN", description: "Full system access" },
+  { name: "ACCOUNTANT", description: "Finance-only access" },
+  {
+    name: "TEACHER",
+    description: "Attendance and contacts access for assigned classes",
+  },
 ] as const;
 
 const PERMISSION_DEFINITIONS = [
-  { name: 'dashboard.view', description: 'Access dashboard pages' },
-  { name: 'users.read', description: 'Read users' },
-  { name: 'users.manage', description: 'Manage users and account status' },
-  { name: 'roles.read', description: 'Read role assignments' },
-  { name: 'roles.assign', description: 'Assign roles to users' },
-  { name: 'billing.read', description: 'Read billing data' },
-  { name: 'billing.manage', description: 'Manage subscriptions and invoices' },
-  { name: 'settings.manage', description: 'Change system settings' },
-  { name: 'logs.read', description: 'Read system and admin logs' },
+  { name: "dashboard.view", description: "Access dashboard pages" },
+  { name: "students.read", description: "Read student records" },
+  { name: "students.manage", description: "Manage student records" },
+  { name: "staff.read", description: "Read staff records" },
+  { name: "staff.manage", description: "Manage staff records" },
+  { name: "classes.read", description: "Read classes and sections" },
+  { name: "classes.manage", description: "Manage classes and sections" },
+  { name: "attendance.read", description: "Read attendance data" },
+  { name: "attendance.manage", description: "Manage attendance data" },
+  { name: "contacts.read", description: "Read contacts data" },
+  { name: "contacts.manage", description: "Manage contacts data" },
+  { name: "finance.read", description: "Read finance data" },
+  { name: "finance.manage", description: "Manage finance data" },
+  { name: "reports.read", description: "View system reports" },
+  { name: "settings.read", description: "View system settings" },
+  { name: "settings.manage", description: "Manage system settings" },
+  { name: "announcements.manage", description: "Manage announcements" },
+  { name: "audit.read", description: "Read audit logs" },
+  { name: "users.read", description: "Read user accounts" },
+  { name: "users.manage", description: "Manage user accounts" },
 ] as const;
 
 const ROLE_PERMISSION_MAP: Record<string, string[]> = {
-  SUPER_ADMIN: PERMISSION_DEFINITIONS.map((permission) => permission.name),
-  ADMIN: [
-    'dashboard.view',
-    'users.read',
-    'users.manage',
-    'roles.read',
-    'roles.assign',
-    'billing.read',
-    'billing.manage',
-    'settings.manage',
-    'logs.read',
+  ADMIN: PERMISSION_DEFINITIONS.map((p) => p.name),
+  ACCOUNTANT: [
+    "dashboard.view",
+    "finance.read",
+    "finance.manage",
+    "reports.read",
+    "students.read",
   ],
-  MANAGER: ['dashboard.view', 'users.read', 'roles.read', 'billing.read', 'logs.read'],
-  USER: ['dashboard.view'],
+  TEACHER: [
+    "dashboard.view",
+    "attendance.read",
+    "attendance.manage",
+    "contacts.read",
+    "students.read",
+    "classes.read",
+  ],
 };
 
+const SYMBOLS = "!@#$%_-";
+
+function envValue(name: string): string | null {
+  const value = process.env[name]?.trim();
+  return value ? value : null;
+}
+
+function randomChar(charset: string): string {
+  const randomIndex = randomBytes(1)[0] % charset.length;
+  return charset[randomIndex] ?? "A";
+}
+
+function generateStrongPassword(length = 16): string {
+  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lower = "abcdefghijklmnopqrstuvwxyz";
+  const digits = "0123456789";
+  const charset = `${upper}${lower}${digits}${SYMBOLS}`;
+
+  const base = [
+    randomChar(upper),
+    randomChar(lower),
+    randomChar(digits),
+    randomChar(SYMBOLS),
+  ];
+
+  while (base.length < length) {
+    base.push(randomChar(charset));
+  }
+
+  for (let i = base.length - 1; i > 0; i -= 1) {
+    const swapIndex = randomBytes(1)[0] % (i + 1);
+    [base[i], base[swapIndex]] = [base[swapIndex], base[i]];
+  }
+
+  return base.join("");
+}
+
 async function seedRolesAndPermissions(): Promise<void> {
+  console.info("[seed] Seeding roles and permissions...");
+
   for (const role of ROLE_DEFINITIONS) {
     await prisma.role.upsert({
       where: { name: role.name },
       create: {
         name: role.name,
         description: role.description,
-        isImmutable: role.isImmutable,
       },
       update: {
         description: role.description,
-        isImmutable: role.isImmutable,
       },
     });
   }
@@ -69,163 +123,264 @@ async function seedRolesAndPermissions(): Promise<void> {
   }
 
   const roles = await prisma.role.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
+    select: { id: true, name: true },
   });
-
   const permissions = await prisma.permission.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
+    select: { id: true, name: true },
   });
 
-  const roleIdByName = new Map(roles.map((role) => [role.name, role.id]));
-  const permissionIdByName = new Map(
-    permissions.map((permission) => [permission.name, permission.id])
-  );
+  const roleIdByName = new Map(roles.map((r) => [r.name, r.id]));
+  const permissionIdByName = new Map(permissions.map((p) => [p.name, p.id]));
 
-  for (const [roleName, permissionNames] of Object.entries(ROLE_PERMISSION_MAP)) {
+  for (const [roleName, permissionNames] of Object.entries(
+    ROLE_PERMISSION_MAP,
+  )) {
     const roleId = roleIdByName.get(roleName);
-
-    if (!roleId) {
-      continue;
-    }
+    if (!roleId) continue;
 
     const targetPermissionIds = permissionNames
-      .map((permissionName) => permissionIdByName.get(permissionName))
-      .filter((permissionId): permissionId is string => Boolean(permissionId));
+      .map((name) => permissionIdByName.get(name))
+      .filter((id): id is string => Boolean(id));
 
+    // Remove permissions no longer in the map
     await prisma.rolePermission.deleteMany({
       where: {
         roleId,
-        permissionId: {
-          notIn: targetPermissionIds,
-        },
+        permissionId: { notIn: targetPermissionIds },
       },
     });
 
+    // Upsert each permission
     for (const permissionId of targetPermissionIds) {
       await prisma.rolePermission.upsert({
         where: {
-          roleId_permissionId: {
-            roleId,
-            permissionId,
-          },
+          roleId_permissionId: { roleId, permissionId },
         },
-        create: {
-          roleId,
-          permissionId,
-        },
-        update: {
-          assignedAt: new Date(),
-        },
+        create: { roleId, permissionId },
+        update: { assignedAt: new Date() },
       });
     }
   }
+
+  console.info("[seed] Roles and permissions seeded.");
 }
 
-async function bootstrapFirstSuperAdmin(): Promise<void> {
-  const activeSuperAdminCount = await prisma.userRole.count({
-    where: {
-      role: {
-        name: 'SUPER_ADMIN',
-      },
-      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-    },
-  });
+async function bootstrapAdminUser(): Promise<void> {
+  console.info("[seed] Bootstrapping admin user...");
 
-  if (activeSuperAdminCount > 0) {
-    console.info('[seed-rbac] SUPER_ADMIN already exists. Skipping bootstrap.');
-    return;
-  }
-
-  const bootstrapEmail = process.env.BOOTSTRAP_SUPER_ADMIN_EMAIL?.trim().toLowerCase();
-
-  if (!bootstrapEmail) {
-    console.warn(
-      '[seed-rbac] No SUPER_ADMIN found. Set BOOTSTRAP_SUPER_ADMIN_EMAIL (and optional name/password) then rerun seed:rbac.'
-    );
-    return;
-  }
-
-  const superAdminRole = await prisma.role.findUnique({
-    where: { name: 'SUPER_ADMIN' },
+  const adminRole = await prisma.role.findUnique({
+    where: { name: "ADMIN" },
     select: { id: true },
   });
 
-  if (!superAdminRole) {
-    throw new Error('SUPER_ADMIN role missing after seed.');
+  if (!adminRole) {
+    throw new Error("ADMIN role missing after seed.");
+  }
+
+  const rawEmail = process.env.BOOTSTRAP_ADMIN_EMAIL ?? "admin@school.local";
+  const bootstrapEmail = rawEmail.trim().toLowerCase();
+  const bootstrapName =
+    process.env.BOOTSTRAP_ADMIN_NAME?.trim() ?? "System Admin";
+
+  let bootstrapPassword = process.env.BOOTSTRAP_ADMIN_PASSWORD ?? "";
+
+  if (!bootstrapPassword) {
+    bootstrapPassword = generateStrongPassword();
   }
 
   let user = await prisma.user.findUnique({
-    where: {
-      email: bootstrapEmail,
-    },
-    select: {
-      id: true,
-      status: true,
-      isBlocked: true,
-    },
+    where: { email: bootstrapEmail },
+    select: { id: true, status: true },
   });
 
   if (!user) {
-    const bootstrapPassword = process.env.BOOTSTRAP_SUPER_ADMIN_PASSWORD;
-
-    if (!bootstrapPassword || bootstrapPassword.length < 12) {
-      throw new Error(
-        'BOOTSTRAP_SUPER_ADMIN_PASSWORD must be set with at least 12 characters when creating the first SUPER_ADMIN user.'
-      );
-    }
-
     const passwordHash = await hashPassword(bootstrapPassword);
-    const bootstrapName = process.env.BOOTSTRAP_SUPER_ADMIN_NAME?.trim() || 'Initial Super Admin';
 
     user = await prisma.user.create({
       data: {
-        name: bootstrapName,
+        fullName: bootstrapName,
         email: bootstrapEmail,
         passwordHash,
-        emailVerified: new Date(),
-        status: 'ACTIVE',
-        isBlocked: false,
+        status: "ACTIVE",
       },
-      select: {
-        id: true,
-        status: true,
-        isBlocked: true,
-      },
+      select: { id: true, status: true },
     });
   }
 
-  if (user.status !== 'ACTIVE' || user.isBlocked) {
-    throw new Error('Bootstrap user must be ACTIVE and not blocked before assigning SUPER_ADMIN.');
+  if (user.status !== "ACTIVE") {
+    throw new Error("Bootstrap admin user must be ACTIVE.");
   }
 
   await prisma.userRole.upsert({
     where: {
       userId_roleId: {
         userId: user.id,
-        roleId: superAdminRole.id,
+        roleId: adminRole.id,
       },
     },
     create: {
       userId: user.id,
-      roleId: superAdminRole.id,
+      roleId: adminRole.id,
     },
     update: {
-      expiresAt: null,
+      assignedAt: new Date(),
     },
   });
 
-  console.info(`[seed-rbac] SUPER_ADMIN assigned to ${bootstrapEmail}`);
+  if (!process.env.BOOTSTRAP_ADMIN_PASSWORD) {
+    console.info("");
+    console.info("╔══════════════════════════════════════════╗");
+    console.info("║   Generated Admin Credentials            ║");
+    console.info("╠══════════════════════════════════════════╣");
+    console.info(`║  Email:    ${bootstrapEmail.padEnd(29)}║`);
+    console.info(`║  Password: ${bootstrapPassword.padEnd(29)}║`);
+    console.info("╚══════════════════════════════════════════╝");
+    console.info("");
+  } else {
+    console.info(`[seed] Admin assigned to ${bootstrapEmail}`);
+  }
+}
+
+async function seedSystemSettings(): Promise<void> {
+  const existing = await prisma.systemSettings.findFirst({
+    select: { id: true },
+  });
+
+  if (existing) {
+    console.info("[seed] System settings already exist, skipping.");
+    return;
+  }
+
+  await prisma.systemSettings.create({
+    data: {
+      schoolName: envValue("SCHOOL_NAME") ?? "School Name",
+      schoolLogoUrl: envValue("SCHOOL_LOGO_URL"),
+      addressLine1: envValue("SCHOOL_ADDRESS_LINE1") ?? "School Address",
+      addressLine2: envValue("SCHOOL_ADDRESS_LINE2"),
+      city: envValue("SCHOOL_CITY"),
+      state: envValue("SCHOOL_STATE"),
+      country: envValue("SCHOOL_COUNTRY"),
+      postalCode: envValue("SCHOOL_POSTAL_CODE"),
+      contactEmail: envValue("SCHOOL_CONTACT_EMAIL"),
+      contactPhone: envValue("SCHOOL_CONTACT_PHONE"),
+    },
+  });
+
+  console.info("[seed] Default system settings created.");
+}
+
+async function seedAcademicYear(): Promise<void> {
+  const activeYear = await prisma.academicYear.findFirst({
+    where: { isActive: true },
+    select: { id: true },
+  });
+
+  if (activeYear) {
+    console.info("[seed] Active academic year already exists, skipping.");
+    return;
+  }
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const startDate = new Date(Date.UTC(year, 3, 1)); // April 1
+  const endDate = new Date(Date.UTC(year + 1, 2, 31, 23, 59, 59)); // March 31
+
+  await prisma.academicYear.create({
+    data: {
+      name: `${year}-${year + 1}`,
+      startDate,
+      endDate,
+      isActive: true,
+    },
+  });
+
+  console.info(`[seed] Created academic year ${year}-${year + 1}`);
+}
+
+async function seedClasses(): Promise<void> {
+  const existingClass = await prisma.class.findFirst({ select: { id: true } });
+
+  if (existingClass) {
+    console.info("[seed] Classes already exist, skipping.");
+    return;
+  }
+
+  const classNames = [
+    { name: "Class 1", code: "C1" },
+    { name: "Class 2", code: "C2" },
+    { name: "Class 3", code: "C3" },
+    { name: "Class 4", code: "C4" },
+    { name: "Class 5", code: "C5" },
+  ];
+
+  for (const cls of classNames) {
+    await prisma.class.create({
+      data: {
+        name: cls.name,
+        code: cls.code,
+        sections: {
+          create: [{ name: "A" }, { name: "B" }],
+        },
+      },
+    });
+  }
+
+  console.info(`[seed] Created ${classNames.length} classes with sections.`);
+}
+
+async function seedAttendanceSessions(): Promise<void> {
+  const existing = await prisma.attendanceSession.findFirst({
+    select: { id: true },
+  });
+
+  if (existing) {
+    console.info("[seed] Attendance sessions already exist, skipping.");
+    return;
+  }
+
+  await prisma.attendanceSession.createMany({
+    data: [
+      { name: "Morning", sortOrder: 1, startTime: "08:00", endTime: "12:00" },
+      { name: "Afternoon", sortOrder: 2, startTime: "13:00", endTime: "16:00" },
+    ],
+  });
+
+  console.info("[seed] Created default attendance sessions.");
+}
+
+async function seedLeaveTypes(): Promise<void> {
+  const existing = await prisma.leaveType.findFirst({ select: { id: true } });
+
+  if (existing) {
+    console.info("[seed] Leave types already exist, skipping.");
+    return;
+  }
+
+  await prisma.leaveType.createMany({
+    data: [
+      { name: "Sick", description: "Sick leave" },
+      { name: "Casual", description: "Casual leave" },
+      { name: "Annual", description: "Annual leave" },
+    ],
+  });
+
+  console.info("[seed] Created default leave types.");
 }
 
 async function main(): Promise<void> {
+  console.info("[seed] Starting database seed...");
+  console.info("");
+
   await seedRolesAndPermissions();
-  await bootstrapFirstSuperAdmin();
+  await bootstrapAdminUser();
+  await seedSystemSettings();
+  await seedAcademicYear();
+  await seedClasses();
+  await seedAttendanceSessions();
+  await seedLeaveTypes();
+
+  console.info("");
+  console.info("[seed] Database seed completed successfully.");
 }
 
 main()
@@ -233,7 +388,7 @@ main()
     await prisma.$disconnect();
   })
   .catch(async (error) => {
-    console.error('[seed-rbac] Failed:', error);
+    console.error("[seed] Failed:", error);
     await prisma.$disconnect();
     process.exit(1);
   });

@@ -1,81 +1,74 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { GraduationCap, ShieldAlert } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { getSystemSettings } from "@/lib/settings";
+import { RegisterForm } from "./register-form";
 
-import { registerUserFlow } from '@/lib/auth/workflows';
-import { getFormString } from '@/lib/forms';
-import { registerUserSchema } from '@/lib/validations/auth';
+export default async function RegisterPage() {
+  const settings = await getSystemSettings();
 
-async function registerAction(formData: FormData): Promise<void> {
-  'use server';
-
-  const parsed = registerUserSchema.safeParse({
-    name: getFormString(formData, 'name'),
-    email: getFormString(formData, 'email'),
-    password: getFormString(formData, 'password'),
-  });
-
-  if (!parsed.success) {
-    redirect('/register?error=invalid');
+  if (!settings.allowSelfRegistration) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
+        <Card className="max-w-md w-full border-none shadow-2xl glass overflow-hidden">
+          <CardContent className="p-8 text-center space-y-6">
+            <div className="flex justify-center">
+              <div className="p-4 rounded-3xl bg-rose-50 dark:bg-rose-950/20 text-rose-600">
+                <ShieldAlert className="h-12 w-12" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-black font-outfit">
+                Registration Closed
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 font-medium">
+                Self-registration is currently disabled by the school
+                administrator.
+              </p>
+            </div>
+            <Button asChild className="w-full gradient-primary h-11 rounded-xl">
+              <Link href="/login">Back to Login</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
-  await registerUserFlow(parsed.data);
-  redirect('/login?registered=1');
-}
-
-export default function RegisterPage() {
   return (
-    <main className='mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center p-6'>
-      <section className='w-full max-w-md rounded-2xl border border-black/10 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-zinc-950/80'>
-        <p className='text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500'>
-          Registration
-        </p>
-        <h1 className='mt-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-100'>
-          Create your account
-        </h1>
-        <p className='mt-2 text-sm text-zinc-600 dark:text-zinc-400'>
-          New accounts require email verification before credential sign-in.
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center space-y-2">
+          <div className="flex justify-center mb-6">
+            <div className="p-3 gradient-primary rounded-2xl shadow-lg">
+              <GraduationCap className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <h1 className="text-4xl font-black tracking-tight font-outfit text-slate-900 dark:text-white">
+            Join {settings.schoolName}
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">
+            Create your institutional account to get started.
+          </p>
+        </div>
 
-        <form action={registerAction} className='mt-6 grid gap-3'>
-          <input
-            name='name'
-            type='text'
-            autoComplete='name'
-            required
-            placeholder='Your name'
-            className='w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none placeholder:text-zinc-400 focus:border-zinc-400 dark:border-white/20 dark:bg-zinc-900'
-          />
-          <input
-            name='email'
-            type='email'
-            autoComplete='email'
-            required
-            placeholder='you@example.com'
-            className='w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none placeholder:text-zinc-400 focus:border-zinc-400 dark:border-white/20 dark:bg-zinc-900'
-          />
-          <input
-            name='password'
-            type='password'
-            autoComplete='new-password'
-            required
-            placeholder='At least 12 characters'
-            className='w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none placeholder:text-zinc-400 focus:border-zinc-400 dark:border-white/20 dark:bg-zinc-900'
-          />
-          <button
-            type='submit'
-            className='mt-2 rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300'
+        <Card className="border-none shadow-2xl glass overflow-hidden">
+          <CardContent className="p-8">
+            <RegisterForm />
+          </CardContent>
+        </Card>
+
+        <p className="text-center text-sm text-slate-500 font-medium">
+          Already have an account?{" "}
+          <Link
+            href="/login"
+            className="text-primary font-bold hover:underline underline-offset-4"
           >
-            Register
-          </button>
-        </form>
-
-        <Link
-          href='/login'
-          className='mt-4 inline-block text-sm font-medium text-zinc-700 underline-offset-2 hover:underline dark:text-zinc-300'
-        >
-          Back to sign in
-        </Link>
-      </section>
-    </main>
+            Sign in
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }

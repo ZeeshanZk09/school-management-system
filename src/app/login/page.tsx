@@ -1,194 +1,142 @@
-import Link from 'next/link';
+"use client";
 
-import { signIn } from '@/auth';
-import { getFormString } from '@/lib/forms';
+import { GraduationCap, Loader2 } from "lucide-react";
+import { useActionState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { loginAction } from "./actions";
 
-function getSearchParam(
-  params: Record<string, string | string[] | undefined>,
-  key: string
-): string {
-  const value = params[key];
-
-  if (Array.isArray(value)) {
-    return value[0] ?? '';
-  }
-
-  if (typeof value === 'string') {
-    return value;
-  }
-
-  return '';
-}
-
-async function signInWithCredentials(formData: FormData): Promise<void> {
-  'use server';
-
-  const email = getFormString(formData, 'email').trim();
-  const password = getFormString(formData, 'password');
-  const mfaCode = getFormString(formData, 'mfaCode').trim();
-  const backupCode = getFormString(formData, 'backupCode').trim();
-
-  await signIn('credentials', {
-    email,
-    password,
-    mfaCode,
-    backupCode,
-    redirectTo: '/dashboard',
+export default function LoginPage() {
+  const [state, formAction, isPending] = useActionState(loginAction, {
+    success: false,
+    message: "",
   });
-}
-
-async function signInWithProvider(formData: FormData): Promise<void> {
-  'use server';
-
-  const provider = getFormString(formData, 'provider');
-
-  if (provider !== 'google' && provider !== 'github') {
-    return;
-  }
-
-  await signIn(provider, {
-    redirectTo: '/dashboard',
-  });
-}
-
-export default async function LoginPage({
-  searchParams,
-}: Readonly<{
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}>) {
-  const params = await searchParams;
-  const registered = getSearchParam(params, 'registered') === '1';
-  const verified = getSearchParam(params, 'verified') === '1';
-  const verifyError = getSearchParam(params, 'verifyError') === '1';
-  const resetRequested = getSearchParam(params, 'resetRequested') === '1';
-  const passwordReset = getSearchParam(params, 'passwordReset') === '1';
 
   return (
-    <main className='mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center p-6'>
-      <section className='w-full max-w-md rounded-2xl border border-black/10 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-zinc-950/80'>
-        <p className='text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500'>
-          Secure Access
-        </p>
-        <h1 className='mt-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-100'>
-          Sign in to continue
-        </h1>
-        <p className='mt-2 text-sm text-zinc-600 dark:text-zinc-400'>
-          Credentials are verified server-side with account lockout, MFA challenge support, and
-          role-aware session checks.
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100 via-slate-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-black p-4">
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
 
-        {registered ? (
-          <p className='mt-4 rounded-xl border border-emerald-300/60 bg-emerald-100/70 px-3 py-2 text-xs text-emerald-900 dark:border-emerald-700/60 dark:bg-emerald-950/60 dark:text-emerald-200'>
-            Registration accepted. Check your inbox for the verification link.
-          </p>
-        ) : null}
+      <Card className="w-full max-w-md shadow-2xl border-none glass hover-lift">
+        <CardHeader className="space-y-1 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="p-3 gradient-primary rounded-2xl shadow-lg shadow-blue-500/20">
+              <GraduationCap className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Welcome Back
+          </CardTitle>
+          <CardDescription className="text-slate-500 dark:text-slate-400">
+            Enter your credentials to access the portal
+          </CardDescription>
+        </CardHeader>
+        <form action={formAction}>
+          <CardContent className="grid gap-4">
+            {state?.message && !state.success && (
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium animate-in fade-in zoom-in duration-300">
+                {state.message}
+              </div>
+            )}
 
-        {verified ? (
-          <p className='mt-4 rounded-xl border border-emerald-300/60 bg-emerald-100/70 px-3 py-2 text-xs text-emerald-900 dark:border-emerald-700/60 dark:bg-emerald-950/60 dark:text-emerald-200'>
-            Email verified. You can now sign in.
-          </p>
-        ) : null}
+            <div className="grid gap-2">
+              <Label
+                htmlFor="email"
+                className="text-slate-700 dark:text-slate-300"
+              >
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="admin@school.com"
+                required
+                className="bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-primary/50 transition-all"
+                disabled={isPending}
+              />
+              {state?.errors?.email && (
+                <p className="text-xs text-destructive mt-1">
+                  {state.errors.email[0]}
+                </p>
+              )}
+            </div>
 
-        {verifyError ? (
-          <p className='mt-4 rounded-xl border border-amber-300/60 bg-amber-100/70 px-3 py-2 text-xs text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/60 dark:text-amber-200'>
-            Verification link is invalid or expired.
-          </p>
-        ) : null}
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <Label
+                  htmlFor="password"
+                  title="Password"
+                  className="text-slate-700 dark:text-slate-300"
+                >
+                  Password
+                </Label>
+              </div>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                required
+                className="bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:ring-primary/50 transition-all"
+                disabled={isPending}
+              />
+              {state?.errors?.password && (
+                <p className="text-xs text-destructive mt-1">
+                  {state.errors.password[0]}
+                </p>
+              )}
+            </div>
 
-        {resetRequested ? (
-          <p className='mt-4 rounded-xl border border-sky-300/60 bg-sky-100/70 px-3 py-2 text-xs text-sky-900 dark:border-sky-700/60 dark:bg-sky-950/60 dark:text-sky-200'>
-            If your account exists, a password reset email has been sent.
-          </p>
-        ) : null}
-
-        {passwordReset ? (
-          <p className='mt-4 rounded-xl border border-emerald-300/60 bg-emerald-100/70 px-3 py-2 text-xs text-emerald-900 dark:border-emerald-700/60 dark:bg-emerald-950/60 dark:text-emerald-200'>
-            Password updated successfully. Sign in with your new password.
-          </p>
-        ) : null}
-
-        <form action={signInWithCredentials} className='mt-6 grid gap-3'>
-          <input
-            name='email'
-            type='email'
-            autoComplete='email'
-            required
-            placeholder='you@example.com'
-            className='w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none ring-0 placeholder:text-zinc-400 focus:border-zinc-400 dark:border-white/20 dark:bg-zinc-900'
-          />
-          <input
-            name='password'
-            type='password'
-            autoComplete='current-password'
-            required
-            placeholder='Your password'
-            className='w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none ring-0 placeholder:text-zinc-400 focus:border-zinc-400 dark:border-white/20 dark:bg-zinc-900'
-          />
-          <input
-            name='mfaCode'
-            type='text'
-            inputMode='numeric'
-            autoComplete='one-time-code'
-            placeholder='MFA code (if enabled)'
-            className='w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none ring-0 placeholder:text-zinc-400 focus:border-zinc-400 dark:border-white/20 dark:bg-zinc-900'
-          />
-          <input
-            name='backupCode'
-            type='text'
-            autoComplete='off'
-            placeholder='Backup code (optional)'
-            className='w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none ring-0 placeholder:text-zinc-400 focus:border-zinc-400 dark:border-white/20 dark:bg-zinc-900'
-          />
-          <button
-            type='submit'
-            className='mt-2 rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300'
-          >
-            Sign in with email
-          </button>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="rememberMe"
+                name="rememberMe"
+                disabled={isPending}
+                className="border-slate-300 dark:border-slate-700 data-[state=checked]:bg-primary"
+              />
+              <Label
+                htmlFor="rememberMe"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-600 dark:text-slate-400"
+              >
+                Remember me for 30 days
+              </Label>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button
+              type="submit"
+              className="w-full h-11 text-base font-semibold gradient-primary shadow-lg shadow-blue-500/25 border-none"
+              disabled={isPending}
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Authenticating...
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </Button>
+          </CardFooter>
         </form>
+      </Card>
 
-        <div className='mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2'>
-          <form action={signInWithProvider}>
-            <input type='hidden' name='provider' value='google' />
-            <button
-              type='submit'
-              className='w-full rounded-xl border border-black/10 px-4 py-2 text-sm font-medium transition hover:bg-zinc-100 dark:border-white/20 dark:hover:bg-zinc-900'
-            >
-              Continue with Google
-            </button>
-          </form>
-
-          <form action={signInWithProvider}>
-            <input type='hidden' name='provider' value='github' />
-            <button
-              type='submit'
-              className='w-full rounded-xl border border-black/10 px-4 py-2 text-sm font-medium transition hover:bg-zinc-100 dark:border-white/20 dark:hover:bg-zinc-900'
-            >
-              Continue with GitHub
-            </button>
-          </form>
-        </div>
-
-        <p className='mt-6 text-xs text-zinc-500 dark:text-zinc-400'>
-          Need to bootstrap users and roles? Seed initial admin records after running migrations.
+      <div className="fixed bottom-4 text-center w-full">
+        <p className="text-xs text-slate-400 dark:text-slate-600">
+          &copy; {new Date().getFullYear()} School Management System. All rights
+          reserved.
         </p>
-
-        <Link
-          href='/'
-          className='mt-4 inline-block text-sm font-medium text-zinc-700 underline-offset-2 hover:underline dark:text-zinc-300'
-        >
-          Back to home
-        </Link>
-
-        <div className='mt-2 flex flex-wrap gap-3 text-sm text-zinc-600 dark:text-zinc-300'>
-          <Link href='/register' className='underline-offset-2 hover:underline'>
-            Create account
-          </Link>
-          <Link href='/forgot-password' className='underline-offset-2 hover:underline'>
-            Forgot password
-          </Link>
-        </div>
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }

@@ -1,27 +1,53 @@
-import 'dotenv/config';
+import "dotenv/config";
 
-import { PrismaClient } from './generated/prisma/client';
-import { PrismaNeon } from '@prisma/adapter-neon';
-import { neonConfig } from '@neondatabase/serverless';
+import { PrismaClient } from "./generated/prisma/client";
 
-import { env } from './env';
-
-import ws from 'ws';
-neonConfig.webSocketConstructor = ws;
-
-// To work in edge environments (Cloudflare Workers, Vercel Edge, etc.), enable querying over fetch
-neonConfig.poolQueryViaFetch = true;
-
-// Type definitions
 declare global {
   var prisma: PrismaClient | undefined;
 }
 
-const connectionString = env.DATABASE_URL;
+function createPrismaClient(): PrismaClient {
+  const isProduction = process.env.NODE_ENV === "production";
 
-const adapter = new PrismaNeon({ connectionString });
-const prisma = global.prisma || new PrismaClient({ adapter });
+  if (isProduction) {
+    // Production: use Neon serverless adapter
+    // Dynamic import to avoid bundling neon in dev
+    const { Pool, neonConfig } = require("@neondatabase/serverless");
+    const { PrismaNeon } = require("@prisma/adapter-neon");
+    const ws = require("ws");
 
-if (process.env.NODE_ENV === 'development') global.prisma = prisma;
+    neonConfig.webSocketConstructor = ws;
+
+    const connectionString = process.env.DATABASE_URL;
+
+    if (!connectionString) {
+      throw new Error("DATABASE_URL is required to initialize PrismaClient.");
+    }
+
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaNeon(pool);
+    return new PrismaClient({ adapter });
+  }
+
+  // Development: use standard pg adapter (local PostgreSQL)
+  const { PrismaPg } = require("@prisma/adapter-pg");
+  const { Pool } = require("pg");
+
+  const connectionString = process.env.DATABASE_URL;
+
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is required to initialize PrismaClient.");
+  }
+
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
+  return new PrismaClient({ adapter });
+}
+
+const prisma = global.prisma ?? createPrismaClient();
+
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}
 
 export default prisma;

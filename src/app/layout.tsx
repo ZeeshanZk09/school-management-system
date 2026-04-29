@@ -1,24 +1,26 @@
-import type { Metadata } from 'next';
-import { headers } from 'next/headers';
-import { Geist, Geist_Mono } from 'next/font/google';
+import type { Metadata } from "next";
+import { Inter, Outfit } from "next/font/google";
+import { headers } from "next/headers";
 
-import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
-import './globals.css';
+import "./globals.css";
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: 'Auth Starter',
-  description: 'Security-first auth, billing, and role-managed SaaS starter',
+  title: "School Management System | Premium Education Portal",
+  description:
+    "A production-ready, secure, and intuitive school management system for modern institutions.",
 };
 
 export default async function RootLayout({
@@ -27,21 +29,26 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const requestHeaders = await headers();
-  const cspNonce = requestHeaders.get('x-csp-nonce') ?? undefined;
+  const cspNonce = requestHeaders.get("x-csp-nonce") ?? undefined;
 
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${outfit.variable}`}
+    >
       <body
         data-csp-nonce={cspNonce}
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="font-sans antialiased selection:bg-primary/10 selection:text-primary"
       >
         <ThemeProvider
-          attribute='class'
-          defaultTheme='system'
+          attribute="class"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
           {children}
+          <Toaster position="top-right" richColors />
         </ThemeProvider>
       </body>
     </html>

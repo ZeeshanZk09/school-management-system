@@ -1,0 +1,172 @@
+School Management System 
+
+Project overview
+Build a complete, single-tenant school management system for one institution. There is no multi-tenancy, no SaaS model, and no subscription layer. The system is deployed once and owned entirely by the school. All data belongs to the school and stays local or on their own server.
+
+Core architecture principles
+Design the system around four functional modules that share a common data foundation. All modules access the same underlying entities: Student, Staff, Class, and AcademicYear. No module should duplicate these entities — they are always referenced, never copied.
+Implement a role-based access control (RBAC) system from the start. Define at minimum three roles: Admin, Accountant, and Teacher. Every route, API endpoint, and UI view must enforce role-based permissions. Admins have unrestricted access. Accountants access finance only. Teachers access attendance and contacts for their own classes only.
+Use a single database for the entire application. Use soft deletes (a deleted_at or is_active flag) across all entities — nothing should be permanently deleted through the UI.
+Maintain an audit_log table that records every create, update, and delete operation: who did it, when, what table, what changed (old value vs new value in JSON).
+
+Module 1 — Attendance
+Student attendance
+
+Each attendance record links a Student, a Class, a Date, and a Session (morning / afternoon, or configurable periods).
+Possible statuses: Present, Absent, Late, Excused. Allow a note field per record.
+Teachers can mark attendance for their assigned classes only.
+Bulk entry view: display the full class list in a single form so the teacher marks everyone at once, not one by one.
+Prevent duplicate entries for the same student + class + date + session. Show a clear warning if a record already exists before overwriting.
+Allow retroactive correction with a reason field. Log all corrections in the audit trail.
+
+Staff attendance
+
+Track attendance per staff member per day. Statuses: Present, Absent, On Leave, Half Day.
+Support a leave management sub-feature: leave types (sick, casual, annual), leave balance per staff member per academic year, leave application and approval workflow.
+Admin can view and edit all staff attendance. Staff can view only their own.
+
+Reports for attendance
+
+Monthly attendance summary per student: days present, absent, late — with percentage.
+Class-level attendance report: students attendance on a given date range.
+Staff attendance summary: by month, by staff member, filter by given date range.
+Flag students below a configurable attendance threshold (e.g., below 75%).
+All reports must be exportable as PDF and CSV.
+
+
+Module 2 — Finance
+Student fees
+
+Each FeeStructure belongs to a Class and an AcademicYear. It defines multiple FeeComponents (e.g., tuition(configurable monthly, semester vise or yearly), transport, lab, exam). Each component has a label, amount, and due date.
+Each student gets a FeeRecord generated from the applicable fee structure. A student can have a custom discount or waiver applied at the record level.
+Payments are recorded against a FeeRecord. A single fee record can have multiple partial payments over time.
+Payment fields: amount paid, date, payment method (cash, bank transfer, cheque, online), reference number, received by.
+Auto-calculate the outstanding balance after each payment. Show payment history per student.
+Generate a printable fee receipt per payment with school header, student details, payment breakdown, and receipt number.
+Receipt numbers must be auto-incremented and never reusable.
+
+Staff salary
+
+Each staff member has a SalaryStructure: base pay plus configurable allowances (house, transport, medical) and deductions (tax, provident fund, loan).
+Generate a monthly SalarySlip per staff member per month. It should calculate gross, total deductions, and net payable.
+Record salary disbursements: date paid, payment method, reference.
+Support salary revision history — never overwrite old salary records. Append new structures with a valid-from date.
+Salary slips must be printable and exportable as PDF.
+
+Reports for finance
+
+Outstanding fees report: list of students with unpaid or partially paid balances.
+Collection report: total fees collected in a date range, broken down by class and component.
+Monthly payroll summary: total salary disbursed, pending, by department.
+All financial reports exportable as PDF and CSV.
+
+
+Module 3 — Contacts
+Student contacts
+
+Each student profile contains: full name, date of birth, gender, blood group (optional), photo (optional), admission date, roll number, class assignment, and current status (active, passed-out, withdrawn).
+Each student has one or more Guardians: name, relationship (father, mother, guardian), phone (primary and secondary), email, address, occupation, CNIC or ID number.
+Emergency contact: designate one guardian as the primary emergency contact.
+Sibling linkage: link two or more students as siblings.
+
+Staff contacts
+
+Each staff member profile: full name, date of birth, gender, photo (optional), designation, department, joining date, employment type (permanent, contract, part-time), qualification, CNIC or ID number.
+Contact details: phone (personal and work), email, address.
+Emergency contact: name, relationship, phone.
+Document store per staff member: store scanned copies of qualifications, contracts, ID documents (file uploads, PDF or image).
+
+Directory view
+
+A searchable, filterable directory for both students and staff.
+Filters for students: class, section, gender, status, admission date range.
+Filters for staff: department, designation, employment type, joinning dates range.
+Bulk export of contact list as CSV.
+
+
+Module 4 — Admin dashboard and access
+Dashboard
+The admin dashboard is the first screen after login. It must show a live summary of the school at a glance. Include the following widgets, each pulling real data:
+
+Total students enrolled (current academic year), with a breakdown by class.
+Total active staff count, with a breakdown by department.
+Today's attendance: percentage of students present today school-wide. Show a small sparkline or bar for the last 7 days.
+Today's staff attendance: how many staff are present / absent / on leave today.
+Outstanding fee balance: total unpaid fees across all students right now.
+Recent payments: last 5–10 fee payments received.
+Upcoming fee due dates: any fee components due in the next 7 days.
+Pending leave requests: count of staff leave requests awaiting approval.
+Recent audit log entries: last 10 system actions.
+
+All widgets must refresh without a full page reload. Dashboard data must be computed from actual database queries, never hardcoded or mocked.
+Admin access
+
+Full CRUD on all entities: students, staff, classes, sections, academic years, fee structures, salary structures.
+User management: create system users, assign roles, reset passwords, deactivate accounts. A deactivated user cannot log in.
+Academic year management: define start and end dates, set the current active year, carry forward data selectively.
+Class and section management: create classes, assign sections, assign class teachers.
+System settings: school name, school logo, address, contact info (used in PDF headers and receipts), academic calendar, attendance session configuration.
+Notification or announcement board: admin can post notices visible to other logged-in users on their dashboard.
+
+
+Cross-cutting requirements
+Authentication and session
+
+Secure login with email and password. Hash all passwords. Implement session expiry and remember-me.
+All authenticated routes must verify the session server-side on every request, not just on login.
+Log all login and logout events with timestamp and IP address.
+
+Search
+
+Global search from the top navigation: search students by name or roll number, staff by name. Results should be fast and linked directly to the relevant profile.
+
+Pagination
+
+All list views (students, staff, payments, attendance logs, audit logs) must be paginated. No unbounded list rendering.
+
+Data validation
+
+Validate all inputs server-side regardless of client-side validation. Never trust the client.
+Dates must be validated for logical consistency (e.g., payment date cannot be in the future, leave end date cannot precede start date).
+
+PDF generation
+
+All PDFs (fee receipts, salary slips, attendance reports, finance reports) must include the school name, logo, and address in the header, pulled from system settings. Footer should include generation timestamp and page number.
+
+File uploads
+
+Limit file types to PDF, JPG, PNG and configruable types. Enforce max file size (configurable, default 5 MB). Store files in public/uploads folder i.e files should be organized in respective modules. Never serve user-uploaded files directly without access control.
+
+Error handling
+
+All server errors must return structured error responses, never raw stack traces. Log errors server-side with full context.
+Show user-friendly error messages in the UI. Distinguish between validation errors (field-level) and system errors (toast from sonner(shadcn i.e use shadcn ui entirely in this app)).
+
+Database
+
+Use migrations for all schema changes. Never modify the schema manually.
+Add appropriate indexes on all foreign keys and any column used in a WHERE clause or ORDER BY.
+Seed the database with: one admin user, one sample academic year, at least one class, and system default settings so the app is usable immediately after setup.
+
+
+Implementation sequence (recommended)
+Build in this order to ensure each layer is solid before the next depends on it:
+
+Auth system and RBAC — roles, login, session, route guards.
+Shared entities — Student, Staff, Class, AcademicYear with full CRUD.
+Contacts module — profiles, guardians, directory, search.
+Attendance module — student and staff, bulk entry, reports.
+Finance module — fee structures, payments, receipts, salary, slips.
+Admin dashboard — wire all widgets to real queries last, after all modules have data.
+Audit log — instrument all mutations once the core modules are stable.
+PDF exports and file upload handling.
+System settings and user management.
+
+
+Things to avoid
+
+Do not hardcode school name, logo, or any institution-specific content anywhere in code. These must come from system settings.
+Do not use the same model or table for students and staff — they are fundamentally different entities.
+Do not skip soft deletes. Hard deletes will break historical records (e.g., deleting a student should not remove their past attendance or payment history i.e use is_deleted column).
+Do not generate reports by loading all rows into memory and filtering in code — filter and aggregate at the database level.
+Do not allow any route that modifies data to work without CSRF protection.

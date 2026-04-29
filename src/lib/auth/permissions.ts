@@ -1,47 +1,100 @@
-import { auth } from '@/auth';
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers";
 
-import prisma from '@/lib/prisma';
-import { ADMIN_STEP_UP_COOKIE_NAME, hasValidAdminStepUpToken } from '@/lib/security/step-up';
+import { getSessionUser } from "@/lib/auth/session";
+
+import { SESSION_COOKIE_NAME } from "@/lib/constants";
 
 export class UnauthorizedError extends Error {
-  constructor(message = 'Unauthorized') {
+  constructor(message = "Unauthorized") {
     super(message);
-    this.name = 'UnauthorizedError';
+    this.name = "UnauthorizedError";
   }
 }
 
 export class ForbiddenError extends Error {
-  constructor(message = 'Forbidden') {
+  constructor(message = "Forbidden") {
     super(message);
-    this.name = 'ForbiddenError';
+    this.name = "ForbiddenError";
   }
 }
 
-export async function checkUserPermission(userId: string, permission: string): Promise<boolean> {
-  const hasSuperAdminRole = await prisma.userRole.count({
-    where: {
-      userId,
-      role: {
-        name: 'SUPER_ADMIN',
-      },
-      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-    },
-  });
+type SessionUser = NonNullable<Awaited<ReturnType<typeof getSessionUser>>>;
 
-  if (hasSuperAdminRole > 0) {
-    return true;
+/**
+ * Get the currently authenticated user from the session cookie.
+ * Returns null if not authenticated.
+ */
+export async function getCurrentUser(): Promise<SessionUser | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+
+  if (!token) {
+    return null;
   }
 
-  const rolePermissionCount = await prisma.userRole.count({
+  return getSessionUser(token);
+}
+
+/**
+ * Require authentication. Throws UnauthorizedError if not logged in.
+ */
+export async function requireAuth(): Promise<SessionUser> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new UnauthorizedError();
+  }
+
+  return user;
+}
+
+/**
+ * Require a specific role. Throws ForbiddenError if the user doesn't have it.
+ * Admin always has access to everything.
+ */
+export async function requireRole(
+  ...allowedRoles: string[]
+): Promise<SessionUser> {
+  const user = await requireAuth();
+
+  // Admin has unrestricted access
+  if (user.roles.includes("ADMIN")) {
+    return user;
+  }
+
+  const hasRole = user.roles.some((role) => allowedRoles.includes(role));
+
+  if (!hasRole) {
+    throw new ForbiddenError();
+  }
+
+  return user;
+}
+
+/**
+ * Check if the user has permission based on the permission name.
+ * Uses the RolePermission table to verify.
+ */
+export async function requirePermission(
+  permissionName: string,
+): Promise<SessionUser> {
+  const user = await requireAuth();
+
+  // Admin has all permissions
+  if (user.roles.includes("ADMIN")) {
+    return user;
+  }
+
+  const { default: prisma } = await import("@/lib/prisma");
+
+  const permissionCount = await prisma.userRole.count({
     where: {
-      userId,
-      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      userId: user.id,
       role: {
         permissions: {
           some: {
             permission: {
-              name: permission,
+              name: permissionName,
             },
           },
         },
@@ -49,49 +102,72 @@ export async function checkUserPermission(userId: string, permission: string): P
     },
   });
 
-  return rolePermissionCount > 0;
-}
-
-export async function requirePermission(permission: string) {
-  const session = await auth();
-
-  if (!session?.user?.id) {
-    throw new UnauthorizedError();
-  }
-
-  const hasPermission = await checkUserPermission(session.user.id, permission);
-
-  if (!hasPermission) {
+  if (permissionCount === 0) {
     throw new ForbiddenError();
   }
 
-  return session;
+  return user;
 }
 
-export async function requireAdminStepUp(userId: string): Promise<void> {
+/**
+ * Check if the current user is a teacher assigned to a specific class.
+ */
+export function isTeacherForClass(
+  user: SessionUser,
+  classId: string,
+  sectionId?: string | null,
+): boolean {
+  if (user.roles.includes("ADMIN")) {
+    return true;
+  }
+
+  if (!user.assignedClasses || user.assignedClasses.length === 0) {
+    return false;
+  }
+
+  return user.assignedClasses.some((assignment) => {
+    if (assignment.classId !== classId) {
+      return false;
+    }
+    if (
+      sectionId &&
+      assignment.sectionId &&
+      assignment.sectionId !== sectionId
+    ) {
+      return false;
+    }
+    return true;
+  });
+}
+
+/**
+ * Check if a user has a specific permission (non-throwing)
+ */
+export async function hasPermission(
+  userId: string,
+  permissionName: string,
+): Promise<boolean> {
+  const { default: prisma } = await import("@/lib/prisma");
+
+  // Get user with roles
   const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { roles: { include: { role: true } } },
+  });
+
+  if (!user) return false;
+
+  // Admin always has permission
+  if (user.roles.some((ur) => ur.role.name === "ADMIN")) return true;
+
+  const count = await prisma.rolePermission.count({
     where: {
-      id: userId,
-    },
-    select: {
-      mfaEnabled: true,
+      permission: { name: permissionName },
+      role: {
+        users: { some: { userId } },
+      },
     },
   });
 
-  if (!user?.mfaEnabled) {
-    throw new ForbiddenError('MFA enrollment required for this action.');
-  }
-
-  const cookieStore = await cookies();
-  const stepUpToken = cookieStore.get(ADMIN_STEP_UP_COOKIE_NAME)?.value ?? '';
-
-  if (!stepUpToken) {
-    throw new ForbiddenError('MFA step-up is required for this action.');
-  }
-
-  const hasStepUp = await hasValidAdminStepUpToken(userId, stepUpToken);
-
-  if (!hasStepUp) {
-    throw new ForbiddenError('MFA step-up is required for this action.');
-  }
+  return count > 0;
 }

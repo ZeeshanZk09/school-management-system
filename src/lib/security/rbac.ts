@@ -1,63 +1,66 @@
-import prisma from '@/lib/prisma';
+import prisma from "@/lib/prisma";
 
 export const ROLE_NAMES = {
-  SUPER_ADMIN: 'SUPER_ADMIN',
-  ADMIN: 'ADMIN',
-  MANAGER: 'MANAGER',
-  USER: 'USER',
+  ADMIN: "ADMIN",
+  ACCOUNTANT: "ACCOUNTANT",
+  TEACHER: "TEACHER",
 } as const;
 
-export const ADMIN_ROLE_NAMES = [ROLE_NAMES.SUPER_ADMIN, ROLE_NAMES.ADMIN] as const;
+export type RoleName = (typeof ROLE_NAMES)[keyof typeof ROLE_NAMES];
 
-export async function userHasRole(userId: string, roleName: string): Promise<boolean> {
-  const roleCount = await prisma.userRole.count({
+export async function userHasRole(
+  userId: string,
+  roleName: string,
+): Promise<boolean> {
+  const count = await prisma.userRole.count({
     where: {
       userId,
-      role: {
-        name: roleName,
-      },
-      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      role: { name: roleName },
     },
   });
 
-  return roleCount > 0;
+  return count > 0;
 }
 
 export async function userHasAnyRole(
   userId: string,
-  roleNames: readonly string[]
+  roleNames: readonly string[],
 ): Promise<boolean> {
-  const roleCount = await prisma.userRole.count({
+  const count = await prisma.userRole.count({
     where: {
       userId,
-      role: {
-        name: {
-          in: [...roleNames],
-        },
-      },
-      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      role: { name: { in: [...roleNames] } },
     },
   });
 
-  return roleCount > 0;
+  return count > 0;
+}
+
+export async function getUserRoles(userId: string): Promise<string[]> {
+  const roles = await prisma.userRole.findMany({
+    where: { userId },
+    select: {
+      role: {
+        select: { name: true },
+      },
+    },
+  });
+
+  return roles.map((r) => r.role.name);
 }
 
 export async function assignRoleToUser(
   userId: string,
   roleName: string,
-  assignedById?: string
+  assignedById?: string,
 ): Promise<void> {
   const role = await prisma.role.findUnique({
-    where: {
-      name: roleName,
-    },
-    select: {
-      id: true,
-    },
+    where: { name: roleName },
+    select: { id: true },
   });
 
   if (!role) {
-    throw new Error(`Role ${roleName} does not exist`);
+    throw new Error(`Role "${roleName}" does not exist`);
   }
 
   await prisma.userRole.upsert({
@@ -74,7 +77,24 @@ export async function assignRoleToUser(
     },
     update: {
       assignedById,
-      expiresAt: null,
     },
+  });
+}
+
+export async function removeRoleFromUser(
+  userId: string,
+  roleName: string,
+): Promise<void> {
+  const role = await prisma.role.findUnique({
+    where: { name: roleName },
+    select: { id: true },
+  });
+
+  if (!role) {
+    return;
+  }
+
+  await prisma.userRole.deleteMany({
+    where: { userId, roleId: role.id },
   });
 }
