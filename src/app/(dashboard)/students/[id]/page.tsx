@@ -25,6 +25,7 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
   await requirePermission('students.read');
   const { id } = await params;
 
+  // Fetch student with related data
   const student = await prisma.student.findUnique({
     where: { id, isDeleted: false },
     include: {
@@ -94,40 +95,24 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
         </div>
         <div className='flex items-center gap-2'>
           <Button variant='outline' asChild className='h-10'>
-            <Link href={`/students/${student.id}/edit`}>
+            <Link href={`/students/new?edit=true&studentId=${student.id}`}>
               <Edit className='mr-2 h-4 w-4' />
               Edit Profile
             </Link>
           </Button>
-          <Button className='gradient-primary h-10 shadow-md'>Generate Report</Button>
+          <Button className='gradient-primary h-10 shadow-md' asChild>
+            <Link href={`/students/${student.id}/finance`}>Generate Report</Link>
+          </Button>
         </div>
       </div>
 
-      <Tabs defaultValue='overview' className='w-full'>
-        <TabsList className='bg-transparent border-b rounded-none h-auto p-0 gap-8'>
-          <TabsTrigger
-            value='overview'
-            className='rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 pb-3 font-semibold transition-all'
-          >
-            Overview
-          </TabsTrigger>
-          <TabsTrigger
-            value='guardians'
-            className='rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 pb-3 font-semibold transition-all'
-          >
-            Guardians & Family
-          </TabsTrigger>
-          <TabsTrigger
-            value='attendance'
-            className='rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 pb-3 font-semibold transition-all'
-          >
-            Attendance
-          </TabsTrigger>
-          <TabsTrigger
-            value='finance'
-            className='rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 pb-3 font-semibold transition-all'
-          >
-            Fees & Payments
+      <Tabs defaultValue='overview' className='flex flex-col w-full'>
+        <TabsList className='bg-transparent border-b rounded-none h-auto p-2 gap-8'>
+          <TabsTrigger value='overview'>Overview</TabsTrigger>
+          <TabsTrigger value='guardians'>Guardians & Family</TabsTrigger>
+          <TabsTrigger value='attendance'>Attendance</TabsTrigger>
+          <TabsTrigger value='finance' asChild>
+            <Link href={`/students/${student.id}/finance`}>Fees & Payments</Link>
           </TabsTrigger>
         </TabsList>
 
@@ -214,7 +199,7 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
           </div>
 
           <div className='space-y-6'>
-            <Card className='border-none shadow-sm glass bg-gradient-to-br from-primary/5 to-transparent'>
+            <Card className='border-none shadow-sm glass bg-linear-to-br from-primary/5 to-transparent'>
               <CardHeader>
                 <CardTitle className='text-sm font-bold flex items-center gap-2 uppercase tracking-wider'>
                   <History className='h-4 w-4 text-primary' />
@@ -346,12 +331,6 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
         <TabsContent value='attendance' className='pt-6'>
           <Card className='border-none shadow-sm glass h-64 flex items-center justify-center text-slate-400 italic'>
             Detailed attendance history will be implemented in Phase 4.
-          </Card>
-        </TabsContent>
-
-        <TabsContent value='finance' className='pt-6'>
-          <Card className='border-none shadow-sm glass h-64 flex items-center justify-center text-slate-400 italic'>
-            Financial records will be implemented in Phase 5.
           </Card>
         </TabsContent>
       </Tabs>

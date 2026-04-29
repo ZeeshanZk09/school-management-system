@@ -29,14 +29,25 @@ type FeeRecordStatus = "OPEN" | "PARTIALLY_PAID" | "PAID" | "OVERDUE";
 
 export default async function FeeRecordsPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ query?: string; status?: string }>;
-}) {
+}>) {
   await requirePermission("finance.read");
   const params = await searchParams;
   const query = params.query || "";
   const status = params.status || "";
   const settings = await getSystemSettings();
+  const getStatusBadgeClass = (recordStatus: FeeRecordStatus) => {
+    if (recordStatus === "PAID") {
+      return "bg-emerald-100 text-emerald-700 border-none";
+    }
+
+    if (recordStatus === "PARTIALLY_PAID") {
+      return "bg-amber-100 text-amber-700 border-none";
+    }
+
+    return "bg-rose-100 text-rose-700 border-none";
+  };
 
   const records = await prisma.feeRecord.findMany({
     where: {
@@ -232,15 +243,7 @@ export default async function FeeRecordsPage({
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      className={
-                        record.status === "PAID"
-                          ? "bg-emerald-100 text-emerald-700 border-none"
-                          : record.status === "PARTIALLY_PAID"
-                            ? "bg-amber-100 text-amber-700 border-none"
-                            : "bg-rose-100 text-rose-700 border-none"
-                      }
-                    >
+                    <Badge className={getStatusBadgeClass(record.status)}>
                       {record.status.replace("_", " ")}
                     </Badge>
                   </TableCell>

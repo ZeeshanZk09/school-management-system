@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @plugin "tailwindcss-animate";
 
@@ -32,6 +32,12 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 
+  --color-contrast: var(--contrast);
+  --color-contrast-foreground: var(--contrast-foreground);
+  --color-contrast-muted: var(--contrast-muted);
+  --color-contrast-strong: var(--contrast-strong);
+  --color-contrast-deep: var(--contrast-deep);
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -57,14 +63,6 @@
   }
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
@@ -77,48 +75,78 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 210 30% 97%;
+    --foreground: 222 47% 8%;
+
+    /* ✅ FIX: Card & Popover — solid, no transparency */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --card-foreground: 222 47% 8%;
+    --popover: 0 0% 100%; /* pure white — dropdown fix */
+    --popover-foreground: 222 47% 8%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 18%;
+
+    --muted: 214 28% 93%;
+    --muted-foreground: 215 16% 42%;
+
+    --accent: 28 95% 52%; /* amber accent = contrast */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 24% 87%;
+    --input: 214 24% 87%;
+    --ring: 221 83% 53%;
     --radius: 0.5rem;
+
+    /* Contrast — Warm Amber */
+    --contrast: 28 95% 52%;
+    --contrast-foreground: 0 0% 100%;
+    --contrast-muted: 30 90% 93%;
+    --contrast-strong: 20 100% 42%;
+    --contrast-deep: 15 100% 35%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --background: 222 28% 7%;
+    --foreground: 210 35% 95%;
+
+    /* ✅ FIX: Card & Popover dark — fully opaque */
+    --card: 222 25% 11%;
+    --card-foreground: 210 35% 95%;
+    --popover: 222 25% 11%; /* solid dark — dropdown fix */
+    --popover-foreground: 210 35% 95%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 8%;
+
+    --secondary: 217 28% 17%;
+    --secondary-foreground: 210 35% 90%;
+
+    --muted: 217 28% 14%;
+    --muted-foreground: 215 18% 58%;
+
+    --accent: 35 100% 58%; /* brighter amber in dark */
+    --accent-foreground: 20 50% 8%;
+
+    --destructive: 0 63% 38%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 22% 20%;
+    --input: 217 22% 20%;
+    --ring: 224 76% 52%;
+
+    /* Contrast — Glowing Amber */
+    --contrast: 35 100% 58%;
+    --contrast-foreground: 20 50% 8%;
+    --contrast-muted: 28 55% 16%;
+    --contrast-strong: 40 100% 65%;
+    --contrast-deep: 25 95% 48%;
   }
 }
 
@@ -131,15 +159,69 @@
   }
 }
 
-/* Premium Animations & Glassmorphism */
+/* ─── Dropdown / Popover Fix ─────────────────────────────── */
+/*
+  Radix UI aur shadcn dropdown transparent dikhte hain jab
+  popover variable transparent hota hai. Yeh rules ensure
+  karte hain ke sab popover/dropdown solid background lein.
+*/
+[data-radix-popper-content-wrapper],
+[role='listbox'],
+[role='menu'],
+[role='dialog'],
+[cmdk-root],
+.dropdown-content {
+  background-color: hsl(var(--popover)) !important;
+  color: hsl(var(--popover-foreground));
+  border: 1px solid hsl(var(--border));
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* ─── Contrast utility classes ──────────────────────────── */
+.bg-contrast {
+  background-color: hsl(var(--contrast));
+}
+.text-contrast {
+  color: hsl(var(--contrast));
+}
+.border-contrast {
+  border-color: hsl(var(--contrast));
+}
+.bg-contrast-muted {
+  background-color: hsl(var(--contrast-muted));
+}
+.text-contrast-strong {
+  color: hsl(var(--contrast-strong));
+}
+.bg-contrast-strong {
+  background-color: hsl(var(--contrast-strong));
+}
+
+/* ─── Glassmorphism ─────────────────────────────────────── */
 .glass {
-  @apply bg-white/70 dark:bg-black/70 backdrop-blur-md border border-white/20 dark:border-white/10;
+  @apply bg-white/80 dark:bg-black/60 backdrop-blur-md border border-white/30 dark:border-white/10;
 }
 
+/* ─── Hover lift ────────────────────────────────────────── */
 .hover-lift {
-  @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg;
+  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
 }
 
+/* ─── Gradients ─────────────────────────────────────────── */
 .gradient-primary {
-  @apply bg-gradient-to-br from-blue-600 to-indigo-700;
+  background: linear-gradient(135deg, hsl(221 83% 53%), hsl(238 68% 54%));
+}
+
+.gradient-contrast {
+  background: linear-gradient(135deg, hsl(var(--contrast)), hsl(var(--contrast-strong)));
+}
+
+.gradient-mixed {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--contrast)));
+}
+
+.gradient-subtle {
+  background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--secondary)));
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Save, School } from "lucide-react";
+import { Loader2, Mail, Save, School } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -134,6 +134,53 @@ export default function SettingsPage({ initialData }: { initialData: any }) {
                   defaultValue={initialData?.addressLine2}
                   className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm glass md:col-span-2">
+            <CardHeader className="border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Mail className="h-5 w-5 text-primary" />
+                <CardTitle className="text-xl font-bold font-outfit">
+                  Email Configuration (SMTP)
+                </CardTitle>
+              </div>
+              <CardDescription>
+                Configure Gmail SMTP for sending password reset emails and
+                notifications. Use a Gmail App Password (not your regular
+                password).
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 grid gap-6 md:grid-cols-2">
+              <div className="grid gap-2">
+                <Label htmlFor="smtpEmail">SMTP Email</Label>
+                <Input
+                  id="smtpEmail"
+                  name="smtpEmail"
+                  type="email"
+                  defaultValue={initialData?.smtpEmail || ""}
+                  placeholder="school@gmail.com"
+                  className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="smtpAppPassword">App Password</Label>
+                <Input
+                  id="smtpAppPassword"
+                  name="smtpAppPassword"
+                  type="password"
+                  placeholder={
+                    initialData?.smtpAppPassword
+                      ? "••••••••••••••••"
+                      : "Enter Gmail App Password"
+                  }
+                  className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
+                />
+                <p className="text-xs text-slate-400">
+                  Generate an App Password from your Google Account → Security →
+                  2-Step Verification → App Passwords.
+                </p>
               </div>
             </CardContent>
           </Card>

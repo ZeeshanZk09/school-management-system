@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { getSessionUser } from "@/lib/auth/session";
 
@@ -36,13 +37,13 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 }
 
 /**
- * Require authentication. Throws UnauthorizedError if not logged in.
+ * Require authentication. Redirects to /login if not logged in.
  */
 export async function requireAuth(): Promise<SessionUser> {
   const user = await getCurrentUser();
 
   if (!user) {
-    throw new UnauthorizedError();
+    redirect("/login");
   }
 
   return user;

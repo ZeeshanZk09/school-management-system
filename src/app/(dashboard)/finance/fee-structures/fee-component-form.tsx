@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +37,9 @@ export function FeeComponentForm({
   const [errors, setErrors] = useState<any>({});
   const router = useRouter();
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsPending(true);
@@ -65,6 +68,10 @@ export function FeeComponentForm({
       }
     }
   };
+
+  if (!isMounted) {
+    return <>{children}</>;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

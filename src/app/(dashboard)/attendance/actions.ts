@@ -1,9 +1,9 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
-import { writeAuditLog } from "@/lib/audit";
-import { requirePermission } from "@/lib/auth/permissions";
-import prisma from "@/lib/prisma";
+import { revalidatePath } from 'next/cache';
+import { writeAuditLog } from '@/lib/audit';
+import { requirePermission } from '@/lib/auth/permissions';
+import prisma from '@/lib/prisma';
 
 export async function recordAttendance(data: {
   classId: string;
@@ -13,11 +13,11 @@ export async function recordAttendance(data: {
   attendanceDate: string;
   records: {
     studentId: string;
-    status: "PRESENT" | "ABSENT" | "LATE" | "EXCUSED";
+    status: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED';
     note?: string;
   }[];
 }) {
-  const user = await requirePermission("attendance.manage");
+  const user = await requirePermission('attendance.manage');
 
   try {
     const attendanceDate = new Date(data.attendanceDate);
@@ -56,37 +56,38 @@ export async function recordAttendance(data: {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: "UPDATE",
-      tableName: "StudentAttendance",
+      action: 'UPDATE',
+      tableName: 'StudentAttendance',
       recordId: `${data.classId}_${data.sectionId}_${data.attendanceDate}`,
       newValue: { count: data.records.length },
     });
 
-    revalidatePath("/attendance");
+    revalidatePath('/attendance');
     return { success: true };
   } catch (error) {
-    console.error("Attendance Error:", error);
-    return { success: false, message: "Failed to record attendance" };
+    console.error('Attendance Error:', error);
+    return { success: false, message: 'Failed to record attendance' };
   }
 }
 
 export async function exportAttendanceCSV(
-  type: "student" | "staff",
+  type: 'student' | 'staff',
   month: number,
   year: number,
-  classId?: string,
+  classId?: string
 ) {
   try {
-    await requirePermission("attendance.manage");
-    const { startOfMonth, endOfMonth, format } = await import("date-fns");
-    const Papa = (await import("papaparse")).default;
+    await requirePermission('attendance.manage');
+    const { startOfMonth: startOfMonthFn, endOfMonth: endOfMonthFn } = await import('date-fns');
+    const Papa = (await import('papaparse')).default;
 
-    const startDate = startOfMonth(new Date(year, month - 1));
-    const endDate = endOfMonth(startDate);
+    const startDate = startOfMonthFn(new Date(year, month - 1));
+    const endDate = endOfMonthFn(startDate);
 
-    let data: any[] = [];
+    type AttendanceData = Record<string, string | number>;
+    let data: AttendanceData[] = [];
 
-    if (type === "student" && classId) {
+    if (type === 'student' && classId) {
       const students = await prisma.student.findMany({
         where: {
           isDeleted: false,
@@ -103,17 +104,15 @@ export async function exportAttendanceCSV(
       });
 
       data = students.map((s) => {
-        const present = s.attendance.filter(
-          (a) => a.status === "PRESENT",
-        ).length;
-        const absent = s.attendance.filter((a) => a.status === "ABSENT").length;
+        const present = s.attendance.filter((a) => a.status === 'PRESENT').length;
+        const absent = s.attendance.filter((a) => a.status === 'ABSENT').length;
         const total = s.attendance.length;
         return {
           Name: s.fullName,
           Present: present,
           Absent: absent,
-          "Total Sessions": total,
-          "Attendance %": total > 0 ? Math.round((present / total) * 100) : 0,
+          'Total Sessions': total,
+          'Attendance %': total > 0 ? Math.round((present / total) * 100) : 0,
         };
       });
     } else {
@@ -130,23 +129,24 @@ export async function exportAttendanceCSV(
       });
 
       data = staff.map((s) => {
-        const present = s.attendance.filter(
-          (a) => a.status === "PRESENT",
-        ).length;
-        const absent = s.attendance.filter((a) => a.status === "ABSENT").length;
+        const present = s.attendance.filter((a) => a.status === 'PRESENT').length;
+        const absent = s.attendance.filter((a) => a.status === 'ABSENT').length;
         return {
           Name: s.fullName,
           Designation: s.designation,
           Present: present,
           Absent: absent,
-          Leave: s.attendance.filter((a) => a.status === "ON_LEAVE").length,
+          Leave: s.attendance.filter((a) => a.status === 'ON_LEAVE').length,
         };
       });
     }
 
     const csv = Papa.unparse(data);
     return { success: true, csv };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { success: false, message: error.message };
+    }
+    return { success: false, message: 'Failed to generate report' };
   }
 }

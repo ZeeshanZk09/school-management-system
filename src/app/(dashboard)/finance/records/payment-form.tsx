@@ -36,10 +36,10 @@ export type PaymentRecord = {
 export function PaymentForm({
   children,
   record,
-}: {
+}: Readonly<{
   children: React.ReactNode;
   record: PaymentRecord;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [errors, setErrors] = useState<string | undefined>("");
@@ -67,7 +67,7 @@ export function PaymentForm({
       setOpen(false);
       router.refresh();
     } else {
-      if (!result.success && result.message) {
+      if (result.message) {
         setErrors(result.message);
       } else {
         toast.error("Something went wrong");

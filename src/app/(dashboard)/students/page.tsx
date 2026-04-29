@@ -1,16 +1,9 @@
-import {
-  ChevronRight,
-  Filter,
-  GraduationCap,
-  MoreHorizontal,
-  Search,
-  UserPlus,
-} from "lucide-react";
-import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
+import { ChevronRight, GraduationCap, MoreHorizontal, Search, UserPlus } from 'lucide-react';
+import Link from 'next/link';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,9 +11,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Pagination } from "@/components/ui/pagination";
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
 import {
   Table,
   TableBody,
@@ -28,31 +21,59 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { requirePermission } from "@/lib/auth/permissions";
-import prisma from "@/lib/prisma";
+} from '@/components/ui/table';
+import { requirePermission } from '@/lib/auth/permissions';
+import prisma from '@/lib/prisma';
+import { StudentActions } from './student-actions';
+import { StudentFilters } from './student-filters';
+import { StudentStatus } from '@/lib/generated/prisma/enums';
 
 export default async function StudentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ query?: string; page?: string; pageSize?: string }>;
+  searchParams: Promise<{
+    query?: string;
+    page?: string;
+    pageSize?: string;
+    status?: string;
+    classId?: string;
+    sectionId?: string;
+  }>;
 }) {
-  await requirePermission("students.read");
+  await requirePermission('students.read');
   const params = await searchParams;
-  const query = params.query || "";
+  const query = params.query || '';
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;
   const skip = (page - 1) * pageSize;
+  const status = params.status as StudentStatus | undefined;
+  const classId = params.classId;
+  const sectionId = params.sectionId;
 
-  const [students, totalCount] = await Promise.all([
-    prisma.student.findMany({
-      where: {
-        isDeleted: false,
-        OR: [
-          { fullName: { contains: query, mode: "insensitive" } },
-          { admissionNumber: { contains: query, mode: "insensitive" } },
-        ],
+  // Base where clause
+  const where: any = {
+    isDeleted: false,
+    ...(status && { status }),
+    ...(query && {
+      OR: [
+        { fullName: { contains: query, mode: 'insensitive' } },
+        { admissionNumber: { contains: query, mode: 'insensitive' } },
+      ],
+    }),
+    ...((classId || sectionId) && {
+      enrollments: {
+        some: {
+          academicYear: { isActive: true },
+          ...(classId && { classId }),
+          ...(sectionId && { sectionId }),
+        },
       },
+    }),
+  };
+
+  const [students, totalCount, classes, sections] = await Promise.all([
+    prisma.student.findMany({
+      where,
       include: {
         enrollments: {
           where: { academicYear: { isActive: true } },
@@ -62,81 +83,80 @@ export default async function StudentsPage({
           },
         },
       },
-      orderBy: { fullName: "asc" },
+      orderBy: { fullName: 'asc' },
       skip,
       take: pageSize,
     }),
-    prisma.student.count({
-      where: {
-        isDeleted: false,
-        OR: [
-          { fullName: { contains: query, mode: "insensitive" } },
-          { admissionNumber: { contains: query, mode: "insensitive" } },
-        ],
-      },
+    prisma.student.count({ where }),
+    prisma.class.findMany({
+      where: { isDeleted: false },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.section.findMany({
+      where: { isDeleted: false },
+      select: { id: true, name: true, classId: true },
+      orderBy: { name: 'asc' },
     }),
   ]);
 
   const _totalPages = Math.ceil(totalCount / pageSize);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Student Directory
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400">
+    <div className='space-y-6 animate-in fade-in duration-500'>
+      <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
+        <div className='space-y-1'>
+          <h1 className='text-3xl font-bold tracking-tight font-outfit'>Student Directory</h1>
+          <p className='text-slate-500 dark:text-slate-400'>
             View and manage all students enrolled in the system.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="h-10">
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-          </Button>
-          <Button asChild className="gradient-primary h-10 shadow-md">
-            <Link href="/students/new">
-              <UserPlus className="mr-2 h-4 w-4" />
+        <div className='flex items-center gap-2'>
+          <StudentFilters
+            classes={classes}
+            sections={sections}
+            statuses={Object.values(StudentStatus)}
+          />
+          <Button asChild className='gradient-primary h-10 shadow-md'>
+            <Link href='/students/new'>
+              <UserPlus className='mr-2 h-4 w-4' />
               Add Student
             </Link>
           </Button>
         </div>
       </div>
 
-      <Card className="border-none shadow-sm glass overflow-hidden">
-        <CardHeader className="pb-0 pt-6 px-6">
-          <div className="relative w-full max-w-sm mb-4">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <form action="/students" method="GET">
+      <Card className='border-none shadow-sm glass overflow-hidden'>
+        <CardHeader className='pb-0 pt-6 px-6'>
+          <div className='relative w-full max-w-sm mb-4'>
+            <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400' />
+            <form action='/students' method='GET'>
               <Input
-                name="query"
+                name='query'
                 defaultValue={query}
-                placeholder="Search by name or admission #..."
-                className="pl-10 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-none"
+                placeholder='Search by name or admission #...'
+                className='pl-10 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-none'
               />
             </form>
           </div>
         </CardHeader>
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50/50 dark:bg-slate-900/50 border-y">
-              <TableHead className="w-[300px]">Student</TableHead>
+            <TableRow className='bg-slate-50/50 dark:bg-slate-900/50 border-y'>
+              <TableHead className='w-[300px]'>Student</TableHead>
               <TableHead>Admission #</TableHead>
               <TableHead>Class / Section</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className='text-right'>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {students.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-64 text-center">
-                  <div className="flex flex-col items-center justify-center space-y-2">
-                    <GraduationCap className="h-10 w-10 text-slate-300" />
-                    <p className="text-slate-500 font-medium">
-                      No students found.
-                    </p>
+                <TableCell colSpan={5} className='h-64 text-center'>
+                  <div className='flex flex-col items-center justify-center space-y-2'>
+                    <GraduationCap className='h-10 w-10 text-slate-300' />
+                    <p className='text-slate-500 font-medium'>No students found.</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -146,108 +166,79 @@ export default async function StudentsPage({
                 return (
                   <TableRow
                     key={student.id}
-                    className="group hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors"
+                    className='group hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors'
                   >
                     <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 ring-2 ring-primary/5">
-                          <AvatarImage src="" />
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold uppercase">
+                      <div className='flex items-center gap-3'>
+                        <Avatar className='h-9 w-9 ring-2 ring-primary/5'>
+                          <AvatarImage src='' />
+                          <AvatarFallback className='bg-primary/10 text-primary text-xs font-bold uppercase'>
                             {student.fullName
-                              .split(" ")
+                              .split(' ')
                               .map((n) => n[0])
-                              .join("")
+                              .join('')
                               .slice(0, 2)}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-slate-900 dark:text-white leading-tight">
+                        <div className='flex flex-col'>
+                          <span className='font-semibold text-slate-900 dark:text-white leading-tight'>
                             {student.fullName}
                           </span>
-                          <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">
+                          <span className='text-[10px] text-slate-500 uppercase tracking-wider font-medium'>
                             {student.gender}
                           </span>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-sm text-slate-600 dark:text-slate-400">
+                    <TableCell className='font-mono text-sm text-slate-600 dark:text-slate-400'>
                       {student.admissionNumber}
                     </TableCell>
                     <TableCell>
                       {activeEnrollment ? (
-                        <div className="flex items-center gap-2">
+                        <div className='flex items-center gap-2'>
                           <Badge
-                            variant="outline"
-                            className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+                            variant='outline'
+                            className='bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
                           >
                             {activeEnrollment.class.name}
                           </Badge>
-                          <ChevronRight className="h-3 w-3 text-slate-300" />
+                          <ChevronRight className='h-3 w-3 text-slate-300' />
                           <Badge
-                            variant="outline"
-                            className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+                            variant='outline'
+                            className='bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
                           >
                             {activeEnrollment.section?.name}
                           </Badge>
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">
-                          Not Enrolled
-                        </span>
+                        <span className='text-xs text-slate-400 italic'>Not Enrolled</span>
                       )}
                     </TableCell>
                     <TableCell>
                       <Badge
                         className={
-                          student.status === "ACTIVE"
-                            ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none"
-                            : student.status === "PASSED_OUT"
-                              ? "bg-blue-100 text-blue-700 hover:bg-blue-100 border-none"
-                              : "bg-slate-100 text-slate-700 hover:bg-slate-100 border-none"
+                          student.status === 'ACTIVE'
+                            ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none'
+                            : student.status === 'PASSED_OUT'
+                              ? 'bg-blue-100 text-blue-700 hover:bg-blue-100 border-none'
+                              : 'bg-slate-100 text-slate-700 hover:bg-slate-100 border-none'
                         }
                       >
-                        <div className="h-1.5 w-1.5 rounded-full mr-2 bg-current" />
-                        {student.status.replace("_", " ")}
+                        <div className='h-1.5 w-1.5 rounded-full mr-2 bg-current' />
+                        {student.status.replace('_', ' ')}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <TableCell className='text-right'>
+                      <div className='flex items-center justify-end gap-2'>
                         <Button
                           asChild
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+                          variant='ghost'
+                          size='sm'
+                          className='h-8 px-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity'
                         >
-                          <Link href={`/students/${student.id}`}>
-                            View Profile
-                          </Link>
+                          <Link href={`/students/${student.id}`}>View Profile</Link>
                         </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 p-0"
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                              <Link href={`/students/${student.id}/edit`}>
-                                Edit Details
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>Mark Attendance</DropdownMenuItem>
-                            <DropdownMenuItem>Finance Records</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-rose-600">
-                              Delete Record
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <StudentActions studentId={student.id} />
                       </div>
                     </TableCell>
                   </TableRow>
@@ -256,12 +247,8 @@ export default async function StudentsPage({
             )}
           </TableBody>
         </Table>
-        <div className="px-6 border-t bg-slate-50/30 dark:bg-slate-900/30">
-          <Pagination
-            totalItems={totalCount}
-            pageSize={pageSize}
-            currentPage={page}
-          />
+        <div className='px-6 border-t bg-slate-50/30 dark:bg-slate-900/30'>
+          <Pagination totalItems={totalCount} pageSize={pageSize} currentPage={page} />
         </div>
       </Card>
     </div>

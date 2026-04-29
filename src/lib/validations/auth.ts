@@ -42,3 +42,26 @@ export const changePasswordSchema = z.object({
     .min(8, "New password must be at least 8 characters")
     .max(128),
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, "Email is required")
+    .max(320)
+    .email("Invalid email address"),
+});
+
+export const newPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .max(128),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });

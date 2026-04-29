@@ -9,6 +9,13 @@ import {
   studentSchema,
 } from "@/lib/validations/student";
 
+export type ActionResponse = {
+  success: boolean;
+  message?: string;
+  errors?: Record<string, string[] | undefined>;
+  [key: string]: any;
+};
+
 export async function createStudent(data: any) {
   const user = await requirePermission("students.manage");
 
@@ -133,7 +140,7 @@ export async function deleteStudent(id: string) {
 }
 
 // Guardian Actions
-export async function addGuardian(studentId: string, data: any) {
+export async function addGuardian(studentId: string, data: any): Promise<ActionResponse> {
   const user = await requirePermission("students.manage");
   const { guardianSchema } = await import("@/lib/validations/guardian");
 
@@ -188,7 +195,7 @@ export async function addGuardian(studentId: string, data: any) {
   }
 }
 
-export async function updateGuardian(id: string, studentId: string, data: any) {
+export async function updateGuardian(id: string, studentId: string, data: any): Promise<ActionResponse> {
   const user = await requirePermission("students.manage");
   const { guardianSchema } = await import("@/lib/validations/guardian");
 

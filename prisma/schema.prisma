@@ -102,14 +102,25 @@ enum GuardianRelation {
 }
 
 enum AuditAction {
+  ALL
   CREATE
   UPDATE
   DELETE
+  ERROR
+  RESTORE
+  READ
 }
 
 enum AuthEventType {
   LOGIN
   LOGOUT
+}
+
+enum PasswordResetStatus {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  EXPIRED
 }
 
 model User {
@@ -127,19 +138,21 @@ model User {
   approvalsGiven   User[]     @relation("UserApproval")
 
   roles                      UserRole[]
-  rolesAssigned              UserRole[]           @relation("UserRoleAssignedBy")
+  rolesAssigned              UserRole[]             @relation("UserRoleAssignedBy")
   sessions                   Session[]
   authEvents                 AuthEvent[]
   staff                      Staff?
-  createdAnnouncements       Announcement[]       @relation("AnnouncementCreator")
-  auditEntries               AuditLog[]           @relation("AuditActor")
-  recordedStudentAttendance  StudentAttendance[]  @relation("StudentAttendanceRecordedBy")
-  correctedStudentAttendance StudentAttendance[]  @relation("StudentAttendanceCorrectedBy")
-  recordedStaffAttendance    StaffAttendance[]    @relation("StaffAttendanceRecordedBy")
-  decidedLeaveRequests       LeaveRequest[]       @relation("LeaveRequestDecidedBy")
-  feePayments                FeePayment[]         @relation("FeePaymentReceivedBy")
-  salaryDisbursements        SalaryDisbursement[] @relation("SalaryDisbursementPaidBy")
-  uploadedStaffDocuments     StaffDocument[]      @relation("StaffDocumentUploadedBy")
+  createdAnnouncements       Announcement[]         @relation("AnnouncementCreator")
+  auditEntries               AuditLog[]             @relation("AuditActor")
+  recordedStudentAttendance  StudentAttendance[]    @relation("StudentAttendanceRecordedBy")
+  correctedStudentAttendance StudentAttendance[]    @relation("StudentAttendanceCorrectedBy")
+  recordedStaffAttendance    StaffAttendance[]      @relation("StaffAttendanceRecordedBy")
+  decidedLeaveRequests       LeaveRequest[]         @relation("LeaveRequestDecidedBy")
+  feePayments                FeePayment[]           @relation("FeePaymentReceivedBy")
+  salaryDisbursements        SalaryDisbursement[]   @relation("SalaryDisbursementPaidBy")
+  uploadedStaffDocuments     StaffDocument[]        @relation("StaffDocumentUploadedBy")
+  passwordResetRequests      PasswordResetRequest[]
+  decidedPasswordResets      PasswordResetRequest[] @relation("PasswordResetDecidedBy")
 }
 
 model Role {
@@ -312,6 +325,7 @@ model Staff {
   qualification                String?
   cnic                         String?
   email                        String?
+  phoneNumber                  String?
   personalPhone                String?
   workPhone                    String?
   address                      String?
@@ -364,8 +378,11 @@ model Student {
   gender          Gender        @default(UNSPECIFIED)
   bloodGroup      String?
   photoUrl        String?
+  address         String?
   admissionDate   DateTime
   status          StudentStatus @default(ACTIVE)
+  phoneNumber     String?
+  email           String?
   admissionNumber String        @unique
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -791,6 +808,8 @@ model SystemSettings {
   contactPhone          String?
   allowSelfRegistration Boolean  @default(false)
   attendanceSessions    Json     @default("[\"Morning\", \"Afternoon\"]")
+  smtpEmail             String?
+  smtpAppPassword       String? // encrypted at rest with AES-256-GCM
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }
@@ -828,4 +847,22 @@ model AuditLog {
 
   @@index([tableName, recordId])
   @@index([actorUserId, createdAt])
+}
+
+model PasswordResetRequest {
+  id              String              @id @default(cuid())
+  userId          String
+  newPasswordHash String
+  status          PasswordResetStatus @default(PENDING_APPROVAL)
+  decidedAt       DateTime?
+  decidedByUserId String?
+  decisionNote    String?
+  expiresAt       DateTime
+  createdAt       DateTime            @default(now())
+
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  decidedBy User? @relation("PasswordResetDecidedBy", fields: [decidedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([status, expiresAt])
 }
