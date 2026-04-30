@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { PrismaClient } from "./generated/prisma/client";
 
 declare global {
@@ -6,63 +5,59 @@ declare global {
 }
 
 /**
- * Creates a Prisma Client based on the current environment.
- * Uses Neon serverless adapter in production and standard pg adapter in development.
+ * Optimized Prisma Client Factory
+ * Local: Standard PostgreSQL
+ * Production: Neon Serverless
  */
 function createPrismaClient(): PrismaClient {
   const isProduction = process.env.NODE_ENV === "production";
   
-  // Try to find the connection string from various possible environment variables
+  // Detection logic for Vercel/Neon
   const connectionString = 
     process.env.DATABASE_URL || 
-    process.env.POSTGRES_PRISMA_URL || 
-    process.env.POSTGRES_URL ||
-    process.env.POSTGRES_URL_NON_POOLING;
+    process.env.POSTGRES_URL_NON_POOLING ||
+    process.env.POSTGRES_URL;
 
-  // Extra check to ensure we have a non-empty string
-  if (!connectionString || typeof connectionString !== "string" || connectionString.trim() === "") {
-    console.error("❌ DATABASE_URL is missing or invalid in environment variables.");
-    throw new Error("DATABASE_URL is required to initialize PrismaClient.");
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is missing. Please check your environment variables.");
   }
 
-  // Debug log (masked) to verify presence in production logs
-  console.log(`📡 Initializing Prisma in ${isProduction ? "production" : "development"} mode...`);
-  console.log(`🔗 Connection string detected (length: ${connectionString.length})`);
-
-  if (isProduction) {
+  // --- PRODUCTION FLOW (NEON) ---
+  if (isProduction || connectionString.includes("neon.tech")) {
     try {
-      // Production: use Neon serverless adapter
-      // Using standard imports/require pattern for serverless environments
+      console.log("🚀 Initializing Neon Serverless Client...");
       const { Pool, neonConfig } = require("@neondatabase/serverless");
       const { PrismaNeon } = require("@prisma/adapter-neon");
       const ws = require("ws");
 
       neonConfig.webSocketConstructor = ws;
-
-      // Explicitly passing connectionString to Pool constructor
-      const pool = new Pool({ connectionString: connectionString });
+      
+      const pool = new Pool({ connectionString });
       const adapter = new PrismaNeon(pool);
       
       return new PrismaClient({ adapter });
     } catch (error) {
-      console.error("⚠️ Failed to initialize PrismaNeon adapter:", error);
-      // Fallback to standard adapter will happen below
+      console.error("⚠️ Neon initialization failed, attempting standard PG fallback:", error);
     }
   }
 
+  // --- LOCAL / FALLBACK FLOW (POSTGRESQL) ---
   try {
-    // Development or Fallback: use standard pg adapter
+    console.log("💻 Initializing Standard PostgreSQL Client...");
     const { Pool } = require("pg");
     const { PrismaPg } = require("@prisma/adapter-pg");
 
-    const pool = new Pool({ connectionString: connectionString });
+    // Standard pg pool configuration
+    const pool = new Pool({ 
+      connectionString,
+      // Only enable SSL for external connections (like Neon if accessed from local)
+      ssl: connectionString.includes("neon.tech") ? { rejectUnauthorized: false } : false
+    });
+
     const adapter = new PrismaPg(pool);
-    
     return new PrismaClient({ adapter });
   } catch (error) {
-    console.error("❌ Failed to initialize Prisma with any adapter:", error);
-    // Ultimate fallback for types, though this will likely fail at runtime
-    // if no connection string is provided by environment to the binary engine
+    console.error("❌ All database initialization paths failed.");
     throw error;
   }
 }
