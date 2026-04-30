@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { CalendarDays, DollarSign, FileText, Plus, Settings2, Trash2 } from 'lucide-react';
+import { CalendarDays, DollarSign, FileText, Plus } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

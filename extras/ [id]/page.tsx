@@ -19,7 +19,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { requirePermission } from '@/lib/auth/permissions';
 import prisma from '@/lib/prisma';
 
-export default async function StaffProfilePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function StaffProfilePage({
+  params,
+}: Readonly<{ params: Promise<{ id: string }> }>) {
   await requirePermission('staff.read');
   const { id } = await params;
 
@@ -143,7 +145,7 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
                     Date of Birth
                   </p>
                   <p className='text-sm font-medium'>
-                    {format(new Date(staff.dateOfBirth), 'PPP')}
+                    {format(new Date(staff.dateOfBirth || ''), 'PPP')}
                   </p>
                 </div>
                 <div className='space-y-1'>
@@ -201,7 +203,7 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
           </div>
 
           <div className='space-y-6'>
-            <Card className='border-none shadow-sm glass bg-gradient-to-br from-emerald-500/5 to-transparent'>
+            <Card className='border-none shadow-sm glass bg-linear-to-br from-emerald-500/5 to-transparent'>
               <CardHeader>
                 <CardTitle className='text-sm font-bold uppercase tracking-wider flex items-center gap-2'>
                   <ShieldCheck className='h-4 w-4 text-emerald-600' />
@@ -235,7 +237,7 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
                   </p>
                   <p className='text-xl font-bold text-slate-900 dark:text-white'>
                     {currentSalary
-                      ? `Rs${currentSalary.basePay.toLocaleString()}`
+                      ? `Rs ${currentSalary.basePay.toLocaleString()}`
                       : 'Not Configured'}
                   </p>
                 </div>
@@ -295,17 +297,17 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
                       <div>
                         <CardTitle className='text-base font-bold'>{doc.title}</CardTitle>
                         <Badge variant='secondary' className='text-[10px] uppercase font-bold'>
-                          {doc.documentType}
+                          {doc.mimeType}
                         </Badge>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className='pt-4 flex justify-between items-center'>
                     <p className='text-xs text-slate-500'>
-                      Uploaded {format(new Date(doc.createdAt), 'PP')}
+                      Uploaded {format(new Date(doc.uploadedAt || ''), 'PP')}
                     </p>
                     <Button variant='link' className='text-primary h-auto p-0' asChild>
-                      <a href={doc.fileUrl} target='_blank' rel='noreferrer'>
+                      <a href={doc.filePath} target='_blank' rel='noreferrer'>
                         View Document
                       </a>
                     </Button>
@@ -338,7 +340,7 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
                     <div className='flex justify-between items-end border-b pb-2'>
                       <span className='text-sm text-slate-500'>Base Pay</span>
                       <span className='text-lg font-bold'>
-                        ${currentSalary.basePay.toLocaleString()}
+                        Rs {currentSalary.basePay.toLocaleString()}
                       </span>
                     </div>
                     <div className='space-y-2'>
@@ -351,7 +353,7 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
                           <div key={c.id} className='flex justify-between text-sm'>
                             <span>{c.label}</span>
                             <span className='font-medium text-emerald-600'>
-                              +${c.amount.toLocaleString()}
+                              +Rs {c.amount.toLocaleString()}
                             </span>
                           </div>
                         ))}
@@ -366,7 +368,7 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
                           <div key={c.id} className='flex justify-between text-sm'>
                             <span>{c.label}</span>
                             <span className='font-medium text-rose-600'>
-                              -${c.amount.toLocaleString()}
+                              -Rs {c.amount.toLocaleString()}
                             </span>
                           </div>
                         ))}
@@ -406,7 +408,7 @@ export default async function StaffProfilePage({ params }: { params: Promise<{ i
                             {format(new Date(slip.periodYear, slip.periodMonth - 1), 'MMMM yyyy')}
                           </p>
                           <div className='flex items-center gap-3 text-[10px] uppercase font-bold text-slate-500'>
-                            <span>Net: ${slip.netPay.toLocaleString()}</span>
+                            <span>Net: Rs {slip.netPay.toLocaleString()}</span>
                             {slip.disbursements.length > 0 ? (
                               <Badge className='bg-emerald-50 text-emerald-600 hover:bg-emerald-50 border-none px-1 h-4'>
                                 PAID

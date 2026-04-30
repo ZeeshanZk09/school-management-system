@@ -1,8 +1,9 @@
 import { endOfMonth, format, startOfMonth } from 'date-fns';
-import { Filter } from 'lucide-react';
+import { Filter, PieChart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -25,26 +26,25 @@ import { FinanceExportButtons } from './export-button';
 
 export default async function FinanceReportsPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{
     type?: string;
-    classId?: string;
     month?: string;
     year?: string;
   }>;
-}) {
+}>) {
   await requirePermission('finance.read');
   const params = await searchParams;
   const type = params.type || 'collection';
-  const month = params.month ? parseInt(params.month, 10) : new Date().getMonth() + 1;
-  const year = params.year ? parseInt(params.year, 10) : new Date().getFullYear();
+  const month = params.month ? Number.parseInt(params.month, 10) : new Date().getMonth() + 1;
+  const year = params.year ? Number.parseInt(params.year, 10) : new Date().getFullYear();
 
   const startDate = startOfMonth(new Date(year, month - 1));
   const endDate = endOfMonth(startDate);
   const activeAcademicYear = await getActiveAcademicYear();
 
   let reportData: any[] = [];
-  const totals = { total: 0, pending: 0, collected: 0 };
+  const totals = { total: 0, pending: 0, collected: 0, payroll: 0 };
 
   if (type === 'collection') {
     const payments = await prisma.feePayment.findMany({
@@ -97,6 +97,34 @@ export default async function FinanceReportsPage({
     }));
 
     totals.pending = records.reduce((sum, r) => sum + Number(r.outstandingAmount), 0);
+  } else if (type === 'payroll') {
+    const slips = await prisma.salarySlip.findMany({
+      where: {
+        periodMonth: month,
+        periodYear: year,
+        isDeleted: false,
+      },
+      include: {
+        staff: true,
+        disbursements: { where: { isDeleted: false } },
+      },
+    });
+
+    reportData = slips.map((s) => {
+      const disbursed = s.disbursements.reduce((sum, d) => sum + Number(d.amountPaid), 0);
+      return {
+        id: s.id,
+        staff: s.staff.fullName,
+        department: s.staff.department || 'Unassigned',
+        gross: Number(s.grossPay),
+        deductions: Number(s.totalDeductions),
+        net: Number(s.netPay),
+        disbursed,
+        pending: Number(s.netPay) - disbursed,
+      };
+    });
+
+    totals.payroll = slips.reduce((sum, s) => sum + Number(s.netPay), 0);
   }
 
   return (
@@ -118,33 +146,35 @@ export default async function FinanceReportsPage({
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-        <Card className='border-none shadow-sm glass bg-gradient-to-br from-emerald-500/5 to-transparent'>
+        <Card className='border-none shadow-sm glass bg-linear-to-br from-emerald-500/5 to-transparent'>
           <CardHeader className='pb-2'>
             <CardDescription className='text-[10px] uppercase font-bold tracking-widest text-emerald-600'>
               Total Collected
             </CardDescription>
             <CardTitle className='text-2xl font-black'>
-              ${totals.collected.toLocaleString()}
+              Rs {totals.collected.toLocaleString()}
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className='border-none shadow-sm glass bg-gradient-to-br from-rose-500/5 to-transparent'>
+        <Card className='border-none shadow-sm glass bg-linear-to-br from-rose-500/5 to-transparent'>
           <CardHeader className='pb-2'>
             <CardDescription className='text-[10px] uppercase font-bold tracking-widest text-rose-600'>
               Total Outstanding
             </CardDescription>
             <CardTitle className='text-2xl font-black'>
-              ${totals.pending.toLocaleString()}
+              Rs {totals.pending.toLocaleString()}
             </CardTitle>
           </CardHeader>
         </Card>
         <Card className='border-none shadow-sm glass'>
           <CardHeader className='pb-2'>
             <CardDescription className='text-[10px] uppercase font-bold tracking-widest text-primary'>
-              Active Year
+              {type === 'payroll' ? 'Payroll Total' : 'Active Year'}
             </CardDescription>
             <CardTitle className='text-2xl font-black'>
-              {formatAcademicYearName(activeAcademicYear)}
+              {type === 'payroll' 
+                ? `Rs ${totals.payroll.toLocaleString()}` 
+                : formatAcademicYearName(activeAcademicYear)}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -160,9 +190,14 @@ export default async function FinanceReportsPage({
         <CardContent>
           <form className='flex flex-wrap items-end gap-4'>
             <div className='space-y-2'>
-              <label className='text-xs font-bold text-slate-500 uppercase'>Report Type</label>
+              <Label htmlFor='type' className='text-xs font-bold text-slate-500 uppercase'>
+                Report Type
+              </Label>
               <Select name='type' defaultValue={type}>
-                <SelectTrigger className='w-[200px] bg-white dark:bg-slate-900 border-none shadow-sm'>
+                <SelectTrigger
+                  id='type'
+                  className='w-[200px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -173,11 +208,16 @@ export default async function FinanceReportsPage({
               </Select>
             </div>
 
-            {type === 'collection' && (
+            {(type === 'collection' || type === 'payroll') && (
               <div className='space-y-2'>
-                <label className='text-xs font-bold text-slate-500 uppercase'>Month</label>
+                <Label htmlFor='month' className='text-xs font-bold text-slate-500 uppercase'>
+                  Month
+                </Label>
                 <Select name='month' defaultValue={month.toString()}>
-                  <SelectTrigger className='w-[140px] bg-white dark:bg-slate-900 border-none shadow-sm'>
+                  <SelectTrigger
+                    id='month'
+                    className='w-[140px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -202,11 +242,21 @@ export default async function FinanceReportsPage({
         <Table>
           <TableHeader>
             <TableRow className='bg-slate-50/50 dark:bg-slate-900/50 border-y'>
-              <TableHead>{type === 'collection' ? 'Date' : 'Student'}</TableHead>
-              <TableHead>{type === 'collection' ? 'Student' : 'Class'}</TableHead>
-              <TableHead>{type === 'collection' ? 'Class' : 'Total Due'}</TableHead>
-              <TableHead>{type === 'collection' ? 'Method' : 'Outstanding'}</TableHead>
-              <TableHead className='text-right'>Amount</TableHead>
+              <TableHead>
+                {type === 'collection' ? 'Date' : type === 'outstanding' ? 'Student' : 'Staff'}
+              </TableHead>
+              <TableHead>
+                {type === 'collection' ? 'Student' : type === 'outstanding' ? 'Class' : 'Department'}
+              </TableHead>
+              <TableHead>
+                {type === 'collection' ? 'Class' : type === 'outstanding' ? 'Total Due' : 'Gross Pay'}
+              </TableHead>
+              <TableHead>
+                {type === 'collection' ? 'Method' : type === 'outstanding' ? 'Outstanding' : 'Disbursed'}
+              </TableHead>
+              <TableHead className='text-right'>
+                {type === 'payroll' ? 'Net Payable' : 'Amount'}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -220,28 +270,36 @@ export default async function FinanceReportsPage({
               reportData.map((row) => (
                 <TableRow key={row.id} className='hover:bg-slate-50/50 transition-colors'>
                   <TableCell className='font-medium'>
-                    {type === 'collection' ? format(new Date(row.date), 'PP') : row.student}
+                    {type === 'collection' ? format(new Date(row.date), 'PP') : type === 'outstanding' ? row.student : row.staff}
                   </TableCell>
-                  <TableCell>{type === 'collection' ? row.student : row.class}</TableCell>
                   <TableCell>
-                    {type === 'collection' ? row.class : `Rs${row.total.toLocaleString()}`}
+                    {type === 'collection' ? row.student : type === 'outstanding' ? row.class : row.department}
+                  </TableCell>
+                  <TableCell>
+                    {type === 'collection' ? row.class : type === 'outstanding' ? `Rs ${row.total.toLocaleString()}` : `Rs ${row.gross.toLocaleString()}`}
                   </TableCell>
                   <TableCell>
                     {type === 'collection' ? (
                       <Badge variant='outline' className='text-[10px] font-bold'>
                         {row.method}
                       </Badge>
-                    ) : (
+                    ) : type === 'outstanding' ? (
                       <span className='font-bold text-rose-600'>
-                        ${row.outstanding.toLocaleString()}
+                        Rs {row.outstanding.toLocaleString()}
+                      </span>
+                    ) : (
+                      <span className='text-emerald-600 font-bold'>
+                        Rs {row.disbursed.toLocaleString()}
                       </span>
                     )}
                   </TableCell>
                   <TableCell className='text-right font-black text-slate-900 dark:text-white'>
                     {type === 'collection' ? (
-                      `Rs${row.amount.toLocaleString()}`
-                    ) : (
+                      `Rs ${row.amount.toLocaleString()}`
+                    ) : type === 'outstanding' ? (
                       <Badge className='bg-rose-50 text-rose-600 border-none'>DEBT</Badge>
+                    ) : (
+                      `Rs ${row.net.toLocaleString()}`
                     )}
                   </TableCell>
                 </TableRow>

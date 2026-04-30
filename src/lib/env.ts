@@ -1,16 +1,14 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 const envSchema = z.object({
-  NODE_ENV: z
-    .enum(["development", "test", "production"])
-    .default("development"),
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
-  AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 characters"),
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+  AUTH_SECRET: z.string().min(32, 'AUTH_SECRET must be at least 32 characters'),
   NEXT_PUBLIC_APP_URL: z
     .string()
     .trim()
-    .regex(/^https?:\/\/[^\s]+$/i, "NEXT_PUBLIC_APP_URL must be a valid URL"),
-  LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+    .regex(/^https?:\/\/[^\s]+$/i, 'NEXT_PUBLIC_APP_URL must be a valid URL'),
+  LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 });
 
 const parsedEnv = envSchema.safeParse({
@@ -23,8 +21,8 @@ const parsedEnv = envSchema.safeParse({
 
 if (!parsedEnv.success) {
   const issueList = parsedEnv.error.issues
-    .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-    .join("; ");
+    .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+    .join('; ');
 
   throw new Error(`Invalid environment configuration: ${issueList}`);
 }

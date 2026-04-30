@@ -1,4 +1,4 @@
-type LogLevel = "debug" | "info" | "warn" | "error";
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 type LogContext = {
   userId?: string;
@@ -18,10 +18,10 @@ const levelWeight: Record<LogLevel, number> = {
 
 const configuredLevel: LogLevel = (() => {
   const raw = process.env.LOG_LEVEL?.toLowerCase();
-  if (raw === "debug" || raw === "info" || raw === "warn" || raw === "error") {
+  if (raw === 'debug' || raw === 'info' || raw === 'warn' || raw === 'error') {
     return raw;
   }
-  return "info";
+  return 'info';
 })();
 
 function shouldLog(level: LogLevel): boolean {
@@ -29,7 +29,7 @@ function shouldLog(level: LogLevel): boolean {
 }
 
 function redactValue(value: unknown): unknown {
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return value;
   }
 
@@ -37,12 +37,12 @@ function redactValue(value: unknown): unknown {
     return value.map((entry) => redactValue(entry));
   }
 
-  if (value && typeof value === "object") {
+  if (value && typeof value === 'object') {
     const output: Record<string, unknown> = {};
 
     for (const [key, nestedValue] of Object.entries(value)) {
       if (/password|secret|token|key|hash/i.test(key)) {
-        output[key] = "[REDACTED]";
+        output[key] = '[REDACTED]';
       } else {
         output[key] = redactValue(nestedValue);
       }
@@ -54,11 +54,7 @@ function redactValue(value: unknown): unknown {
   return value;
 }
 
-function writeLog(
-  level: LogLevel,
-  message: string,
-  context: LogContext = {},
-): void {
+function writeLog(level: LogLevel, message: string, context: LogContext = {}): void {
   if (!shouldLog(level)) {
     return;
   }
@@ -72,17 +68,17 @@ function writeLog(
 
   const payload = JSON.stringify(redactValue(logRecord));
 
-  if (level === "error") {
+  if (level === 'error') {
     console.error(payload);
     return;
   }
 
-  if (level === "warn") {
+  if (level === 'warn') {
     console.warn(payload);
     return;
   }
 
-  if (level === "debug") {
+  if (level === 'debug') {
     console.debug(payload);
     return;
   }
@@ -92,15 +88,15 @@ function writeLog(
 
 export const logger = {
   debug(message: string, context?: LogContext) {
-    writeLog("debug", message, context);
+    writeLog('debug', message, context);
   },
   info(message: string, context?: LogContext) {
-    writeLog("info", message, context);
+    writeLog('info', message, context);
   },
   warn(message: string, context?: LogContext) {
-    writeLog("warn", message, context);
+    writeLog('warn', message, context);
   },
   error(message: string, context?: LogContext) {
-    writeLog("error", message, context);
+    writeLog('error', message, context);
   },
 };

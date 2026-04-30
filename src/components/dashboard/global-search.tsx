@@ -6,17 +6,17 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import {
   CommandDialog,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { Staff, Student } from '@/lib/generated/prisma/browser';
 
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<{ students: any[]; staff: any[] }>({
+  const [results, setResults] = useState<{ students: Student[]; staff: Staff[] }>({
     students: [],
     staff: [],
   });
@@ -44,6 +44,7 @@ export function GlobalSearch() {
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
         const data = await res.json();
+        console.log('data: ', data);
         setResults(data);
       } catch (error) {
         console.error('Search failed:', error);
@@ -76,27 +77,36 @@ export function GlobalSearch() {
         </kbd>
       </button>
 
-      <CommandDialog className='min-w-sm min-h-[700px]' open={open} onOpenChange={setOpen}>
+      <CommandDialog
+        className='min-w-sm '
+        open={open}
+        onOpenChange={setOpen}
+        commandProps={{ shouldFilter: false }}
+      >
         <CommandInput
           placeholder='Search students (name/roll#) or staff...'
           onValueChange={setQuery}
         />
         <CommandList className='glass border-none'>
-          <CommandEmpty>
-            {isLoading ? (
-              <div className='flex items-center justify-center py-6'>
-                <Loader2 className='h-6 w-6 animate-spin text-primary' />
-              </div>
-            ) : (
-              'No results found.'
+          {isLoading && (
+            <div className='flex items-center justify-center py-6'>
+              <Loader2 className='h-6 w-6 animate-spin text-primary' />
+            </div>
+          )}
+
+          {!isLoading &&
+            query.length >= 2 &&
+            results.students.length === 0 &&
+            results.staff.length === 0 && (
+              <div className='py-6 text-center text-sm text-slate-500'>No results found.</div>
             )}
-          </CommandEmpty>
 
           {results.students.length > 0 && (
             <CommandGroup heading='Students'>
-              {results.students.map((student: any) => (
+              {results.students.map((student) => (
                 <CommandItem
                   key={student.id}
+                  value={student.fullName}
                   onSelect={() => onSelect(`/students/${student.id}`)}
                   className='flex items-center gap-3 p-3 cursor-pointer'
                 >
@@ -116,9 +126,10 @@ export function GlobalSearch() {
 
           {results.staff.length > 0 && (
             <CommandGroup heading='Staff'>
-              {results.staff.map((staff: any) => (
+              {results.staff.map((staff) => (
                 <CommandItem
                   key={staff.id}
+                  value={staff.fullName}
                   onSelect={() => onSelect(`/staff/${staff.id}`)}
                   className='flex items-center gap-3 p-3 cursor-pointer'
                 >

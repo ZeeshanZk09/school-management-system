@@ -19,7 +19,7 @@ interface ClassActionsProps {
   };
 }
 
-export function ClassActions({ cls }: ClassActionsProps) {
+export function ClassActions({ cls }: Readonly<ClassActionsProps>) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -33,14 +33,10 @@ export function ClassActions({ cls }: ClassActionsProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
         <ClassForm initialData={cls}>
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            Edit Class
-          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Class</DropdownMenuItem>
         </ClassForm>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className='text-rose-600 focus:bg-rose-50'>
-          Delete Class
-        </DropdownMenuItem>
+        <DropdownMenuItem className='text-rose-600 focus:bg-rose-50'>Delete Class</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

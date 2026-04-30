@@ -204,7 +204,7 @@ export function StudentForm({
               <div className='grid gap-2'>
                 <Label htmlFor='gender'>Gender</Label>
                 <Select name='gender' defaultValue={initialData?.gender || 'UNSPECIFIED'}>
-                  <SelectTrigger className='bg-slate-50/50 dark:bg-slate-900/50 border-none'>
+                  <SelectTrigger id='gender' className='bg-slate-50/50 dark:bg-slate-900/50 border-none'>
                     <SelectValue placeholder='Select Gender' />
                   </SelectTrigger>
                   <SelectContent>
@@ -253,7 +253,10 @@ export function StudentForm({
                   name='academicYearId'
                   defaultValue={academicYears.find((y) => y.isActive)?.id}
                 >
-                  <SelectTrigger className='bg-slate-50/50 dark:bg-slate-900/50 border-none'>
+                  <SelectTrigger
+                    id='academicYearId'
+                    className='bg-slate-50/50 dark:bg-slate-900/50 border-none'
+                  >
                     <SelectValue placeholder='Select Year' />
                   </SelectTrigger>
                   <SelectContent>
@@ -277,7 +280,7 @@ export function StudentForm({
                     else setSelectedClass('');
                   }}
                 >
-                  <SelectTrigger className='bg-slate-50/50 dark:bg-slate-900/50 border-none'>
+                  <SelectTrigger id='classId' className='bg-slate-50/50 dark:bg-slate-900/50 border-none'>
                     <SelectValue placeholder='Select Class' />
                   </SelectTrigger>
                   <SelectContent>
@@ -293,7 +296,10 @@ export function StudentForm({
               <div className='grid gap-2'>
                 <Label htmlFor='sectionId'>Section</Label>
                 <Select name='sectionId' disabled={!selectedClass}>
-                  <SelectTrigger className='bg-slate-50/50 dark:bg-slate-900/50 border-none'>
+                  <SelectTrigger
+                    id='sectionId'
+                    className='bg-slate-50/50 dark:bg-slate-900/50 border-none'
+                  >
                     <SelectValue placeholder='Select Section' />
                   </SelectTrigger>
                   <SelectContent>

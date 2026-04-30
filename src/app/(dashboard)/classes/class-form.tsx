@@ -54,12 +54,10 @@ export function ClassForm({
       toast.success(initialData ? 'Class updated' : 'Class created');
       setOpen(false);
       router.refresh();
+    } else if (result.errors) {
+      setErrors(result.errors);
     } else {
-      if (result.errors) {
-        setErrors(result.errors);
-      } else {
-        toast.error(result.message || 'Something went wrong');
-      }
+      toast.error(result.message || 'Something went wrong');
     }
   };
 

@@ -15,6 +15,12 @@ import prisma from "@/lib/prisma";
 import { ApprovalButton } from "./approval-button";
 import { UserForm } from "./user-form";
 
+const STATUS_STYLES: Record<string, string> = {
+  ACTIVE: 'bg-emerald-100 text-emerald-700 border-none',
+  PENDING_APPROVAL: 'bg-amber-100 text-amber-700 border-none',
+  DEACTIVATED: 'bg-rose-100 text-rose-700 border-none',
+};
+
 export default async function UsersPage() {
   await requirePermission("system.manage");
 
@@ -92,13 +98,7 @@ export default async function UsersPage() {
                 </TableCell>
                 <TableCell>
                   <Badge
-                    className={
-                      user.status === "ACTIVE"
-                        ? "bg-emerald-100 text-emerald-700 border-none"
-                        : user.status === "PENDING_APPROVAL"
-                          ? "bg-amber-100 text-amber-700 border-none"
-                          : "bg-rose-100 text-rose-700 border-none"
-                    }
+                    className={STATUS_STYLES[user.status] || STATUS_STYLES.DEACTIVATED}
                   >
                     {user.status}
                   </Badge>

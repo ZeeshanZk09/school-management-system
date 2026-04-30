@@ -38,3 +38,29 @@ export async function createAnnouncement(data: {
     return { success: false, message: "Failed to create announcement" };
   }
 }
+
+export async function deleteAnnouncement(id: string) {
+  try {
+    const actor = await requirePermission("system.manage");
+
+    const announcement = await prisma.announcement.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
+
+    await writeAuditLog({
+      action: "DELETE",
+      tableName: "Announcement",
+      recordId: id,
+      oldValue: announcement,
+      actorUserId: actor.id,
+    });
+
+    revalidatePath("/announcements");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Delete announcement error:", error);
+    return { success: false, message: "Failed to delete announcement" };
+  }
+}

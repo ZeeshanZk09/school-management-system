@@ -153,7 +153,7 @@ export function StaffAttendanceForm({
                 onSelect={(d) =>
                   d && router.push(`/attendance/staff?date=${format(d, 'yyyy-MM-dd')}`)
                 }
-                initialFocus
+                autoFocus
               />
             </PopoverContent>
           </Popover>

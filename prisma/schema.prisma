@@ -151,6 +151,7 @@ model User {
   feePayments                FeePayment[]           @relation("FeePaymentReceivedBy")
   salaryDisbursements        SalaryDisbursement[]   @relation("SalaryDisbursementPaidBy")
   uploadedStaffDocuments     StaffDocument[]        @relation("StaffDocumentUploadedBy")
+  uploadedStudentDocuments   StudentDocument[]      @relation("StudentDocumentUploadedBy")
   passwordResetRequests      PasswordResetRequest[]
   decidedPasswordResets      PasswordResetRequest[] @relation("PasswordResetDecidedBy")
 }
@@ -393,9 +394,28 @@ model Student {
   siblings    StudentSibling[]
   attendance  StudentAttendance[]
   feeRecords  FeeRecord[]
+  documents   StudentDocument[]
 
   @@index([fullName])
   @@index([status])
+}
+
+model StudentDocument {
+  id           String   @id @default(cuid())
+  studentId    String
+  title        String
+  fileName     String
+  filePath     String
+  mimeType     String
+  sizeBytes    Int
+  uploadedById String?
+  uploadedAt   DateTime @default(now())
+  isDeleted    Boolean  @default(false) @map("is_deleted")
+
+  student    Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  uploadedBy User?   @relation("StudentDocumentUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
 }
 
 model StudentEnrollment {

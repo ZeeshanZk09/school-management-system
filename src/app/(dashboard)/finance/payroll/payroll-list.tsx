@@ -1,9 +1,11 @@
 'use client';
 
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { AlertCircle, CheckCircle2, DollarSign, FileText, Loader2, Wallet } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { SalarySlipPDF } from '@/components/finance/salary-slip-pdf';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -30,12 +32,14 @@ export function PayrollList({
   slips,
   month,
   year,
-}: {
+  settings,
+}: Readonly<{
   staff: any[];
   slips: any[];
   month: number;
   year: number;
-}) {
+  settings: any;
+}>) {
   const router = useRouter();
   const [isPending, setIsPending] = useState<string | null>(null);
 
@@ -106,7 +110,7 @@ export function PayrollList({
           <div className='text-right'>
             <p className='text-sm font-medium text-slate-500'>Period Total</p>
             <p className='text-2xl font-black text-slate-900 dark:text-white'>
-              ${slips.reduce((sum, s) => sum + parseFloat(s.netPay), 0).toLocaleString()}
+              Rs {slips.reduce((sum, s) => sum + Number.parseFloat(s.netPay), 0).toLocaleString()}
             </p>
           </div>
         </CardHeader>
@@ -140,7 +144,7 @@ export function PayrollList({
                     </TableCell>
                     <TableCell>
                       {structure ? (
-                        `Rs${parseFloat(structure.basePay).toLocaleString()}`
+                        `Rs ${Number.parseFloat(structure.basePay).toLocaleString()}`
                       ) : (
                         <span className='text-rose-500 text-xs font-bold flex items-center gap-1'>
                           <AlertCircle className='h-3 w-3' /> No Structure
@@ -151,10 +155,10 @@ export function PayrollList({
                       {slip ? (
                         <div className='flex flex-col'>
                           <span className='text-xs text-slate-500 line-through'>
-                            ${parseFloat(slip.grossPay).toLocaleString()}
+                            Rs {Number.parseFloat(slip.grossPay).toLocaleString()}
                           </span>
                           <span className='font-bold text-primary'>
-                            ${parseFloat(slip.netPay).toLocaleString()}
+                            Rs {Number.parseFloat(slip.netPay).toLocaleString()}
                           </span>
                         </div>
                       ) : (
@@ -197,9 +201,25 @@ export function PayrollList({
                               </Button>
                             </DisbursementDialog>
                           )}
-                          <Button size='sm' variant='ghost' className='h-8 text-slate-400'>
-                            <FileText className='h-4 w-4' />
-                          </Button>
+                          <PDFDownloadLink
+                            document={<SalarySlipPDF slip={slip} staff={s} settings={settings} />}
+                            fileName={`SalarySlip-${s.fullName.replaceAll(/\s+/g, '-')}-${months[month - 1]}-${year}.pdf`}
+                          >
+                            {({ loading }) => (
+                              <Button
+                                size='sm'
+                                variant='ghost'
+                                className='h-8 text-blue-500 hover:text-blue-600'
+                                disabled={loading}
+                              >
+                                {loading ? (
+                                  <Loader2 className='h-4 w-4 animate-spin' />
+                                ) : (
+                                  <FileText className='h-4 w-4' />
+                                )}
+                              </Button>
+                            )}
+                          </PDFDownloadLink>
                         </div>
                       ) : (
                         <Button

@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-export function DeleteFeeComponentButton({ id }: { id: string }) {
+export function DeleteFeeComponentButton({ id }: Readonly<{ id: string }>) {
   const [isPending, setIsPending] = useState(false);
 
   const handleDelete = async () => {
@@ -44,7 +44,7 @@ export function DeleteFeeComponentButton({ id }: { id: string }) {
   );
 }
 
-export function FeeStructureActions({ id }: { id: string }) {
+export function FeeStructureActions({ id }: Readonly<{ id: string }>) {
   const [isPending, setIsPending] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 

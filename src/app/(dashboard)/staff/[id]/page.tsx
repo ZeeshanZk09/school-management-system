@@ -240,7 +240,7 @@ export default async function StaffProfilePage({
                   </p>
                   <p className='text-xl font-bold text-slate-900 dark:text-white'>
                     {currentSalary
-                      ? `Rs${currentSalary.basePay.toLocaleString()}`
+                      ? `Rs ${currentSalary.basePay.toLocaleString()}`
                       : 'Not Configured'}
                   </p>
                 </div>
@@ -340,7 +340,7 @@ export default async function StaffProfilePage({
                     <div className='flex justify-between items-end border-b pb-2'>
                       <span className='text-sm text-slate-500'>Base Pay</span>
                       <span className='text-lg font-bold'>
-                        ${currentSalary.basePay.toLocaleString()}
+                        Rs {currentSalary.basePay.toLocaleString()}
                       </span>
                     </div>
                     <div className='space-y-2'>
@@ -353,7 +353,7 @@ export default async function StaffProfilePage({
                           <div key={c.id} className='flex justify-between text-sm'>
                             <span>{c.label}</span>
                             <span className='font-medium text-emerald-600'>
-                              +${c.amount.toLocaleString()}
+                              +Rs {c.amount.toLocaleString()}
                             </span>
                           </div>
                         ))}
@@ -368,7 +368,7 @@ export default async function StaffProfilePage({
                           <div key={c.id} className='flex justify-between text-sm'>
                             <span>{c.label}</span>
                             <span className='font-medium text-rose-600'>
-                              -${c.amount.toLocaleString()}
+                              -Rs {c.amount.toLocaleString()}
                             </span>
                           </div>
                         ))}
@@ -408,7 +408,7 @@ export default async function StaffProfilePage({
                             {format(new Date(slip.periodYear, slip.periodMonth - 1), 'MMMM yyyy')}
                           </p>
                           <div className='flex items-center gap-3 text-[10px] uppercase font-bold text-slate-500'>
-                            <span>Net: ${slip.netPay.toLocaleString()}</span>
+                            <span>Net: Rs {slip.netPay.toLocaleString()}</span>
                             {slip.disbursements.length > 0 ? (
                               <Badge className='bg-emerald-50 text-emerald-600 hover:bg-emerald-50 border-none px-1 h-4'>
                                 PAID

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -13,27 +13,27 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { createFeeStructure } from "./actions";
+} from '@/components/ui/select';
+import { createFeeStructure } from './actions';
 
 export function FeeStructureForm({
   children,
   classes,
   academicYears,
-}: {
+}: Readonly<{
   children: React.ReactNode;
   classes: any[];
   academicYears: any[];
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [errors, setErrors] = useState<any>({});
@@ -46,60 +46,53 @@ export function FeeStructureForm({
 
     const formData = new FormData(e.currentTarget);
     const result = await createFeeStructure({
-      name: formData.get("name"),
-      classId: formData.get("classId"),
-      academicYearId: formData.get("academicYearId"),
+      name: formData.get('name'),
+      classId: formData.get('classId'),
+      academicYearId: formData.get('academicYearId'),
       isActive: true,
     });
 
     setIsPending(false);
 
     if (result.success) {
-      toast.success("Fee structure created");
+      toast.success('Fee structure created');
       setOpen(false);
       router.refresh();
+    } else if (result.errors) {
+      setErrors(result.errors);
     } else {
-      if (result.errors) {
-        setErrors(result.errors);
-      } else {
-        toast.error(result.message || "Something went wrong");
-      }
+      toast.error(result.message || 'Something went wrong');
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] glass border-none">
+      <DialogContent className='sm:max-w-[425px] glass border-none'>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle className="font-outfit text-2xl">
-              New Fee Structure
-            </DialogTitle>
+            <DialogTitle className='font-outfit text-2xl'>New Fee Structure</DialogTitle>
             <DialogDescription>
-              Create a template for student billing. You'll add specific
-              components next.
+              Create a template for student billing. You'll add specific components next.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Structure Name</Label>
+          <div className='grid gap-4 py-4'>
+            <div className='grid gap-2'>
+              <Label htmlFor='name'>Structure Name</Label>
               <Input
-                id="name"
-                name="name"
-                placeholder="e.g. Standard Fee 2026"
+                id='name'
+                name='name'
+                placeholder='e.g. Standard Fee 2026'
                 required
-                className="bg-slate-50 dark:bg-slate-900 border-none"
+                className='bg-slate-50 dark:bg-slate-900 border-none'
               />
-              {errors.name && (
-                <p className="text-xs text-rose-500">{errors.name[0]}</p>
-              )}
+              {errors.name && <p className='text-xs text-rose-500'>{errors.name[0]}</p>}
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="classId">Class</Label>
-              <Select name="classId" required>
-                <SelectTrigger className="bg-slate-50 dark:bg-slate-900 border-none">
-                  <SelectValue placeholder="Select Class" />
+            <div className='grid gap-2'>
+              <Label htmlFor='classId'>Class</Label>
+              <Select name='classId' required>
+                <SelectTrigger className='bg-slate-50 dark:bg-slate-900 border-none'>
+                  <SelectValue placeholder='Select Class' />
                 </SelectTrigger>
                 <SelectContent>
                   {classes.map((c) => (
@@ -110,15 +103,15 @@ export function FeeStructureForm({
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="academicYearId">Academic Year</Label>
+            <div className='grid gap-2'>
+              <Label htmlFor='academicYearId'>Academic Year</Label>
               <Select
-                name="academicYearId"
+                name='academicYearId'
                 defaultValue={academicYears.find((y) => y.isActive)?.id}
                 required
               >
-                <SelectTrigger className="bg-slate-50 dark:bg-slate-900 border-none">
-                  <SelectValue placeholder="Select Year" />
+                <SelectTrigger className='bg-slate-50 dark:bg-slate-900 border-none'>
+                  <SelectValue placeholder='Select Year' />
                 </SelectTrigger>
                 <SelectContent>
                   {academicYears.map((y) => (
@@ -132,19 +125,15 @@ export function FeeStructureForm({
           </div>
           <DialogFooter>
             <Button
-              type="button"
-              variant="ghost"
+              type='button'
+              variant='ghost'
               onClick={() => setOpen(false)}
               disabled={isPending}
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button type='submit' className='gradient-primary' disabled={isPending}>
+              {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
               Create Structure
             </Button>
           </DialogFooter>

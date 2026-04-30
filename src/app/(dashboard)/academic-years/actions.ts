@@ -5,6 +5,7 @@ import { writeAuditLog } from '@/lib/audit';
 import { requirePermission } from '@/lib/auth/permissions';
 import prisma from '@/lib/prisma';
 import { academicYearSchema } from '@/lib/validations/academic-year';
+import { z } from 'zod';
 
 export async function createAcademicYear(formData: FormData) {
   const user = await requirePermission('settings.manage');
@@ -17,7 +18,7 @@ export async function createAcademicYear(formData: FormData) {
   });
 
   if (!validated.success) {
-    return { success: false, errors: validated.error.flatten().fieldErrors };
+    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
   }
 
   const { name, startDate, endDate, isActive } = validated.data;
@@ -72,7 +73,7 @@ export async function updateAcademicYear(id: string, formData: FormData) {
   });
 
   if (!validated.success) {
-    return { success: false, errors: validated.error.flatten().fieldErrors };
+    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
   }
 
   const { name, startDate, endDate, isActive } = validated.data;

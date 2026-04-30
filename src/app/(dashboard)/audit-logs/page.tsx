@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Pagination } from '@/components/ui/pagination';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -24,6 +25,12 @@ import prisma from '@/lib/prisma';
 import { AuditAction } from '@/lib/generated/prisma/enums';
 import { Prisma } from '@/lib/generated/prisma/client';
 
+const ACTION_STYLES: Record<string, string> = {
+  CREATE: 'text-emerald-600 bg-emerald-50 border-emerald-100 font-bold text-[10px]',
+  UPDATE: 'text-blue-600 bg-blue-50 border-blue-100 font-bold text-[10px]',
+  DELETE: 'text-rose-600 bg-rose-50 border-rose-100 font-bold text-[10px]',
+};
+
 export default async function AuditLogsPage({
   searchParams,
 }: Readonly<{
@@ -36,7 +43,7 @@ export default async function AuditLogsPage({
 }>) {
   await requirePermission('system.manage');
   const params = await searchParams;
-  const page = parseInt(params.page || '1', 10);
+  const page = Number.parseInt(params.page ?? '1', 10);
   const action = params.action as AuditAction | undefined;
   const table = params.table;
   const actorId = params.actorId;
@@ -87,9 +94,14 @@ export default async function AuditLogsPage({
         <CardContent className='p-4'>
           <form className='flex flex-wrap items-end gap-4'>
             <div className='space-y-2'>
-              <label className='text-xs font-bold text-slate-500 uppercase'>Action</label>
+              <Label htmlFor='action' className='text-xs font-bold text-slate-500 uppercase'>
+                Action
+              </Label>
               <Select name='action' defaultValue={(action as any) || 'ALL'}>
-                <SelectTrigger className='w-[140px] bg-white dark:bg-slate-900 border-none shadow-sm'>
+                <SelectTrigger
+                  id='action'
+                  className='w-[140px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -102,9 +114,14 @@ export default async function AuditLogsPage({
             </div>
 
             <div className='space-y-2'>
-              <label className='text-xs font-bold text-slate-500 uppercase'>Table</label>
+              <Label htmlFor='table' className='text-xs font-bold text-slate-500 uppercase'>
+                Table
+              </Label>
               <Select name='table' defaultValue={table || 'ALL'}>
-                <SelectTrigger className='w-[180px] bg-white dark:bg-slate-900 border-none shadow-sm'>
+                <SelectTrigger
+                  id='table'
+                  className='w-[180px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -119,9 +136,14 @@ export default async function AuditLogsPage({
             </div>
 
             <div className='space-y-2'>
-              <label className='text-xs font-bold text-slate-500 uppercase'>Actor</label>
+              <Label htmlFor='actorId' className='text-xs font-bold text-slate-500 uppercase'>
+                Actor
+              </Label>
               <Select name='actorId' defaultValue={actorId || 'ALL'}>
-                <SelectTrigger className='w-[200px] bg-white dark:bg-slate-900 border-none shadow-sm'>
+                <SelectTrigger
+                  id='actorId'
+                  className='w-[200px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -183,13 +205,7 @@ export default async function AuditLogsPage({
                   <TableCell>
                     <Badge
                       variant='outline'
-                      className={
-                        log.action === 'CREATE'
-                          ? 'text-emerald-600 bg-emerald-50 border-emerald-100 font-bold text-[10px]'
-                          : log.action === 'UPDATE'
-                            ? 'text-blue-600 bg-blue-50 border-blue-100 font-bold text-[10px]'
-                            : 'text-rose-600 bg-rose-50 border-rose-100 font-bold text-[10px]'
-                      }
+                      className={ACTION_STYLES[log.action] || ACTION_STYLES.DELETE}
                     >
                       {log.action}
                     </Badge>

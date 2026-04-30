@@ -1,11 +1,12 @@
-"use server";
+'use server';
 
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes } from 'node:crypto';
 
-import { sendEmail } from "@/lib/email";
-import { env } from "@/lib/env";
-import prisma from "@/lib/prisma";
-import { forgotPasswordSchema } from "@/lib/validations/auth";
+import { sendEmail } from '@/lib/email';
+import { env } from '@/lib/env';
+import prisma from '@/lib/prisma';
+import { forgotPasswordSchema } from '@/lib/validations/auth';
+import { z } from 'zod';
 
 export type ForgotPasswordResponse = {
   success: boolean;
@@ -14,22 +15,22 @@ export type ForgotPasswordResponse = {
 
 export async function forgotPasswordAction(
   _prevState: ForgotPasswordResponse,
-  formData: FormData,
+  formData: FormData
 ): Promise<ForgotPasswordResponse> {
-  const email = formData.get("email") as string;
+  const email = formData.get('email') as string;
 
   const validated = forgotPasswordSchema.safeParse({ email });
 
   if (!validated.success) {
     return {
       success: false,
-      message: validated.error.flatten().fieldErrors.email?.[0] || "Invalid email",
+      message: z.flattenError(validated.error).fieldErrors.email?.[0] || 'Invalid email',
     };
   }
 
   // Always return success to prevent email enumeration
   const successMessage =
-    "If an account with that email exists, a password reset link has been sent.";
+    'If an account with that email exists, a password reset link has been sent.';
 
   try {
     const user = await prisma.user.findUnique({
@@ -37,7 +38,7 @@ export async function forgotPasswordAction(
       select: { id: true, status: true, fullName: true },
     });
 
-    if (!user || user.status !== "ACTIVE") {
+    if (user?.status !== 'ACTIVE') {
       return { success: true, message: successMessage };
     }
 
@@ -45,7 +46,7 @@ export async function forgotPasswordAction(
     await prisma.oneTimeToken.updateMany({
       where: {
         identifier: user.id,
-        type: "PASSWORD_RESET",
+        type: 'PASSWORD_RESET',
         consumedAt: null,
         expiresAt: { gt: new Date() },
       },
@@ -53,15 +54,15 @@ export async function forgotPasswordAction(
     });
 
     // Generate a new token
-    const rawToken = randomBytes(32).toString("base64url");
-    const tokenHash = createHash("sha256").update(rawToken).digest("hex");
+    const rawToken = randomBytes(32).toString('base64url');
+    const tokenHash = createHash('sha256').update(rawToken).digest('hex');
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
     await prisma.oneTimeToken.create({
       data: {
         identifier: user.id,
         tokenHash,
-        type: "PASSWORD_RESET",
+        type: 'PASSWORD_RESET',
         expiresAt,
       },
     });
@@ -71,7 +72,7 @@ export async function forgotPasswordAction(
 
     await sendEmail({
       to: validated.data.email,
-      subject: "Password Reset Request",
+      subject: 'Password Reset Request',
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px;">
           <div style="text-align: center; margin-bottom: 32px;">
@@ -104,7 +105,7 @@ export async function forgotPasswordAction(
 
     return { success: true, message: successMessage };
   } catch (error) {
-    console.error("[forgot-password] Error:", error);
+    console.error('[forgot-password] Error:', error);
     return { success: true, message: successMessage };
   }
 }

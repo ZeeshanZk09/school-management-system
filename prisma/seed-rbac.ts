@@ -54,7 +54,7 @@ const SYMBOLS = '!@#$%_-';
 
 function envValue(name: string): string | null {
   const value = process.env[name]?.trim();
-  return value ? value : null;
+  return value || null;
 }
 
 function randomChar(charset: string): string {
@@ -213,7 +213,9 @@ async function bootstrapAdminUser(): Promise<void> {
     },
   });
 
-  if (!process.env.BOOTSTRAP_ADMIN_PASSWORD) {
+  if (process.env.BOOTSTRAP_ADMIN_PASSWORD) {
+    console.info(`[seed] Admin assigned to ${bootstrapEmail}`);
+  } else {
     console.info('');
     console.info('╔══════════════════════════════════════════╗');
     console.info('║   Generated Admin Credentials            ║');
@@ -222,8 +224,6 @@ async function bootstrapAdminUser(): Promise<void> {
     console.info(`║  Password: ${bootstrapPassword.padEnd(29)}║`);
     console.info('╚══════════════════════════════════════════╝');
     console.info('');
-  } else {
-    console.info(`[seed] Admin assigned to ${bootstrapEmail}`);
   }
 }
 
@@ -596,7 +596,6 @@ async function main(): Promise<void> {
   console.info('');
   console.info('[seed] Database seed completed successfully.');
 }
-
 
 main()
   .then(async () => {

@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
-import { format } from "date-fns";
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { format } from 'date-fns';
 
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontSize: 10,
-    fontFamily: "Helvetica",
-    color: "#334155",
+    fontFamily: 'Helvetica',
+    color: '#334155',
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     borderBottomWidth: 2,
-    borderBottomColor: "#10b981",
+    borderBottomColor: '#6366f1',
     paddingBottom: 20,
     marginBottom: 20,
   },
@@ -23,203 +23,255 @@ const styles = StyleSheet.create({
   },
   schoolName: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#1e293b",
+    fontWeight: 'bold',
+    color: '#1e293b',
     marginBottom: 4,
   },
-  slipTitle: {
-    fontSize: 20,
-    fontWeight: "black",
-    color: "#10b981",
-    textAlign: "right",
+  address: {
+    fontSize: 9,
+    color: '#64748b',
+    lineHeight: 1.4,
+  },
+  titleContainer: {
+    textAlign: 'right',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'black',
+    color: '#6366f1',
   },
   period: {
-    textAlign: "right",
-    fontSize: 12,
-    color: "#64748b",
-    fontWeight: "bold",
+    fontSize: 10,
+    marginTop: 4,
+    color: '#64748b',
+    fontWeight: 'bold',
   },
-  detailsSection: {
-    flexDirection: "row",
-    marginBottom: 20,
-    gap: 40,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f1f5f9",
-    paddingBottom: 20,
-  },
-  col: {
-    flex: 1,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 4,
-  },
-  label: {
-    color: "#94a3b8",
-    fontSize: 8,
-    textTransform: "uppercase",
-  },
-  value: {
-    fontWeight: "bold",
-  },
-  table: {
-    flexDirection: "row",
+  infoSection: {
+    flexDirection: 'row',
+    marginBottom: 30,
     gap: 20,
   },
-  tableCol: {
+  infoBox: {
     flex: 1,
+    backgroundColor: '#f8fafc',
+    padding: 12,
+    borderRadius: 8,
+  },
+  label: {
+    fontSize: 8,
+    color: '#94a3b8',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+    fontWeight: 'bold',
+  },
+  value: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#1e293b',
+  },
+  table: {
+    marginTop: 10,
   },
   tableHeader: {
-    backgroundColor: "#f8fafc",
+    flexDirection: 'row',
+    backgroundColor: '#334155',
+    color: 'white',
     padding: 8,
-    fontWeight: "bold",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderRadius: 4,
+    fontWeight: 'bold',
   },
   tableRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 6,
+    flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: "#f1f5f9",
+    borderBottomColor: '#f1f5f9',
+    padding: 8,
   },
-  summary: {
-    marginTop: 40,
-    flexDirection: "row",
-    justifyContent: "flex-end",
+  col1: { flex: 3 },
+  col2: { flex: 1, textAlign: 'right' },
+  summarySection: {
+    marginTop: 30,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
   summaryBox: {
     width: 250,
-    backgroundColor: "#10b981",
-    color: "white",
-    padding: 20,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  netPayBox: {
+    marginTop: 10,
+    backgroundColor: '#6366f1',
+    color: 'white',
+    padding: 15,
     borderRadius: 12,
   },
-  netPay: {
-    fontSize: 24,
-    fontWeight: "bold",
+  netPayLabel: {
+    fontSize: 10,
+    opacity: 0.8,
+  },
+  netPayAmount: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 40,
+    left: 40,
+    right: 40,
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    paddingTop: 10,
+    textAlign: 'center',
+    fontSize: 8,
+    color: '#94a3b8',
+  },
+  signatureSection: {
+    marginTop: 60,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  signatureBox: {
+    width: 150,
+    borderTopWidth: 1,
+    borderTopColor: '#334155',
+    paddingTop: 5,
+    textAlign: 'center',
   },
 });
 
+const months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
 export function SalarySlipPDF({ slip, staff, settings }: any) {
-  const monthName = format(
-    new Date(slip.periodYear, slip.periodMonth - 1),
-    "MMMM yyyy",
-  );
+  const structure = staff.salaryStructures[0];
+  const allowances = structure?.components.filter((c: any) => c.type === 'ALLOWANCE') || [];
+  const deductions = structure?.components.filter((c: any) => c.type === 'DEDUCTION') || [];
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        {/* Header */}
+      <Page size='A4' style={styles.page}>
         <View style={styles.header}>
           <View style={styles.schoolInfo}>
             <Text style={styles.schoolName}>{settings.schoolName}</Text>
-            <Text style={{ fontSize: 9, color: "#64748b" }}>
-              {settings.addressLine1}
-            </Text>
-            <Text style={{ fontSize: 9, color: "#64748b" }}>
-              {settings.contactEmail} | {settings.contactPhone}
+            <Text style={styles.address}>{settings.addressLine1}</Text>
+            {settings.addressLine2 && <Text style={styles.address}>{settings.addressLine2}</Text>}
+            <Text style={styles.address}>
+              {settings.city}, {settings.state} {settings.postalCode}
             </Text>
           </View>
-          <View>
-            <Text style={styles.slipTitle}>SALARY SLIP</Text>
-            <Text style={styles.period}>{monthName}</Text>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>SALARY SLIP</Text>
+            <Text style={styles.period}>
+              {months[slip.periodMonth - 1]} {slip.periodYear}
+            </Text>
           </View>
         </View>
 
-        {/* Staff Details */}
-        <View style={styles.detailsSection}>
-          <View style={styles.col}>
-            <View style={styles.row}>
-              <Text style={styles.label}>Employee Name</Text>
-              <Text style={styles.value}>{staff.fullName}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Employee ID</Text>
-              <Text style={styles.value}>{staff.staffNumber}</Text>
-            </View>
+        <View style={styles.infoSection}>
+          <View style={styles.infoBox}>
+            <Text style={styles.label}>Employee Details</Text>
+            <Text style={styles.value}>{staff.fullName}</Text>
+            <Text style={{ fontSize: 9, marginTop: 2 }}>ID: {staff.id.substring(0, 8)}</Text>
+            <Text style={{ fontSize: 9 }}>Designation: {staff.designation}</Text>
+            <Text style={{ fontSize: 9 }}>Department: {staff.department || 'N/A'}</Text>
           </View>
-          <View style={styles.col}>
-            <View style={styles.row}>
-              <Text style={styles.label}>Designation</Text>
-              <Text style={styles.value}>{staff.designation}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Department</Text>
-              <Text style={styles.value}>{staff.department}</Text>
-            </View>
+          <View style={styles.infoBox}>
+            <Text style={styles.label}>Slip Details</Text>
+            <Text style={styles.value}>#SLIP-{slip.id.substring(0, 6).toUpperCase()}</Text>
+            <Text style={{ fontSize: 9, marginTop: 2 }}>
+              Generated: {format(new Date(slip.createdAt), 'PP')}
+            </Text>
+            <Text style={{ fontSize: 9 }}>
+              Status: {slip.disbursements.length > 0 ? 'PAID' : 'GENERATED'}
+            </Text>
           </View>
         </View>
 
-        {/* Components Table */}
+        <Text style={[styles.label, { marginBottom: 8 }]}>Earnings & Allowances</Text>
         <View style={styles.table}>
-          {/* Earnings */}
-          <View style={styles.tableCol}>
-            <Text style={styles.tableHeader}>EARNINGS</Text>
-            <View style={styles.tableRow}>
-              <Text>Base Salary</Text>
-              <Text>
-                ${parseFloat(slip.salaryStructure.basePay).toLocaleString()}
-              </Text>
-            </View>
-            {slip.salaryStructure.components
-              .filter((c: any) => c.type === "ALLOWANCE")
-              .map((c: any) => (
-                <View key={c.id} style={styles.tableRow}>
-                  <Text>{c.label}</Text>
-                  <Text>${parseFloat(c.amount).toLocaleString()}</Text>
-                </View>
-              ))}
-            <View
-              style={[styles.tableRow, { borderBottomWidth: 0, marginTop: 10 }]}
-            >
-              <Text style={{ fontWeight: "bold" }}>Gross Pay</Text>
-              <Text style={{ fontWeight: "bold" }}>
-                ${parseFloat(slip.grossPay).toLocaleString()}
-              </Text>
-            </View>
+          <View style={styles.tableHeader}>
+            <Text style={styles.col1}>Description</Text>
+            <Text style={styles.col2}>Amount</Text>
           </View>
-
-          {/* Deductions */}
-          <View style={styles.tableCol}>
-            <Text style={styles.tableHeader}>DEDUCTIONS</Text>
-            {slip.salaryStructure.components
-              .filter((c: any) => c.type === "DEDUCTION")
-              .map((c: any) => (
-                <View key={c.id} style={styles.tableRow}>
-                  <Text>{c.label}</Text>
-                  <Text>${parseFloat(c.amount).toLocaleString()}</Text>
-                </View>
-              ))}
-            <View
-              style={[styles.tableRow, { borderBottomWidth: 0, marginTop: 10 }]}
-            >
-              <Text style={{ fontWeight: "bold" }}>Total Deductions</Text>
-              <Text style={{ fontWeight: "bold" }}>
-                ${parseFloat(slip.totalDeductions).toLocaleString()}
-              </Text>
-            </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.col1}>Base Salary</Text>
+            <Text style={styles.col2}>Rs {Number(structure?.basePay || 0).toLocaleString()}</Text>
           </View>
+          {allowances.map((c: any, i: number) => (
+            <View key={i} style={styles.tableRow}>
+              <Text style={styles.col1}>{c.label}</Text>
+              <Text style={styles.col2}>Rs {Number(c.amount).toLocaleString()}</Text>
+            </View>
+          ))}
         </View>
 
-        {/* Summary */}
-        <View style={styles.summary}>
+        {deductions.length > 0 && (
+          <>
+            <Text style={[styles.label, { marginTop: 20, marginBottom: 8 }]}>Deductions</Text>
+            <View style={styles.table}>
+              <View style={[styles.tableHeader, { backgroundColor: '#e2e8f0', color: '#1e293b' }]}>
+                <Text style={styles.col1}>Description</Text>
+                <Text style={styles.col2}>Amount</Text>
+              </View>
+              {deductions.map((c: any, i: number) => (
+                <View key={i} style={styles.tableRow}>
+                  <Text style={styles.col1}>{c.label}</Text>
+                  <Text style={styles.col2}>Rs {Number(c.amount).toLocaleString()}</Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+
+        <View style={styles.summarySection}>
           <View style={styles.summaryBox}>
-            <Text style={{ fontSize: 10, opacity: 0.9 }}>NET PAYABLE</Text>
-            <Text style={styles.netPay}>
-              ${parseFloat(slip.netPay).toLocaleString()}
-            </Text>
+            <View style={styles.summaryRow}>
+              <Text style={{ color: '#64748b' }}>Gross Salary</Text>
+              <Text style={{ fontWeight: 'bold' }}>
+                Rs {Number(slip.grossPay).toLocaleString()}
+              </Text>
+            </View>
+            <View style={styles.summaryRow}>
+              <Text style={{ color: '#64748b' }}>Total Deductions</Text>
+              <Text style={{ fontWeight: 'bold' }}>
+                Rs {Number(slip.totalDeductions).toLocaleString()}
+              </Text>
+            </View>
+            <View style={styles.netPayBox}>
+              <Text style={styles.netPayLabel}>Net Payable</Text>
+              <Text style={styles.netPayAmount}>Rs {Number(slip.netPay).toLocaleString()}</Text>
+            </View>
           </View>
         </View>
 
-        {/* Footer */}
-        <View style={{ position: "absolute", bottom: 40, left: 40, right: 40 }}>
-          <Text style={{ textAlign: "center", color: "#94a3b8", fontSize: 8 }}>
-            This is a computer generated salary slip and does not require a
-            physical signature.
-          </Text>
+        <View style={styles.signatureSection}>
+          <View style={styles.signatureBox}>
+            <Text style={{ fontSize: 9 }}>Employee Signature</Text>
+          </View>
+          <View style={styles.signatureBox}>
+            <Text style={{ fontSize: 9 }}>Authorized Signatory</Text>
+          </View>
         </View>
+
+        <Text style={styles.footer}>
+          This is a computer generated document and does not require a physical signature. Generated
+          on {format(new Date(), 'PPpp')}
+        </Text>
       </Page>
     </Document>
   );

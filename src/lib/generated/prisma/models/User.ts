@@ -238,6 +238,7 @@ export type UserWhereInput = {
   feePayments?: Prisma.FeePaymentListRelationFilter
   salaryDisbursements?: Prisma.SalaryDisbursementListRelationFilter
   uploadedStaffDocuments?: Prisma.StaffDocumentListRelationFilter
+  uploadedStudentDocuments?: Prisma.StudentDocumentListRelationFilter
   passwordResetRequests?: Prisma.PasswordResetRequestListRelationFilter
   decidedPasswordResets?: Prisma.PasswordResetRequestListRelationFilter
 }
@@ -269,6 +270,7 @@ export type UserOrderByWithRelationInput = {
   feePayments?: Prisma.FeePaymentOrderByRelationAggregateInput
   salaryDisbursements?: Prisma.SalaryDisbursementOrderByRelationAggregateInput
   uploadedStaffDocuments?: Prisma.StaffDocumentOrderByRelationAggregateInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentOrderByRelationAggregateInput
   passwordResetRequests?: Prisma.PasswordResetRequestOrderByRelationAggregateInput
   decidedPasswordResets?: Prisma.PasswordResetRequestOrderByRelationAggregateInput
 }
@@ -303,6 +305,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   feePayments?: Prisma.FeePaymentListRelationFilter
   salaryDisbursements?: Prisma.SalaryDisbursementListRelationFilter
   uploadedStaffDocuments?: Prisma.StaffDocumentListRelationFilter
+  uploadedStudentDocuments?: Prisma.StudentDocumentListRelationFilter
   passwordResetRequests?: Prisma.PasswordResetRequestListRelationFilter
   decidedPasswordResets?: Prisma.PasswordResetRequestListRelationFilter
 }, "id" | "email">
@@ -365,6 +368,7 @@ export type UserCreateInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -395,6 +399,7 @@ export type UserUncheckedCreateInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -425,6 +430,7 @@ export type UserUpdateInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -455,6 +461,7 @@ export type UserUncheckedUpdateInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -728,6 +735,22 @@ export type UserUpdateOneWithoutUploadedStaffDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUploadedStaffDocumentsInput, Prisma.UserUpdateWithoutUploadedStaffDocumentsInput>, Prisma.UserUncheckedUpdateWithoutUploadedStaffDocumentsInput>
 }
 
+export type UserCreateNestedOneWithoutUploadedStudentDocumentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUploadedStudentDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedStudentDocumentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUploadedStudentDocumentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutUploadedStudentDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUploadedStudentDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedStudentDocumentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUploadedStudentDocumentsInput
+  upsert?: Prisma.UserUpsertWithoutUploadedStudentDocumentsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUploadedStudentDocumentsInput, Prisma.UserUpdateWithoutUploadedStudentDocumentsInput>, Prisma.UserUncheckedUpdateWithoutUploadedStudentDocumentsInput>
+}
+
 export type UserCreateNestedOneWithoutRecordedStudentAttendanceInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutRecordedStudentAttendanceInput, Prisma.UserUncheckedCreateWithoutRecordedStudentAttendanceInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutRecordedStudentAttendanceInput
@@ -903,6 +926,7 @@ export type UserCreateWithoutApprovalsGivenInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -932,6 +956,7 @@ export type UserUncheckedCreateWithoutApprovalsGivenInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -966,6 +991,7 @@ export type UserCreateWithoutApprovedByInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -995,6 +1021,7 @@ export type UserUncheckedCreateWithoutApprovedByInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -1045,6 +1072,7 @@ export type UserUpdateWithoutApprovalsGivenInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -1074,6 +1102,7 @@ export type UserUncheckedUpdateWithoutApprovalsGivenInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -1135,6 +1164,7 @@ export type UserCreateWithoutRolesInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -1164,6 +1194,7 @@ export type UserUncheckedCreateWithoutRolesInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -1198,6 +1229,7 @@ export type UserCreateWithoutRolesAssignedInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -1227,6 +1259,7 @@ export type UserUncheckedCreateWithoutRolesAssignedInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -1272,6 +1305,7 @@ export type UserUpdateWithoutRolesInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -1301,6 +1335,7 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -1341,6 +1376,7 @@ export type UserUpdateWithoutRolesAssignedInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -1370,6 +1406,7 @@ export type UserUncheckedUpdateWithoutRolesAssignedInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -1399,6 +1436,7 @@ export type UserCreateWithoutSessionsInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -1428,6 +1466,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -1473,6 +1512,7 @@ export type UserUpdateWithoutSessionsInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -1502,6 +1542,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -1531,6 +1572,7 @@ export type UserCreateWithoutAuthEventsInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -1560,6 +1602,7 @@ export type UserUncheckedCreateWithoutAuthEventsInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -1605,6 +1648,7 @@ export type UserUpdateWithoutAuthEventsInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -1634,6 +1678,7 @@ export type UserUncheckedUpdateWithoutAuthEventsInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -1663,6 +1708,7 @@ export type UserCreateWithoutStaffInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -1692,6 +1738,7 @@ export type UserUncheckedCreateWithoutStaffInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -1737,6 +1784,7 @@ export type UserUpdateWithoutStaffInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -1766,6 +1814,7 @@ export type UserUncheckedUpdateWithoutStaffInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -1795,6 +1844,7 @@ export type UserCreateWithoutUploadedStaffDocumentsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestCreateNestedManyWithoutDecidedByInput
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -1824,6 +1874,7 @@ export type UserUncheckedCreateWithoutUploadedStaffDocumentsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutDecidedByInput
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -1869,6 +1920,7 @@ export type UserUpdateWithoutUploadedStaffDocumentsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestUpdateManyWithoutDecidedByNestedInput
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -1898,6 +1950,143 @@ export type UserUncheckedUpdateWithoutUploadedStaffDocumentsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutDecidedByNestedInput
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
+  decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
+}
+
+export type UserCreateWithoutUploadedStudentDocumentsInput = {
+  id?: string
+  email: string
+  fullName: string
+  passwordHash: string
+  status?: $Enums.UserStatus
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  isDeleted?: boolean
+  approvedBy?: Prisma.UserCreateNestedOneWithoutApprovalsGivenInput
+  approvalsGiven?: Prisma.UserCreateNestedManyWithoutApprovedByInput
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  rolesAssigned?: Prisma.UserRoleCreateNestedManyWithoutAssignedByInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authEvents?: Prisma.AuthEventCreateNestedManyWithoutUserInput
+  staff?: Prisma.StaffCreateNestedOneWithoutUserInput
+  createdAnnouncements?: Prisma.AnnouncementCreateNestedManyWithoutCreatedByInput
+  auditEntries?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  recordedStudentAttendance?: Prisma.StudentAttendanceCreateNestedManyWithoutRecordedByInput
+  correctedStudentAttendance?: Prisma.StudentAttendanceCreateNestedManyWithoutCorrectedByInput
+  recordedStaffAttendance?: Prisma.StaffAttendanceCreateNestedManyWithoutRecordedByInput
+  decidedLeaveRequests?: Prisma.LeaveRequestCreateNestedManyWithoutDecidedByInput
+  feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
+  salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
+  uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
+  decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
+}
+
+export type UserUncheckedCreateWithoutUploadedStudentDocumentsInput = {
+  id?: string
+  email: string
+  fullName: string
+  passwordHash: string
+  status?: $Enums.UserStatus
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  isDeleted?: boolean
+  approvedByUserId?: string | null
+  approvalsGiven?: Prisma.UserUncheckedCreateNestedManyWithoutApprovedByInput
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  rolesAssigned?: Prisma.UserRoleUncheckedCreateNestedManyWithoutAssignedByInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authEvents?: Prisma.AuthEventUncheckedCreateNestedManyWithoutUserInput
+  staff?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
+  createdAnnouncements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutCreatedByInput
+  auditEntries?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  recordedStudentAttendance?: Prisma.StudentAttendanceUncheckedCreateNestedManyWithoutRecordedByInput
+  correctedStudentAttendance?: Prisma.StudentAttendanceUncheckedCreateNestedManyWithoutCorrectedByInput
+  recordedStaffAttendance?: Prisma.StaffAttendanceUncheckedCreateNestedManyWithoutRecordedByInput
+  decidedLeaveRequests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutDecidedByInput
+  feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
+  salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
+  uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
+  decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
+}
+
+export type UserCreateOrConnectWithoutUploadedStudentDocumentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUploadedStudentDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedStudentDocumentsInput>
+}
+
+export type UserUpsertWithoutUploadedStudentDocumentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUploadedStudentDocumentsInput, Prisma.UserUncheckedUpdateWithoutUploadedStudentDocumentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUploadedStudentDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedStudentDocumentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUploadedStudentDocumentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUploadedStudentDocumentsInput, Prisma.UserUncheckedUpdateWithoutUploadedStudentDocumentsInput>
+}
+
+export type UserUpdateWithoutUploadedStudentDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedBy?: Prisma.UserUpdateOneWithoutApprovalsGivenNestedInput
+  approvalsGiven?: Prisma.UserUpdateManyWithoutApprovedByNestedInput
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  rolesAssigned?: Prisma.UserRoleUpdateManyWithoutAssignedByNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authEvents?: Prisma.AuthEventUpdateManyWithoutUserNestedInput
+  staff?: Prisma.StaffUpdateOneWithoutUserNestedInput
+  createdAnnouncements?: Prisma.AnnouncementUpdateManyWithoutCreatedByNestedInput
+  auditEntries?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  recordedStudentAttendance?: Prisma.StudentAttendanceUpdateManyWithoutRecordedByNestedInput
+  correctedStudentAttendance?: Prisma.StudentAttendanceUpdateManyWithoutCorrectedByNestedInput
+  recordedStaffAttendance?: Prisma.StaffAttendanceUpdateManyWithoutRecordedByNestedInput
+  decidedLeaveRequests?: Prisma.LeaveRequestUpdateManyWithoutDecidedByNestedInput
+  feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
+  salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
+  uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
+  decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUploadedStudentDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  approvedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalsGiven?: Prisma.UserUncheckedUpdateManyWithoutApprovedByNestedInput
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  rolesAssigned?: Prisma.UserRoleUncheckedUpdateManyWithoutAssignedByNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authEvents?: Prisma.AuthEventUncheckedUpdateManyWithoutUserNestedInput
+  staff?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
+  createdAnnouncements?: Prisma.AnnouncementUncheckedUpdateManyWithoutCreatedByNestedInput
+  auditEntries?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  recordedStudentAttendance?: Prisma.StudentAttendanceUncheckedUpdateManyWithoutRecordedByNestedInput
+  correctedStudentAttendance?: Prisma.StudentAttendanceUncheckedUpdateManyWithoutCorrectedByNestedInput
+  recordedStaffAttendance?: Prisma.StaffAttendanceUncheckedUpdateManyWithoutRecordedByNestedInput
+  decidedLeaveRequests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutDecidedByNestedInput
+  feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
+  salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
+  uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -1927,6 +2116,7 @@ export type UserCreateWithoutRecordedStudentAttendanceInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -1956,6 +2146,7 @@ export type UserUncheckedCreateWithoutRecordedStudentAttendanceInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -1990,6 +2181,7 @@ export type UserCreateWithoutCorrectedStudentAttendanceInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -2019,6 +2211,7 @@ export type UserUncheckedCreateWithoutCorrectedStudentAttendanceInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -2064,6 +2257,7 @@ export type UserUpdateWithoutRecordedStudentAttendanceInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -2093,6 +2287,7 @@ export type UserUncheckedUpdateWithoutRecordedStudentAttendanceInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -2133,6 +2328,7 @@ export type UserUpdateWithoutCorrectedStudentAttendanceInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -2162,6 +2358,7 @@ export type UserUncheckedUpdateWithoutCorrectedStudentAttendanceInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -2191,6 +2388,7 @@ export type UserCreateWithoutRecordedStaffAttendanceInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -2220,6 +2418,7 @@ export type UserUncheckedCreateWithoutRecordedStaffAttendanceInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -2265,6 +2464,7 @@ export type UserUpdateWithoutRecordedStaffAttendanceInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -2294,6 +2494,7 @@ export type UserUncheckedUpdateWithoutRecordedStaffAttendanceInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -2323,6 +2524,7 @@ export type UserCreateWithoutDecidedLeaveRequestsInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -2352,6 +2554,7 @@ export type UserUncheckedCreateWithoutDecidedLeaveRequestsInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -2397,6 +2600,7 @@ export type UserUpdateWithoutDecidedLeaveRequestsInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -2426,6 +2630,7 @@ export type UserUncheckedUpdateWithoutDecidedLeaveRequestsInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -2455,6 +2660,7 @@ export type UserCreateWithoutFeePaymentsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestCreateNestedManyWithoutDecidedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -2484,6 +2690,7 @@ export type UserUncheckedCreateWithoutFeePaymentsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutDecidedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -2529,6 +2736,7 @@ export type UserUpdateWithoutFeePaymentsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestUpdateManyWithoutDecidedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -2558,6 +2766,7 @@ export type UserUncheckedUpdateWithoutFeePaymentsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutDecidedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -2587,6 +2796,7 @@ export type UserCreateWithoutSalaryDisbursementsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestCreateNestedManyWithoutDecidedByInput
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -2616,6 +2826,7 @@ export type UserUncheckedCreateWithoutSalaryDisbursementsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutDecidedByInput
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -2661,6 +2872,7 @@ export type UserUpdateWithoutSalaryDisbursementsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestUpdateManyWithoutDecidedByNestedInput
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -2690,6 +2902,7 @@ export type UserUncheckedUpdateWithoutSalaryDisbursementsInput = {
   decidedLeaveRequests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutDecidedByNestedInput
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -2719,6 +2932,7 @@ export type UserCreateWithoutCreatedAnnouncementsInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -2748,6 +2962,7 @@ export type UserUncheckedCreateWithoutCreatedAnnouncementsInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -2793,6 +3008,7 @@ export type UserUpdateWithoutCreatedAnnouncementsInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -2822,6 +3038,7 @@ export type UserUncheckedUpdateWithoutCreatedAnnouncementsInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -2851,6 +3068,7 @@ export type UserCreateWithoutAuditEntriesInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
@@ -2880,6 +3098,7 @@ export type UserUncheckedCreateWithoutAuditEntriesInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
@@ -2925,6 +3144,7 @@ export type UserUpdateWithoutAuditEntriesInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -2954,6 +3174,7 @@ export type UserUncheckedUpdateWithoutAuditEntriesInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -2984,6 +3205,7 @@ export type UserCreateWithoutPasswordResetRequestsInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   decidedPasswordResets?: Prisma.PasswordResetRequestCreateNestedManyWithoutDecidedByInput
 }
 
@@ -3013,6 +3235,7 @@ export type UserUncheckedCreateWithoutPasswordResetRequestsInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutDecidedByInput
 }
 
@@ -3047,6 +3270,7 @@ export type UserCreateWithoutDecidedPasswordResetsInput = {
   feePayments?: Prisma.FeePaymentCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestCreateNestedManyWithoutUserInput
 }
 
@@ -3076,6 +3300,7 @@ export type UserUncheckedCreateWithoutDecidedPasswordResetsInput = {
   feePayments?: Prisma.FeePaymentUncheckedCreateNestedManyWithoutReceivedByInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedCreateNestedManyWithoutPaidByInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedCreateNestedManyWithoutUploadedByInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -3121,6 +3346,7 @@ export type UserUpdateWithoutPasswordResetRequestsInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
 
@@ -3150,6 +3376,7 @@ export type UserUncheckedUpdateWithoutPasswordResetRequestsInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
 
@@ -3190,6 +3417,7 @@ export type UserUpdateWithoutDecidedPasswordResetsInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
 }
 
@@ -3219,6 +3447,7 @@ export type UserUncheckedUpdateWithoutDecidedPasswordResetsInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -3259,6 +3488,7 @@ export type UserUpdateWithoutApprovedByInput = {
   feePayments?: Prisma.FeePaymentUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUpdateManyWithoutDecidedByNestedInput
 }
@@ -3288,6 +3518,7 @@ export type UserUncheckedUpdateWithoutApprovedByInput = {
   feePayments?: Prisma.FeePaymentUncheckedUpdateManyWithoutReceivedByNestedInput
   salaryDisbursements?: Prisma.SalaryDisbursementUncheckedUpdateManyWithoutPaidByNestedInput
   uploadedStaffDocuments?: Prisma.StaffDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  uploadedStudentDocuments?: Prisma.StudentDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   passwordResetRequests?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutUserNestedInput
   decidedPasswordResets?: Prisma.PasswordResetRequestUncheckedUpdateManyWithoutDecidedByNestedInput
 }
@@ -3324,6 +3555,7 @@ export type UserCountOutputType = {
   feePayments: number
   salaryDisbursements: number
   uploadedStaffDocuments: number
+  uploadedStudentDocuments: number
   passwordResetRequests: number
   decidedPasswordResets: number
 }
@@ -3343,6 +3575,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   feePayments?: boolean | UserCountOutputTypeCountFeePaymentsArgs
   salaryDisbursements?: boolean | UserCountOutputTypeCountSalaryDisbursementsArgs
   uploadedStaffDocuments?: boolean | UserCountOutputTypeCountUploadedStaffDocumentsArgs
+  uploadedStudentDocuments?: boolean | UserCountOutputTypeCountUploadedStudentDocumentsArgs
   passwordResetRequests?: boolean | UserCountOutputTypeCountPasswordResetRequestsArgs
   decidedPasswordResets?: boolean | UserCountOutputTypeCountDecidedPasswordResetsArgs
 }
@@ -3458,6 +3691,13 @@ export type UserCountOutputTypeCountUploadedStaffDocumentsArgs<ExtArgs extends r
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountUploadedStudentDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StudentDocumentWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountPasswordResetRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PasswordResetRequestWhereInput
 }
@@ -3497,6 +3737,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   feePayments?: boolean | Prisma.User$feePaymentsArgs<ExtArgs>
   salaryDisbursements?: boolean | Prisma.User$salaryDisbursementsArgs<ExtArgs>
   uploadedStaffDocuments?: boolean | Prisma.User$uploadedStaffDocumentsArgs<ExtArgs>
+  uploadedStudentDocuments?: boolean | Prisma.User$uploadedStudentDocumentsArgs<ExtArgs>
   passwordResetRequests?: boolean | Prisma.User$passwordResetRequestsArgs<ExtArgs>
   decidedPasswordResets?: boolean | Prisma.User$decidedPasswordResetsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -3561,6 +3802,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   feePayments?: boolean | Prisma.User$feePaymentsArgs<ExtArgs>
   salaryDisbursements?: boolean | Prisma.User$salaryDisbursementsArgs<ExtArgs>
   uploadedStaffDocuments?: boolean | Prisma.User$uploadedStaffDocumentsArgs<ExtArgs>
+  uploadedStudentDocuments?: boolean | Prisma.User$uploadedStudentDocumentsArgs<ExtArgs>
   passwordResetRequests?: boolean | Prisma.User$passwordResetRequestsArgs<ExtArgs>
   decidedPasswordResets?: boolean | Prisma.User$decidedPasswordResetsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -3591,6 +3833,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     feePayments: Prisma.$FeePaymentPayload<ExtArgs>[]
     salaryDisbursements: Prisma.$SalaryDisbursementPayload<ExtArgs>[]
     uploadedStaffDocuments: Prisma.$StaffDocumentPayload<ExtArgs>[]
+    uploadedStudentDocuments: Prisma.$StudentDocumentPayload<ExtArgs>[]
     passwordResetRequests: Prisma.$PasswordResetRequestPayload<ExtArgs>[]
     decidedPasswordResets: Prisma.$PasswordResetRequestPayload<ExtArgs>[]
   }
@@ -4015,6 +4258,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   feePayments<T extends Prisma.User$feePaymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$feePaymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeePaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   salaryDisbursements<T extends Prisma.User$salaryDisbursementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$salaryDisbursementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalaryDisbursementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   uploadedStaffDocuments<T extends Prisma.User$uploadedStaffDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$uploadedStaffDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  uploadedStudentDocuments<T extends Prisma.User$uploadedStudentDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$uploadedStudentDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StudentDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   passwordResetRequests<T extends Prisma.User$passwordResetRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   decidedPasswordResets<T extends Prisma.User$decidedPasswordResetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$decidedPasswordResetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -4823,6 +5067,30 @@ export type User$uploadedStaffDocumentsArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.StaffDocumentScalarFieldEnum | Prisma.StaffDocumentScalarFieldEnum[]
+}
+
+/**
+ * User.uploadedStudentDocuments
+ */
+export type User$uploadedStudentDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StudentDocument
+   */
+  select?: Prisma.StudentDocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StudentDocument
+   */
+  omit?: Prisma.StudentDocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentDocumentInclude<ExtArgs> | null
+  where?: Prisma.StudentDocumentWhereInput
+  orderBy?: Prisma.StudentDocumentOrderByWithRelationInput | Prisma.StudentDocumentOrderByWithRelationInput[]
+  cursor?: Prisma.StudentDocumentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StudentDocumentScalarFieldEnum | Prisma.StudentDocumentScalarFieldEnum[]
 }
 
 /**

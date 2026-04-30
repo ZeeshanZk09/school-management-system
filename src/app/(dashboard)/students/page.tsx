@@ -1,17 +1,9 @@
-import { ChevronRight, GraduationCap, MoreHorizontal, Search, UserPlus } from 'lucide-react';
+import { ChevronRight, GraduationCap, Search, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import {
@@ -24,13 +16,19 @@ import {
 } from '@/components/ui/table';
 import { requirePermission } from '@/lib/auth/permissions';
 import prisma from '@/lib/prisma';
+
+const STATUS_STYLES: Record<string, string> = {
+  ACTIVE: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none',
+  PASSED_OUT: 'bg-blue-100 text-blue-700 hover:bg-blue-100 border-none',
+  WITHDRAWN: 'bg-rose-100 text-rose-700 hover:bg-rose-100 border-none',
+};
 import { StudentActions } from './student-actions';
 import { StudentFilters } from './student-filters';
 import { StudentStatus } from '@/lib/generated/prisma/enums';
 
 export default async function StudentsPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{
     query?: string;
     page?: string;
@@ -39,7 +37,7 @@ export default async function StudentsPage({
     classId?: string;
     sectionId?: string;
   }>;
-}) {
+}>) {
   await requirePermission('students.read');
   const params = await searchParams;
   const query = params.query || '';
@@ -51,13 +49,15 @@ export default async function StudentsPage({
   const sectionId = params.sectionId;
 
   // Base where clause
-  const where: any = {
+  const where = {
     isDeleted: false,
     ...(status && { status }),
     ...(query && {
       OR: [
-        { fullName: { contains: query, mode: 'insensitive' } },
-        { admissionNumber: { contains: query, mode: 'insensitive' } },
+        { fullName: { contains: query, mode: 'insensitive' as const } },
+        { admissionNumber: { contains: query, mode: 'insensitive' as const } },
+        { fatherName: { contains: query, mode: 'insensitive' as const } },
+        { id: { contains: query, mode: 'insensitive' as const } },
       ],
     }),
     ...((classId || sectionId) && {
@@ -82,6 +82,11 @@ export default async function StudentsPage({
             section: true,
           },
         },
+        guardians: {
+          include: {
+            guardian: true,
+          },
+        },
       },
       orderBy: { fullName: 'asc' },
       skip,
@@ -99,8 +104,6 @@ export default async function StudentsPage({
       orderBy: { name: 'asc' },
     }),
   ]);
-
-  const _totalPages = Math.ceil(totalCount / pageSize);
 
   return (
     <div className='space-y-6 animate-in fade-in duration-500'>
@@ -134,7 +137,7 @@ export default async function StudentsPage({
               <Input
                 name='query'
                 defaultValue={query}
-                placeholder='Search by name or admission #...'
+                placeholder='Search by name, father name, adm #...'
                 className='pl-10 h-10 bg-slate-50/50 dark:bg-slate-900/50 border-none'
               />
             </form>
@@ -171,7 +174,6 @@ export default async function StudentsPage({
                     <TableCell>
                       <div className='flex items-center gap-3'>
                         <Avatar className='h-9 w-9 ring-2 ring-primary/5'>
-                          <AvatarImage src='' />
                           <AvatarFallback className='bg-primary/10 text-primary text-xs font-bold uppercase'>
                             {student.fullName
                               .split(' ')
@@ -185,7 +187,9 @@ export default async function StudentsPage({
                             {student.fullName}
                           </span>
                           <span className='text-[10px] text-slate-500 uppercase tracking-wider font-medium'>
-                            {student.gender}
+                            {student.guardians?.[0]?.guardian?.fullName
+                              ? `F/N: ${student.guardians[0].guardian.fullName}`
+                              : student.gender}
                           </span>
                         </div>
                       </div>
@@ -215,15 +219,7 @@ export default async function StudentsPage({
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        className={
-                          student.status === 'ACTIVE'
-                            ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none'
-                            : student.status === 'PASSED_OUT'
-                              ? 'bg-blue-100 text-blue-700 hover:bg-blue-100 border-none'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-100 border-none'
-                        }
-                      >
+                      <Badge className={STATUS_STYLES[student.status] || STATUS_STYLES.WITHDRAWN}>
                         <div className='h-1.5 w-1.5 rounded-full mr-2 bg-current' />
                         {student.status.replace('_', ' ')}
                       </Badge>

@@ -17,6 +17,12 @@ import prisma from "@/lib/prisma";
 import { LeaveApprovalButton } from "./leave-approval-button";
 import { LeaveRequestDialog } from "./leave-request-dialog";
 
+const STATUS_STYLES: Record<string, string> = {
+  APPROVED: "bg-emerald-100 text-emerald-700 border-none",
+  PENDING: "bg-amber-100 text-amber-700 border-none",
+  REJECTED: "bg-rose-100 text-rose-700 border-none",
+};
+
 export default async function LeaveManagementPage() {
   await requirePermission("attendance.manage");
 
@@ -152,13 +158,7 @@ export default async function LeaveManagementPage() {
                   </TableCell>
                   <TableCell>
                     <Badge
-                      className={
-                        req.status === "APPROVED"
-                          ? "bg-emerald-100 text-emerald-700 border-none"
-                          : req.status === "PENDING"
-                            ? "bg-amber-100 text-amber-700 border-none"
-                            : "bg-rose-100 text-rose-700 border-none"
-                      }
+                      className={STATUS_STYLES[req.status] || STATUS_STYLES.REJECTED}
                     >
                       {req.status}
                     </Badge>

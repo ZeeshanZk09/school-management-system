@@ -1,10 +1,11 @@
 import { format } from "date-fns";
-import { Calendar, Megaphone, Plus, Trash2, User } from "lucide-react";
+import { Calendar, Megaphone, Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { hasPermission, requireAuth } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 import { AnnouncementForm } from "./announcement-form";
+import { DeleteAnnouncementButton } from "./delete-button";
 
 export default async function AnnouncementsPage() {
   const user = await requireAuth();
@@ -69,15 +70,7 @@ export default async function AnnouncementsPage() {
                     </div>
                   </div>
                 </div>
-                {canManage && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-slate-400 hover:text-rose-600"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
+                {canManage && <DeleteAnnouncementButton id={ann.id} />}
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600 dark:text-slate-400 whitespace-pre-wrap leading-relaxed">

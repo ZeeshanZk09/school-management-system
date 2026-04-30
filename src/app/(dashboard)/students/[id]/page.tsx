@@ -9,6 +9,11 @@ import {
   Plus,
   ShieldAlert,
   Users,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  AlertCircle,
+  Download,
 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -19,9 +24,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { requirePermission } from '@/lib/auth/permissions';
 import prisma from '@/lib/prisma';
+import { cn } from '@/lib/utils';
 import { GuardianForm } from './guardian-form';
+import { StudentDocumentUpload } from '@/components/dashboard/students/document-upload';
 
-export default async function StudentProfilePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function StudentProfilePage({
+  params,
+}: Readonly<{ params: Promise<{ id: string }> }>) {
   await requirePermission('students.read');
   const { id } = await params;
 
@@ -42,6 +51,15 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
         include: { guardian: true },
         orderBy: { isPrimaryEmergency: 'desc' },
       },
+      attendance: {
+        take: 10,
+        orderBy: { attendanceDate: 'desc' },
+        include: { session: true },
+      },
+      documents: {
+        where: { isDeleted: false },
+        orderBy: { uploadedAt: 'desc' },
+      },
     },
   });
 
@@ -56,7 +74,7 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
       <div className='flex flex-col md:flex-row md:items-end justify-between gap-4'>
         <div className='flex items-center gap-6'>
           <Avatar className='h-24 w-24 ring-4 ring-white dark:ring-slate-900 shadow-xl'>
-            <AvatarImage src='' />
+            <AvatarImage src={student.photoUrl || ''} />
             <AvatarFallback className='bg-primary/10 text-primary text-2xl font-bold'>
               {student.fullName
                 .split(' ')
@@ -169,7 +187,12 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
                     <p className='text-xs font-semibold text-slate-400 uppercase tracking-wider'>
                       Email Address
                     </p>
-                    <p className='text-sm font-medium'>{student.email || 'N/A'}</p>
+                    <a
+                      href={`mailto:${student.email}`}
+                      className='text-sm font-medium text-primary hover:underline'
+                    >
+                      {student.email || 'N/A'}
+                    </a>
                   </div>
                 </div>
                 <div className='flex items-start gap-3'>
@@ -180,7 +203,12 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
                     <p className='text-xs font-semibold text-slate-400 uppercase tracking-wider'>
                       Phone Number
                     </p>
-                    <p className='text-sm font-medium'>{student.phoneNumber || 'N/A'}</p>
+                    <a
+                      href={`tel:${student.phoneNumber}`}
+                      className='text-sm font-medium text-primary hover:underline'
+                    >
+                      {student.phoneNumber || 'N/A'}
+                    </a>
                   </div>
                 </div>
                 <div className='flex items-start gap-3 sm:col-span-2'>
@@ -229,12 +257,49 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
                 </CardTitle>
               </CardHeader>
               <CardContent className='space-y-2'>
-                <div className='flex items-center justify-between p-2 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-400'>
-                  <span>No documents uploaded.</span>
-                  <Button variant='ghost' size='sm' className='h-7 px-2 text-primary'>
-                    Upload
-                  </Button>
-                </div>
+                {student.documents.length === 0 ? (
+                  <div className='flex items-center justify-between p-2 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-400'>
+                    <span>No documents uploaded.</span>
+                    <StudentDocumentUpload studentId={student.id} />
+                  </div>
+                ) : (
+                  <div className='space-y-3'>
+                    <div className='flex justify-end'>
+                      <StudentDocumentUpload studentId={student.id} />
+                    </div>
+                    <div className='space-y-2'>
+                      {student.documents.map((doc) => (
+                        <div
+                          key={doc.id}
+                          className='flex items-center justify-between p-2 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50'
+                        >
+                          <div className='flex flex-col overflow-hidden'>
+                            <span className='text-sm font-semibold truncate'>{doc.title}</span>
+                            <span className='text-[10px] text-slate-500'>
+                              {format(new Date(doc.uploadedAt), 'MMM d, yyyy')} •{' '}
+                              {(doc.sizeBytes / 1024).toFixed(1)} KB
+                            </span>
+                          </div>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='h-8 w-8 text-primary'
+                            asChild
+                          >
+                            <a
+                              href={doc.filePath}
+                              download={doc.fileName}
+                              target='_blank'
+                              rel='noreferrer'
+                            >
+                              <Download className='h-4 w-4' />
+                            </a>
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -293,7 +358,7 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
                         <Button
                           variant='ghost'
                           size='icon'
-                          className='h-8 w-8 opacity-0 group-card-hover:opacity-100 transition-opacity'
+                          className='h-8 w-8 text-slate-400 hover:text-primary transition-colors'
                         >
                           <Edit className='h-3.5 w-3.5' />
                         </Button>
@@ -329,8 +394,63 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
         </TabsContent>
 
         <TabsContent value='attendance' className='pt-6'>
-          <Card className='border-none shadow-sm glass h-64 flex items-center justify-center text-slate-400 italic'>
-            Detailed attendance history will be implemented in Phase 4.
+          <Card className='border-none shadow-sm glass overflow-hidden'>
+            <CardHeader className='pb-4 border-b bg-slate-50/50 dark:bg-slate-900/50'>
+              <CardTitle className='text-lg font-bold'>Recent Attendance</CardTitle>
+            </CardHeader>
+            <CardContent className='p-0'>
+              <div className='divide-y divide-slate-100 dark:divide-slate-800'>
+                {student.attendance.length === 0 ? (
+                  <div className='h-32 flex items-center justify-center text-slate-400 italic text-sm'>
+                    No attendance records found.
+                  </div>
+                ) : (
+                  student.attendance.map((record) => (
+                    <div
+                      key={record.id}
+                      className='flex items-center justify-between p-4 hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors'
+                    >
+                      <div className='flex items-center gap-4'>
+                        <div
+                          className={cn(
+                            'p-2 rounded-full',
+                            record.status === 'PRESENT' && 'bg-emerald-100 text-emerald-600',
+                            record.status === 'ABSENT' && 'bg-rose-100 text-rose-600',
+                            record.status === 'LATE' && 'bg-amber-100 text-amber-600',
+                            record.status === 'EXCUSED' && 'bg-blue-100 text-blue-600'
+                          )}
+                        >
+                          {record.status === 'PRESENT' && <CheckCircle2 className='h-4 w-4' />}
+                          {record.status === 'ABSENT' && <XCircle className='h-4 w-4' />}
+                          {record.status === 'LATE' && <Clock className='h-4 w-4' />}
+                          {record.status === 'EXCUSED' && <AlertCircle className='h-4 w-4' />}
+                        </div>
+                        <div>
+                          <p className='text-sm font-semibold'>
+                            {format(new Date(record.attendanceDate), 'PPPP')}
+                          </p>
+                          <p className='text-[10px] text-slate-500 uppercase font-bold tracking-wider'>
+                            {record.session.name}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge
+                        variant='secondary'
+                        className={cn(
+                          'text-[10px] font-bold border-none',
+                          record.status === 'PRESENT' && 'bg-emerald-50 text-emerald-700',
+                          record.status === 'ABSENT' && 'bg-rose-50 text-rose-700',
+                          record.status === 'LATE' && 'bg-amber-50 text-amber-700',
+                          record.status === 'EXCUSED' && 'bg-blue-50 text-blue-700'
+                        )}
+                      >
+                        {record.status}
+                      </Badge>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>

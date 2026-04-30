@@ -88,6 +88,11 @@ export type StaffDocument = Prisma.StaffDocumentModel
  */
 export type Student = Prisma.StudentModel
 /**
+ * Model StudentDocument
+ * 
+ */
+export type StudentDocument = Prisma.StudentDocumentModel
+/**
  * Model StudentEnrollment
  * 
  */

@@ -398,6 +398,7 @@ export const ModelName = {
   Staff: 'Staff',
   StaffDocument: 'StaffDocument',
   Student: 'Student',
+  StudentDocument: 'StudentDocument',
   StudentEnrollment: 'StudentEnrollment',
   Guardian: 'Guardian',
   StudentGuardian: 'StudentGuardian',
@@ -440,7 +441,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "oneTimeToken" | "authEvent" | "academicYear" | "class" | "section" | "staff" | "staffDocument" | "student" | "studentEnrollment" | "guardian" | "studentGuardian" | "siblingGroup" | "studentSibling" | "classTeacherAssignment" | "attendanceSession" | "studentAttendance" | "staffAttendance" | "leaveType" | "leaveBalance" | "leaveRequest" | "feeStructure" | "feeComponent" | "feeRecord" | "feeRecordItem" | "feePayment" | "feeReceipt" | "salaryStructure" | "salaryComponent" | "salarySlip" | "salaryDisbursement" | "announcement" | "systemSettings" | "academicCalendarEvent" | "auditLog" | "passwordResetRequest"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "oneTimeToken" | "authEvent" | "academicYear" | "class" | "section" | "staff" | "staffDocument" | "student" | "studentDocument" | "studentEnrollment" | "guardian" | "studentGuardian" | "siblingGroup" | "studentSibling" | "classTeacherAssignment" | "attendanceSession" | "studentAttendance" | "staffAttendance" | "leaveType" | "leaveBalance" | "leaveRequest" | "feeStructure" | "feeComponent" | "feeRecord" | "feeRecordItem" | "feePayment" | "feeReceipt" | "salaryStructure" | "salaryComponent" | "salarySlip" | "salaryDisbursement" | "announcement" | "systemSettings" | "academicCalendarEvent" | "auditLog" | "passwordResetRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1477,6 +1478,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.StudentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.StudentCountAggregateOutputType> | number
+        }
+      }
+    }
+    StudentDocument: {
+      payload: Prisma.$StudentDocumentPayload<ExtArgs>
+      fields: Prisma.StudentDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StudentDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StudentDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.StudentDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StudentDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.StudentDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.StudentDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.StudentDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StudentDocumentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload>[]
+        }
+        delete: {
+          args: Prisma.StudentDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload>
+        }
+        update: {
+          args: Prisma.StudentDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.StudentDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StudentDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StudentDocumentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload>[]
+        }
+        upsert: {
+          args: Prisma.StudentDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudentDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.StudentDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStudentDocument>
+        }
+        groupBy: {
+          args: Prisma.StudentDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StudentDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StudentDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StudentDocumentCountAggregateOutputType> | number
         }
       }
     }
@@ -3729,6 +3804,22 @@ export const StudentScalarFieldEnum = {
 export type StudentScalarFieldEnum = (typeof StudentScalarFieldEnum)[keyof typeof StudentScalarFieldEnum]
 
 
+export const StudentDocumentScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  title: 'title',
+  fileName: 'fileName',
+  filePath: 'filePath',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  uploadedById: 'uploadedById',
+  uploadedAt: 'uploadedAt',
+  isDeleted: 'isDeleted'
+} as const
+
+export type StudentDocumentScalarFieldEnum = (typeof StudentDocumentScalarFieldEnum)[keyof typeof StudentDocumentScalarFieldEnum]
+
+
 export const StudentEnrollmentScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
@@ -4627,6 +4718,7 @@ export type GlobalOmitConfig = {
   staff?: Prisma.StaffOmit
   staffDocument?: Prisma.StaffDocumentOmit
   student?: Prisma.StudentOmit
+  studentDocument?: Prisma.StudentDocumentOmit
   studentEnrollment?: Prisma.StudentEnrollmentOmit
   guardian?: Prisma.GuardianOmit
   studentGuardian?: Prisma.StudentGuardianOmit

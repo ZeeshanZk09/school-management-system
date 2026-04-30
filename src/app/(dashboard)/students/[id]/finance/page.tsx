@@ -5,7 +5,6 @@ import {
   Download,
   FileText,
   History,
-  Receipt,
   Wallet,
   TrendingDown,
   TrendingUp,
@@ -26,40 +25,57 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { requirePermission } from '@/lib/auth/permissions';
 import prisma from '@/lib/prisma';
+import { getSystemSettings } from '@/lib/settings';
+import { ReceiptButton } from '@/app/(dashboard)/finance/records/receipt-button';
 
-export default async function StudentFinancePage({ params }: { params: Promise<{ id: string }> }) {
+const STATUS_STYLES: Record<string, string> = {
+  PAID: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none',
+  PARTIALLY_PAID: 'bg-amber-100 text-amber-700 hover:bg-amber-100 border-none',
+  UNPAID: 'bg-rose-100 text-rose-700 hover:bg-rose-100 border-none',
+};
+
+export default async function StudentFinancePage({
+  params,
+}: Readonly<{ params: Promise<{ id: string }> }>) {
   await requirePermission('finance.read');
   const { id } = await params;
 
-  const student = await prisma.student.findUnique({
-    where: { id, isDeleted: false },
-    include: {
-      enrollments: {
-        where: { academicYear: { isActive: true } },
-        include: { class: true },
-      },
-      feeRecords: {
-        where: { isDeleted: false },
-        include: {
-          academicYear: true,
-          payments: {
-            where: { isDeleted: false },
-            orderBy: { paidAt: 'desc' },
-          },
-          items: {
-            where: { isDeleted: false },
-          },
+  const [student, settings] = await Promise.all([
+    prisma.student.findUnique({
+      where: { id, isDeleted: false },
+      include: {
+        enrollments: {
+          where: { isDeleted: false },
+          include: { class: true, academicYear: true, section: true },
+          orderBy: { academicYear: { startDate: 'desc' } },
         },
-        orderBy: { dueDate: 'desc' },
+        feeRecords: {
+          where: { isDeleted: false },
+          include: {
+            academicYear: true,
+            class: true,
+            payments: {
+              where: { isDeleted: false },
+              orderBy: { paidAt: 'desc' },
+              include: { receipt: true },
+            },
+            items: {
+              where: { isDeleted: false },
+            },
+          },
+          orderBy: { dueDate: 'desc' },
+        },
       },
-    },
-  });
+    }),
+    getSystemSettings(),
+  ]);
 
   if (!student) {
     return notFound();
   }
 
-  const activeEnrollment = student.enrollments[0];
+  const activeEnrollment =
+    student.enrollments.find((e) => e.academicYear.isActive) ?? student.enrollments[0];
 
   // Calculations
   const totalInvoiced = student.feeRecords.reduce((acc, rec) => acc + Number(rec.totalAmount), 0);
@@ -73,7 +89,7 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
       <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
         <div className='flex items-center gap-4'>
           <Button variant='ghost' size='icon' asChild className='h-10 w-10'>
-            <Link href='/students'>
+            <Link href={`/students/${student.id}`}>
               <ArrowLeft className='h-5 w-5' />
             </Link>
           </Button>
@@ -88,18 +104,13 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
           </div>
         </div>
         <div className='flex items-center gap-2'>
-          <Button variant='outline' className='h-10'>
+          <Button variant='outline' className='h-10' onClick={() => window.print()}>
             <Download className='mr-2 h-4 w-4' />
-            Export PDF
-          </Button>
-          <Button className='gradient-primary h-10 shadow-md'>
-            <Receipt className='mr-2 h-4 w-4' />
-            Generate Receipt
+            Print Report
           </Button>
         </div>
       </div>
 
-      {/* Summary Stats */}
       <div className='grid gap-4 md:grid-cols-3'>
         <Card className='border-none shadow-sm glass overflow-hidden relative group'>
           <div className='absolute top-0 left-0 w-1 h-full bg-blue-500' />
@@ -108,7 +119,7 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
               Total Invoiced
             </CardDescription>
             <CardTitle className='text-3xl font-bold flex items-center justify-between'>
-              ${totalInvoiced.toLocaleString()}
+              Rs {totalInvoiced.toLocaleString()}
               <div className='h-10 w-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center'>
                 <FileText className='h-5 w-5 text-blue-500' />
               </div>
@@ -129,7 +140,7 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
               Total Paid
             </CardDescription>
             <CardTitle className='text-3xl font-bold flex items-center justify-between'>
-              ${totalPaid.toLocaleString()}
+              Rs {totalPaid.toLocaleString()}
               <div className='h-10 w-10 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center'>
                 <Wallet className='h-5 w-5 text-emerald-500' />
               </div>
@@ -150,7 +161,7 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
               Outstanding Balance
             </CardDescription>
             <CardTitle className='text-3xl font-bold flex items-center justify-between'>
-              ${totalOutstanding.toLocaleString()}
+              Rs {totalOutstanding.toLocaleString()}
               <div className='h-10 w-10 rounded-full bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center'>
                 <AlertCircle className='h-5 w-5 text-rose-500' />
               </div>
@@ -167,7 +178,6 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
 
       <div className='grid gap-6 md:grid-cols-3'>
         <div className='md:col-span-2 space-y-6'>
-          {/* Fee Records */}
           <Card className='border-none shadow-sm glass overflow-hidden'>
             <CardHeader className='border-b bg-slate-50/50 dark:bg-slate-900/50 pb-4'>
               <div className='flex items-center justify-between'>
@@ -187,7 +197,7 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
                   <TableHead>Amount</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Due Date</TableHead>
-                  <TableHead className='text-right'>Actions</TableHead>
+                  <TableHead className='text-right'>Receipts</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -216,25 +226,17 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
                       <TableCell>
                         <div className='flex flex-col'>
                           <span className='font-bold'>
-                            ${Number(record.totalAmount).toLocaleString()}
+                            Rs {Number(record.totalAmount).toLocaleString()}
                           </span>
                           {Number(record.outstandingAmount) > 0 && (
                             <span className='text-[10px] text-rose-500 font-medium italic'>
-                              ${Number(record.outstandingAmount).toLocaleString()} pending
+                              Rs {Number(record.outstandingAmount).toLocaleString()} pending
                             </span>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          className={
-                            record.status === 'PAID'
-                              ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none'
-                              : record.status === 'PARTIALLY_PAID'
-                                ? 'bg-amber-100 text-amber-700 hover:bg-amber-100 border-none'
-                                : 'bg-rose-100 text-rose-700 hover:bg-rose-100 border-none'
-                          }
-                        >
+                        <Badge className={STATUS_STYLES[record.status] || STATUS_STYLES.UNPAID}>
                           {record.status}
                         </Badge>
                       </TableCell>
@@ -242,9 +244,9 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
                         {format(new Date(record.dueDate), 'MMM dd, yyyy')}
                       </TableCell>
                       <TableCell className='text-right'>
-                        <Button variant='ghost' size='sm' className='h-8 text-primary'>
-                          View Details
-                        </Button>
+                        <div className='flex justify-end'>
+                          <ReceiptButton record={{ ...record, student }} settings={settings} />
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -253,13 +255,12 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
             </Table>
           </Card>
 
-          {/* Recent Payments */}
           <Card className='border-none shadow-sm glass overflow-hidden'>
             <CardHeader className='border-b bg-slate-50/50 dark:bg-slate-900/50 pb-4'>
               <div className='flex items-center justify-between'>
                 <div>
-                  <CardTitle className='text-xl font-bold'>Recent Payments</CardTitle>
-                  <CardDescription>Detailed log of all financial transactions.</CardDescription>
+                  <CardTitle className='text-xl font-bold'>Payment History</CardTitle>
+                  <CardDescription>Detailed log of all processed payments.</CardDescription>
                 </div>
                 <History className='h-5 w-5 text-slate-400' />
               </div>
@@ -296,7 +297,7 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
                         </TableCell>
                         <TableCell>
                           <span className='font-bold text-emerald-600 dark:text-emerald-400'>
-                            +${Number(payment.amountPaid).toLocaleString()}
+                            +Rs {Number(payment.amountPaid).toLocaleString()}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -308,9 +309,17 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
                           {payment.referenceNumber || 'N/A'}
                         </TableCell>
                         <TableCell className='text-right'>
-                          <Button variant='ghost' size='icon' className='h-8 w-8 text-primary'>
-                            <Download className='h-4 w-4' />
-                          </Button>
+                          <div className='flex justify-end'>
+                            {/* Passing the parent record data for the receipt button */}
+                            <ReceiptButton
+                              record={{
+                                ...student.feeRecords.find((r) => r.id === payment.feeRecordId)!,
+                                student,
+                                payments: [payment],
+                              }}
+                              settings={settings}
+                            />
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -320,7 +329,6 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
           </Card>
         </div>
 
-        {/* Sidebar info */}
         <div className='space-y-6'>
           <Card className='border-none shadow-sm glass'>
             <CardHeader>
@@ -364,23 +372,6 @@ export default async function StudentFinancePage({ params }: { params: Promise<{
                   </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className='border-none shadow-sm glass bg-primary/5'>
-            <CardHeader>
-              <CardTitle className='text-sm font-bold uppercase tracking-wider'>
-                Financial Policy
-              </CardTitle>
-            </CardHeader>
-            <CardContent className='space-y-3'>
-              <p className='text-xs text-slate-500 leading-relaxed'>
-                Fees must be cleared by the due date mentioned on each invoice. A late fee of 5% may
-                apply to outstanding balances after 10 days of the due date.
-              </p>
-              <Button variant='link' className='p-0 h-auto text-xs text-primary font-bold'>
-                Read full policy →
-              </Button>
             </CardContent>
           </Card>
         </div>

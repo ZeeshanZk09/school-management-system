@@ -1,13 +1,11 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
-import { writeAuditLog } from "@/lib/audit";
-import { requirePermission } from "@/lib/auth/permissions";
-import prisma from "@/lib/prisma";
-import {
-  studentEnrollmentSchema,
-  studentSchema,
-} from "@/lib/validations/student";
+import { revalidatePath } from 'next/cache';
+import { writeAuditLog } from '@/lib/audit';
+import { requirePermission } from '@/lib/auth/permissions';
+import prisma from '@/lib/prisma';
+import { studentEnrollmentSchema, studentSchema } from '@/lib/validations/student';
+import { z } from 'zod';
 
 export type ActionResponse = {
   success: boolean;
@@ -17,11 +15,11 @@ export type ActionResponse = {
 };
 
 export async function createStudent(data: any) {
-  const user = await requirePermission("students.manage");
+  const user = await requirePermission('students.manage');
 
   const validated = studentSchema.safeParse(data);
   if (!validated.success) {
-    return { success: false, errors: validated.error.flatten().fieldErrors };
+    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
   }
 
   try {
@@ -36,27 +34,27 @@ export async function createStudent(data: any) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: "CREATE",
-      tableName: "Student",
+      action: 'CREATE',
+      tableName: 'Student',
       recordId: student.id,
       newValue: student,
     });
 
     return { success: true, studentId: student.id };
   } catch (error: any) {
-    if (error.code === "P2002") {
-      return { success: false, message: "Admission number already exists" };
+    if (error.code === 'P2002') {
+      return { success: false, message: 'Admission number already exists' };
     }
-    return { success: false, message: "Failed to create student" };
+    return { success: false, message: 'Failed to create student' };
   }
 }
 
 export async function enrollStudent(data: any) {
-  const user = await requirePermission("students.manage");
+  const user = await requirePermission('students.manage');
 
   const validated = studentEnrollmentSchema.safeParse(data);
   if (!validated.success) {
-    return { success: false, errors: validated.error.flatten().fieldErrors };
+    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
   }
 
   try {
@@ -66,25 +64,25 @@ export async function enrollStudent(data: any) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: "CREATE",
-      tableName: "StudentEnrollment",
+      action: 'CREATE',
+      tableName: 'StudentEnrollment',
       recordId: enrollment.id,
       newValue: enrollment,
     });
 
-    revalidatePath("/students");
+    revalidatePath('/students');
     return { success: true };
   } catch (_error) {
-    return { success: false, message: "Failed to enroll student" };
+    return { success: false, message: 'Failed to enroll student' };
   }
 }
 
 export async function updateStudent(id: string, data: any) {
-  const user = await requirePermission("students.manage");
+  const user = await requirePermission('students.manage');
 
   const validated = studentSchema.safeParse(data);
   if (!validated.success) {
-    return { success: false, errors: validated.error.flatten().fieldErrors };
+    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
   }
 
   try {
@@ -101,23 +99,23 @@ export async function updateStudent(id: string, data: any) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: "UPDATE",
-      tableName: "Student",
+      action: 'UPDATE',
+      tableName: 'Student',
       recordId: id,
       oldValue: oldStudent,
       newValue: student,
     });
 
-    revalidatePath("/students");
+    revalidatePath('/students');
     revalidatePath(`/students/${id}`);
     return { success: true };
   } catch (_error) {
-    return { success: false, message: "Failed to update student" };
+    return { success: false, message: 'Failed to update student' };
   }
 }
 
 export async function deleteStudent(id: string) {
-  const user = await requirePermission("students.manage");
+  const user = await requirePermission('students.manage');
 
   try {
     await prisma.student.update({
@@ -127,26 +125,26 @@ export async function deleteStudent(id: string) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: "DELETE",
-      tableName: "Student",
+      action: 'DELETE',
+      tableName: 'Student',
       recordId: id,
     });
 
-    revalidatePath("/students");
+    revalidatePath('/students');
     return { success: true };
   } catch (_error) {
-    return { success: false, message: "Failed to delete student" };
+    return { success: false, message: 'Failed to delete student' };
   }
 }
 
 // Guardian Actions
 export async function addGuardian(studentId: string, data: any): Promise<ActionResponse> {
-  const user = await requirePermission("students.manage");
-  const { guardianSchema } = await import("@/lib/validations/guardian");
+  const user = await requirePermission('students.manage');
+  const { guardianSchema } = await import('@/lib/validations/guardian');
 
   const validated = guardianSchema.safeParse(data);
   if (!validated.success) {
-    return { success: false, errors: validated.error.flatten().fieldErrors };
+    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
   }
 
   try {
@@ -181,8 +179,8 @@ export async function addGuardian(studentId: string, data: any): Promise<ActionR
 
       await writeAuditLog({
         actorUserId: user.id,
-        action: "CREATE",
-        tableName: "Guardian",
+        action: 'CREATE',
+        tableName: 'Guardian',
         recordId: guardian.id,
         newValue: guardian,
       });
@@ -191,17 +189,21 @@ export async function addGuardian(studentId: string, data: any): Promise<ActionR
       return { success: true };
     });
   } catch (_error) {
-    return { success: false, message: "Failed to add guardian" };
+    return { success: false, message: 'Failed to add guardian' };
   }
 }
 
-export async function updateGuardian(id: string, studentId: string, data: any): Promise<ActionResponse> {
-  const user = await requirePermission("students.manage");
-  const { guardianSchema } = await import("@/lib/validations/guardian");
+export async function updateGuardian(
+  id: string,
+  studentId: string,
+  data: any
+): Promise<ActionResponse> {
+  const user = await requirePermission('students.manage');
+  const { guardianSchema } = await import('@/lib/validations/guardian');
 
   const validated = guardianSchema.safeParse(data);
   if (!validated.success) {
-    return { success: false, errors: validated.error.flatten().fieldErrors };
+    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
   }
 
   try {
@@ -242,8 +244,8 @@ export async function updateGuardian(id: string, studentId: string, data: any): 
 
       await writeAuditLog({
         actorUserId: user.id,
-        action: "UPDATE",
-        tableName: "Guardian",
+        action: 'UPDATE',
+        tableName: 'Guardian',
         recordId: id,
         oldValue: oldGuardian,
         newValue: guardian,
@@ -253,12 +255,12 @@ export async function updateGuardian(id: string, studentId: string, data: any): 
       return { success: true };
     });
   } catch (_error) {
-    return { success: false, message: "Failed to update guardian" };
+    return { success: false, message: 'Failed to update guardian' };
   }
 }
 
 export async function deleteGuardian(id: string, studentId: string) {
-  const user = await requirePermission("students.manage");
+  const user = await requirePermission('students.manage');
 
   try {
     // We just remove the link, or soft delete the guardian?
@@ -273,24 +275,21 @@ export async function deleteGuardian(id: string, studentId: string) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: "DELETE",
-      tableName: "StudentGuardian",
+      action: 'DELETE',
+      tableName: 'StudentGuardian',
       recordId: `${studentId}_${id}`,
     });
 
     revalidatePath(`/students/${studentId}`);
     return { success: true };
   } catch (_error) {
-    return { success: false, message: "Failed to remove guardian link" };
+    return { success: false, message: 'Failed to remove guardian link' };
   }
 }
 
 // Sibling Actions
-export async function linkSiblings(
-  studentId: string,
-  siblingStudentId: string,
-) {
-  const user = await requirePermission("students.manage");
+export async function linkSiblings(studentId: string, siblingStudentId: string) {
+  const user = await requirePermission('students.manage');
 
   try {
     return await prisma.$transaction(async (tx) => {
@@ -306,7 +305,7 @@ export async function linkSiblings(
 
       if (student1 && student2) {
         if (student1.siblingGroupId === student2.siblingGroupId) {
-          return { success: true, message: "Already linked" };
+          return { success: true, message: 'Already linked' };
         }
         // Merge groups? For simplicity, we'll just throw an error or handle one
         groupId = student1.siblingGroupId;
@@ -338,8 +337,8 @@ export async function linkSiblings(
 
       await writeAuditLog({
         actorUserId: user.id,
-        action: "UPDATE",
-        tableName: "StudentSibling",
+        action: 'UPDATE',
+        tableName: 'StudentSibling',
         recordId: groupId,
         note: `Linked ${studentId} and ${siblingStudentId} as siblings`,
       });
@@ -349,7 +348,7 @@ export async function linkSiblings(
       return { success: true };
     });
   } catch (_error) {
-    return { success: false, message: "Failed to link siblings" };
+    return { success: false, message: 'Failed to link siblings' };
   }
 }
 
@@ -360,9 +359,9 @@ export async function promoteStudent(
     targetClassId: string;
     targetSectionId?: string;
     targetRollNumber: string;
-  },
+  }
 ) {
-  const user = await requirePermission("students.manage");
+  const user = await requirePermission('students.manage');
 
   try {
     return await prisma.$transaction(async (tx) => {
@@ -379,7 +378,7 @@ export async function promoteStudent(
       if (existing) {
         return {
           success: false,
-          message: "Student is already enrolled in the target academic year",
+          message: 'Student is already enrolled in the target academic year',
         };
       }
 
@@ -396,8 +395,8 @@ export async function promoteStudent(
 
       await writeAuditLog({
         actorUserId: user.id,
-        action: "CREATE",
-        tableName: "StudentEnrollment",
+        action: 'CREATE',
+        tableName: 'StudentEnrollment',
         recordId: enrollment.id,
         newValue: enrollment,
         note: `Promoted student ${studentId} to next academic year`,
@@ -407,8 +406,8 @@ export async function promoteStudent(
       return { success: true };
     });
   } catch (error) {
-    console.error("Promotion error:", error);
-    return { success: false, message: "Failed to promote student" };
+    console.error('Promotion error:', error);
+    return { success: false, message: 'Failed to promote student' };
   }
 }
 
@@ -418,9 +417,9 @@ export async function bulkPromoteStudents(
     targetAcademicYearId: string;
     targetClassId: string;
     targetSectionId?: string;
-  },
+  }
 ) {
-  const user = await requirePermission("students.manage");
+  const user = await requirePermission('students.manage');
 
   try {
     const results = await prisma.$transaction(async (tx) => {
@@ -437,12 +436,19 @@ export async function bulkPromoteStudents(
         });
 
         if (!existing) {
+          // Fetch the most recent enrollment to carry over the roll number
+          const lastEnrollment = await tx.studentEnrollment.findFirst({
+            where: { studentId },
+            orderBy: { createdAt: 'desc' },
+          });
+
           const enrollment = await tx.studentEnrollment.create({
             data: {
               studentId,
               academicYearId: data.targetAcademicYearId,
               classId: data.targetClassId,
               sectionId: data.targetSectionId || null,
+              rollNumber: lastEnrollment?.rollNumber || 'TBD',
             },
           });
           promotions.push(enrollment);
@@ -453,15 +459,82 @@ export async function bulkPromoteStudents(
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: "CREATE",
-      tableName: "StudentEnrollment",
+      action: 'CREATE',
+      tableName: 'StudentEnrollment',
       note: `Bulk promoted ${results.length} students`,
     });
 
-    revalidatePath("/students");
+    revalidatePath('/students');
     return { success: true, count: results.length };
   } catch (error) {
-    console.error("Bulk promotion error:", error);
-    return { success: false, message: "Failed to perform bulk promotion" };
+    console.error('Bulk promotion error:', error);
+    return { success: false, message: 'Failed to perform bulk promotion' };
+  }
+}
+
+// Document Actions
+export async function addStudentDocument(
+  studentId: string,
+  data: {
+    title: string;
+    fileName: string;
+    filePath: string;
+    mimeType: string;
+    sizeBytes: number;
+  }
+) {
+  const user = await requirePermission('students.manage');
+
+  try {
+    const document = await prisma.studentDocument.create({
+      data: {
+        studentId,
+        title: data.title,
+        fileName: data.fileName,
+        filePath: data.filePath,
+        mimeType: data.mimeType,
+        sizeBytes: data.sizeBytes,
+        uploadedById: user.id,
+      },
+    });
+
+    await writeAuditLog({
+      actorUserId: user.id,
+      action: 'CREATE',
+      tableName: 'StudentDocument',
+      recordId: document.id,
+      newValue: document,
+    });
+
+    revalidatePath(`/students/${studentId}`);
+    return { success: true, document };
+  } catch (error) {
+    console.error('Error adding student document:', error);
+    return { success: false, message: 'Failed to save document record' };
+  }
+}
+
+export async function deleteStudentDocument(id: string, studentId: string) {
+  const user = await requirePermission('students.manage');
+
+  try {
+    const document = await prisma.studentDocument.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
+
+    await writeAuditLog({
+      actorUserId: user.id,
+      action: 'DELETE',
+      tableName: 'StudentDocument',
+      recordId: id,
+      oldValue: document,
+    });
+
+    revalidatePath(`/students/${studentId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting student document:', error);
+    return { success: false, message: 'Failed to delete document' };
   }
 }

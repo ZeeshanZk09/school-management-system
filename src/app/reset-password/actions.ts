@@ -1,11 +1,12 @@
-"use server";
+'use server';
 
-import { createHash } from "node:crypto";
+import { createHash } from 'node:crypto';
 
-import prisma from "@/lib/prisma";
-import { hashPassword } from "@/lib/security/password";
-import { revokeAllUserSessions } from "@/lib/auth/session";
-import { newPasswordSchema } from "@/lib/validations/auth";
+import prisma from '@/lib/prisma';
+import { hashPassword } from '@/lib/security/password';
+import { revokeAllUserSessions } from '@/lib/auth/session';
+import { newPasswordSchema } from '@/lib/validations/auth';
+import { z } from 'zod';
 
 export type ResetPasswordResponse = {
   success: boolean;
@@ -27,7 +28,7 @@ export async function verifyResetToken(rawToken: string): Promise<{
     return { valid: false };
   }
 
-  const tokenHash = createHash("sha256").update(rawToken).digest("hex");
+  const tokenHash = createHash('sha256').update(rawToken).digest('hex');
 
   const token = await prisma.oneTimeToken.findUnique({
     where: { tokenHash },
@@ -45,7 +46,7 @@ export async function verifyResetToken(rawToken: string): Promise<{
     return { valid: false };
   }
 
-  if (token.type !== "PASSWORD_RESET") {
+  if (token.type !== 'PASSWORD_RESET') {
     return { valid: false };
   }
 
@@ -63,12 +64,12 @@ export async function verifyResetToken(rawToken: string): Promise<{
     },
   });
 
-  if (!user || user.status !== "ACTIVE") {
+  if (user?.status !== 'ACTIVE') {
     return { valid: false };
   }
 
   const roles = user.roles.map((r) => r.role.name);
-  const isAdmin = roles.includes("ADMIN");
+  const isAdmin = roles.includes('ADMIN');
 
   return {
     valid: true,
@@ -86,24 +87,24 @@ export async function verifyResetToken(rawToken: string): Promise<{
 export async function submitPasswordReset(
   rawToken: string,
   _prevState: ResetPasswordResponse,
-  formData: FormData,
+  formData: FormData
 ): Promise<ResetPasswordResponse> {
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
+  const password = formData.get('password') as string;
+  const confirmPassword = formData.get('confirmPassword') as string;
 
   const validated = newPasswordSchema.safeParse({ password, confirmPassword });
 
   if (!validated.success) {
     return {
       success: false,
-      message: "Invalid form data",
-      errors: validated.error.flatten().fieldErrors,
+      message: 'Invalid form data',
+      errors: z.flattenError(validated.error).fieldErrors,
     };
   }
 
   try {
     // Verify the token again
-    const tokenHash = createHash("sha256").update(rawToken).digest("hex");
+    const tokenHash = createHash('sha256').update(rawToken).digest('hex');
 
     const token = await prisma.oneTimeToken.findUnique({
       where: { tokenHash },
@@ -112,7 +113,7 @@ export async function submitPasswordReset(
     if (!token || token.consumedAt || token.expiresAt <= new Date()) {
       return {
         success: false,
-        message: "Reset link has expired or is invalid. Please request a new one.",
+        message: 'Reset link has expired or is invalid. Please request a new one.',
       };
     }
 
@@ -129,15 +130,15 @@ export async function submitPasswordReset(
       },
     });
 
-    if (!user || user.status !== "ACTIVE") {
+    if (user?.status !== 'ACTIVE') {
       return {
         success: false,
-        message: "Account not found or inactive.",
+        message: 'Account not found or inactive.',
       };
     }
 
     const roles = user.roles.map((r) => r.role.name);
-    const isAdmin = roles.includes("ADMIN");
+    const isAdmin = roles.includes('ADMIN');
     const newPasswordHash = await hashPassword(validated.data.password);
 
     // Consume the token
@@ -154,11 +155,11 @@ export async function submitPasswordReset(
       });
 
       // Revoke all existing sessions
-      await revokeAllUserSessions(user.id, "PASSWORD_CHANGED");
+      await revokeAllUserSessions(user.id, 'PASSWORD_CHANGED');
 
       return {
         success: true,
-        message: "Your password has been reset successfully. You can now log in.",
+        message: 'Your password has been reset successfully. You can now log in.',
       };
     }
 
@@ -167,10 +168,10 @@ export async function submitPasswordReset(
     await prisma.passwordResetRequest.updateMany({
       where: {
         userId: user.id,
-        status: "PENDING_APPROVAL",
+        status: 'PENDING_APPROVAL',
       },
       data: {
-        status: "EXPIRED",
+        status: 'EXPIRED',
       },
     });
 
@@ -178,7 +179,7 @@ export async function submitPasswordReset(
       data: {
         userId: user.id,
         newPasswordHash,
-        status: "PENDING_APPROVAL",
+        status: 'PENDING_APPROVAL',
         expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours
       },
     });
@@ -187,13 +188,13 @@ export async function submitPasswordReset(
       success: true,
       requiresApproval: true,
       message:
-        "Your password reset request has been submitted. An administrator will review and approve it. You will be able to log in once approved.",
+        'Your password reset request has been submitted. An administrator will review and approve it. You will be able to log in once approved.',
     };
   } catch (error) {
-    console.error("[reset-password] Error:", error);
+    console.error('[reset-password] Error:', error);
     return {
       success: false,
-      message: "An unexpected error occurred. Please try again.",
+      message: 'An unexpected error occurred. Please try again.',
     };
   }
 }

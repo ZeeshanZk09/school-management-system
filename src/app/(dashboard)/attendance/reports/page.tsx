@@ -3,6 +3,7 @@ import { Calendar as CalendarIcon, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -24,19 +25,19 @@ import { AttendanceExportButtons } from './export-buttons';
 
 export default async function AttendanceReportsPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{
     type?: string;
     classId?: string;
     month?: string;
     year?: string;
   }>;
-}) {
+}>) {
   await requirePermission('attendance.manage');
   const params = await searchParams;
   const type = params.type || 'student';
-  const month = params.month ? parseInt(params.month, 10) : new Date().getMonth() + 1;
-  const year = params.year ? parseInt(params.year, 10) : new Date().getFullYear();
+  const month = params.month ? Number.parseInt(params.month, 10) : new Date().getMonth() + 1;
+  const year = params.year ? Number.parseInt(params.year, 10) : new Date().getFullYear();
   const classId = params.classId;
 
   const startDate = startOfMonth(new Date(year, month - 1));
@@ -166,9 +167,14 @@ export default async function AttendanceReportsPage({
         <CardContent>
           <form className='flex flex-wrap items-end gap-4'>
             <div className='space-y-2'>
-              <label className='text-xs font-bold text-slate-500 uppercase'>Type</label>
+              <Label htmlFor='type' className='text-xs font-bold text-slate-500 uppercase'>
+                Type
+              </Label>
               <Select name='type' defaultValue={type}>
-                <SelectTrigger className='w-[180px] bg-white dark:bg-slate-900 border-none shadow-sm'>
+                <SelectTrigger
+                  id='type'
+                  className='w-[180px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -180,9 +186,14 @@ export default async function AttendanceReportsPage({
 
             {type === 'student' && (
               <div className='space-y-2'>
-                <label className='text-xs font-bold text-slate-500 uppercase'>Class</label>
+                <Label htmlFor='classId' className='text-xs font-bold text-slate-500 uppercase'>
+                  Class
+                </Label>
                 <Select name='classId' defaultValue={classId}>
-                  <SelectTrigger className='w-[180px] bg-white dark:bg-slate-900 border-none shadow-sm'>
+                  <SelectTrigger
+                    id='classId'
+                    className='w-[180px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                  >
                     <SelectValue placeholder='Select class' />
                   </SelectTrigger>
                   <SelectContent>
@@ -197,9 +208,14 @@ export default async function AttendanceReportsPage({
             )}
 
             <div className='space-y-2'>
-              <label className='text-xs font-bold text-slate-500 uppercase'>Month</label>
+              <Label htmlFor='month' className='text-xs font-bold text-slate-500 uppercase'>
+                Month
+              </Label>
               <Select name='month' defaultValue={month.toString()}>
-                <SelectTrigger className='w-[140px] bg-white dark:bg-slate-900 border-none shadow-sm'>
+                <SelectTrigger
+                  id='month'
+                  className='w-[140px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

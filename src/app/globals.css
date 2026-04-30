@@ -159,12 +159,45 @@
   }
 }
 
+/* ─── Global Scrollbar Enhancements ─────────────────────── */
+@layer base {
+  :root {
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+    scrollbar-width: thin;
+  }
+
+  /* Universal Webkit Scrollbar Styling */
+  *::-webkit-scrollbar {
+    width: 6px !important;
+    height: 6px !important;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3) !important;
+    border-radius: 20px !important;
+    border: 1px solid transparent !important;
+    background-clip: content-box !important;
+    transition: background 0.3s ease;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.6) !important;
+  }
+
+  .dark *::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.2) !important;
+  }
+
+  .dark *::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.4) !important;
+  }
+}
+
 /* ─── Dropdown / Popover Fix ─────────────────────────────── */
-/*
-  Radix UI aur shadcn dropdown transparent dikhte hain jab
-  popover variable transparent hota hai. Yeh rules ensure
-  karte hain ke sab popover/dropdown solid background lein.
-*/
 [data-radix-popper-content-wrapper],
 [role='listbox'],
 [role='menu'],
@@ -224,4 +257,29 @@
 
 .gradient-subtle {
   background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--secondary)));
+}
+
+/* ─── Premium Textures & Animations ─────────────────────── */
+.premium-border {
+  @apply border border-white/20 shadow-[0_0_0_1px_rgba(255,255,255,0.1)_inset];
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-linear-to-r from-primary to-indigo-600;
 }

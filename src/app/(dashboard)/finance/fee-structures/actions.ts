@@ -5,13 +5,14 @@ import { writeAuditLog } from '@/lib/audit';
 import { requirePermission } from '@/lib/auth/permissions';
 import prisma from '@/lib/prisma';
 import { feeComponentSchema, feeStructureSchema } from '@/lib/validations/finance';
+import { z } from 'zod';
 
 export async function createFeeStructure(data: any) {
   const user = await requirePermission('finance.manage');
 
   const validated = feeStructureSchema.safeParse(data);
   if (!validated.success) {
-    return { success: false, errors: validated.error.flatten().fieldErrors };
+    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
   }
 
   try {
@@ -39,7 +40,7 @@ export async function addFeeComponent(data: any) {
 
   const validated = feeComponentSchema.safeParse(data);
   if (!validated.success) {
-    return { success: false, errors: validated.error.flatten().fieldErrors };
+    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
   }
 
   try {

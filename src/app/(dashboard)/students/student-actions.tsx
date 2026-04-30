@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { deleteStudent } from './actions';
 
-export function StudentActions({ studentId }: { studentId: string }) {
+export function StudentActions({ studentId }: Readonly<{ studentId: string }>) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 

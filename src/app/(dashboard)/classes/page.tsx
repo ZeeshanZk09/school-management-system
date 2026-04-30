@@ -1,4 +1,4 @@
-import { BookOpen, Layers, MoreVertical, Plus, Settings2, Users } from 'lucide-react';
+import { BookOpen, Layers, Plus, Settings2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { requirePermission } from '@/lib/auth/permissions';

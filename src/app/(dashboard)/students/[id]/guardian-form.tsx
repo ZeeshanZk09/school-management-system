@@ -30,11 +30,11 @@ export function GuardianForm({
   children,
   studentId,
   initialData,
-}: {
+}: Readonly<{
   children: React.ReactNode;
   studentId: string;
   initialData?: any;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [errors, setErrors] = useState<any>({});
@@ -60,12 +60,10 @@ export function GuardianForm({
       toast.success(initialData ? 'Guardian updated' : 'Guardian added');
       setOpen(false);
       router.refresh();
+    } else if (result.errors) {
+      setErrors(result.errors);
     } else {
-      if (result.errors) {
-        setErrors(result.errors);
-      } else {
-        toast.error(result.message || 'Something went wrong');
-      }
+      toast.error(result.message || 'Something went wrong');
     }
   };
 

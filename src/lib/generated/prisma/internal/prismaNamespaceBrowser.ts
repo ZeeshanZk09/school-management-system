@@ -65,6 +65,7 @@ export const ModelName = {
   Staff: 'Staff',
   StaffDocument: 'StaffDocument',
   Student: 'Student',
+  StudentDocument: 'StudentDocument',
   StudentEnrollment: 'StudentEnrollment',
   Guardian: 'Guardian',
   StudentGuardian: 'StudentGuardian',
@@ -320,6 +321,22 @@ export const StudentScalarFieldEnum = {
 } as const
 
 export type StudentScalarFieldEnum = (typeof StudentScalarFieldEnum)[keyof typeof StudentScalarFieldEnum]
+
+
+export const StudentDocumentScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  title: 'title',
+  fileName: 'fileName',
+  filePath: 'filePath',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  uploadedById: 'uploadedById',
+  uploadedAt: 'uploadedAt',
+  isDeleted: 'isDeleted'
+} as const
+
+export type StudentDocumentScalarFieldEnum = (typeof StudentDocumentScalarFieldEnum)[keyof typeof StudentDocumentScalarFieldEnum]
 
 
 export const StudentEnrollmentScalarFieldEnum = {
