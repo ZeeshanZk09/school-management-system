@@ -17,7 +17,17 @@ const EMPTY_SYSTEM_SETTINGS = {
   attendanceSessions: ["Morning", "Afternoon"],
 };
 
+function hasDatabaseUrl() {
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+
+  return Boolean(databaseUrl && databaseUrl !== "undefined" && databaseUrl !== "null");
+}
+
 export const getSystemSettings = cache(async () => {
+  if (!hasDatabaseUrl()) {
+    return EMPTY_SYSTEM_SETTINGS;
+  }
+
   try {
     const settings = await prisma.systemSettings.findFirst();
     return settings || EMPTY_SYSTEM_SETTINGS;
