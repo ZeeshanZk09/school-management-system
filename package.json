@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "postinstall": "npx prisma generate --schema=prisma/schema.prisma",
     "lint": "biome check",
     "format": "biome format --write",
     "test": "jest",
