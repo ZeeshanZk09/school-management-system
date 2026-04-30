@@ -145,7 +145,7 @@ export function DashboardCharts({
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {enrollmentData.map((entry, index) => (
+                  {enrollmentData.map((_entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}

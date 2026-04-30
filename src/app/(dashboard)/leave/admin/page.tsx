@@ -161,7 +161,10 @@ export default async function AdminLeavePage() {
                       {req.leaveType.name}
                     </TableCell>
                     <TableCell className="text-xs text-right text-slate-400">
-                      Decided {format(new Date(req.decidedAt!), "PP")}
+                      Decided{" "}
+                      {req.decidedAt
+                        ? format(new Date(req.decidedAt), "PP")
+                        : "N/A"}
                     </TableCell>
                   </TableRow>
                 ))}

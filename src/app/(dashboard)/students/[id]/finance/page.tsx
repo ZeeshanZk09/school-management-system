@@ -361,9 +361,9 @@ export default async function StudentFinancePage({
                             {/* Passing the parent record data for the receipt button */}
                             <ReceiptButton
                               record={{
-                                ...student.feeRecords.find(
+                                ...(student.feeRecords.find(
                                   (r) => r.id === payment.feeRecordId,
-                                )!,
+                                ) ?? {}),
                                 student,
                                 payments: [payment],
                               }}

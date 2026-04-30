@@ -159,7 +159,9 @@ export default async function StudentProfilePage({
                     Date of Birth
                   </p>
                   <p className="text-sm font-medium">
-                    {format(new Date(student.dateOfBirth!), "PPP")}
+                    {student.dateOfBirth
+                      ? format(new Date(student.dateOfBirth), "PPP")
+                      : "N/A"}
                   </p>
                 </div>
                 <div className="space-y-1">
