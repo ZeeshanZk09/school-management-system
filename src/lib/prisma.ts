@@ -4,69 +4,76 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-function createPrismaClient(): PrismaClient {
-  let connectionString = 
-    process.env.DATABASE_URL || 
-    process.env.POSTGRES_URL_NON_POOLING ||
-    process.env.POSTGRES_URL;
+function getConnectionString(): string {
+  let url = process.env.DATABASE_URL || 
+            process.env.POSTGRES_URL_NON_POOLING ||
+            process.env.POSTGRES_URL;
 
-  if (!connectionString || connectionString.trim() === "") {
+  if (!url || url.trim() === "") {
     throw new Error("DATABASE_URL is missing.");
   }
 
-  const isProduction = process.env.NODE_ENV === "production";
-  const isNeon = connectionString.includes("neon.tech");
-
-  // Force best-practice parameters for Neon Serverless
-  if (isNeon) {
-    if (!connectionString.includes("sslmode")) {
-      connectionString += connectionString.includes("?") ? "&sslmode=require" : "?sslmode=require";
+  // Auto-patch for Neon
+  if (url.includes("neon.tech")) {
+    if (!url.includes("sslmode")) {
+      url += url.includes("?") ? "&sslmode=require" : "?sslmode=require";
     }
-    if (!connectionString.includes("connection_limit")) {
-      connectionString += `&connection_limit=${isProduction ? 1 : 10}`;
+    if (!url.includes("connection_limit")) {
+      url += `&connection_limit=${process.env.NODE_ENV === "production" ? 1 : 10}`;
     }
   }
+  return url;
+}
+
+function initNeonAdapter(connectionString: string): PrismaClient {
+  console.log("[Prisma] Initializing with Neon Serverless config...");
+  const { Pool, neonConfig } = require("@neondatabase/serverless");
+  const { PrismaNeon } = require("@prisma/adapter-neon");
+  const ws = require("ws");
+
+  neonConfig.webSocketConstructor = ws;
+  neonConfig.pipelineTLS = false;
+  neonConfig.useSecureWebSocket = true;
+
+  const pool = new Pool({ 
+    connectionString,
+    max: 1,
+    idleTimeoutMillis: 10000,
+    connectionTimeoutMillis: 15000
+  });
+  
+  return new PrismaClient({ adapter: new PrismaNeon(pool) });
+}
+
+function initStandardAdapter(connectionString: string): PrismaClient {
+  console.log("[Prisma] Falling back to standard PG driver...");
+  const { Pool } = require("pg");
+  const { PrismaPg } = require("@prisma/adapter-pg");
+
+  const pool = new Pool({ 
+    connectionString,
+    max: process.env.NODE_ENV === "production" ? 1 : undefined,
+    ssl: connectionString.includes("neon.tech") ? { rejectUnauthorized: false } : false
+  });
+
+  return new PrismaClient({ adapter: new PrismaPg(pool) });
+}
+
+function createPrismaClient(): PrismaClient {
+  const url = getConnectionString();
+  const isProduction = process.env.NODE_ENV === "production";
+  const isNeon = url.includes("neon.tech");
 
   if (isProduction || isNeon) {
     try {
-      console.log("[Prisma] Initializing with Neon Serverless config...");
-      const { Pool, neonConfig } = require("@neondatabase/serverless");
-      const { PrismaNeon } = require("@prisma/adapter-neon");
-      const ws = require("ws");
-
-      // Official Neon Serverless recommendations
-      neonConfig.webSocketConstructor = ws;
-      neonConfig.pipelineTLS = false; // Helps with handshake issues in some environments
-      neonConfig.useSecureWebSocket = true;
-
-      const pool = new Pool({ 
-        connectionString,
-        max: 1, // Optimal for serverless functions
-        idleTimeoutMillis: 10000, // Close idle connections quickly
-        connectionTimeoutMillis: 15000 // Give it time to wake up Neon
-      });
-      
-      const adapter = new PrismaNeon(pool);
-      return new PrismaClient({ adapter });
+      return initNeonAdapter(url);
     } catch (error) {
       console.error("⚠️ Neon initialization error:", error);
     }
   }
 
-  // --- LOCAL / FALLBACK ---
   try {
-    console.log("[Prisma] Falling back to standard PG driver...");
-    const { Pool } = require("pg");
-    const { PrismaPg } = require("@prisma/adapter-pg");
-
-    const pool = new Pool({ 
-      connectionString,
-      max: isProduction ? 1 : undefined,
-      ssl: isNeon ? { rejectUnauthorized: false } : false
-    });
-
-    const adapter = new PrismaPg(pool);
-    return new PrismaClient({ adapter });
+    return initStandardAdapter(url);
   } catch (error) {
     console.error("❌ ALL Prisma initialization paths failed.");
     throw error;
