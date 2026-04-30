@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { writeAuditLog } from "@/lib/audit";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 import { classSchema, sectionSchema } from "@/lib/validations/class";
-import { z } from "zod";
 
 // Class Actions
 export async function createClass(formData: FormData) {
@@ -17,7 +17,10 @@ export async function createClass(formData: FormData) {
   });
 
   if (!validated.success) {
-    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
+    return {
+      success: false,
+      errors: z.flattenError(validated.error).fieldErrors,
+    };
   }
 
   try {
@@ -52,7 +55,10 @@ export async function updateClass(id: string, formData: FormData) {
   });
 
   if (!validated.success) {
-    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
+    return {
+      success: false,
+      errors: z.flattenError(validated.error).fieldErrors,
+    };
   }
 
   try {
@@ -116,7 +122,10 @@ export async function createSection(formData: FormData) {
   });
 
   if (!validated.success) {
-    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
+    return {
+      success: false,
+      errors: z.flattenError(validated.error).fieldErrors,
+    };
   }
 
   try {
@@ -155,7 +164,10 @@ export async function updateSection(id: string, formData: FormData) {
   });
 
   if (!validated.success) {
-    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
+    return {
+      success: false,
+      errors: z.flattenError(validated.error).fieldErrors,
+    };
   }
 
   try {

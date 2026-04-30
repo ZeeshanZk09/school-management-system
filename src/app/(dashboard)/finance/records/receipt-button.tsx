@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import { Loader2, Receipt } from 'lucide-react';
-import { FeeReceiptPDF } from '@/components/finance/fee-receipt-pdf';
-import { Button } from '@/components/ui/button';
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { Loader2, Receipt } from "lucide-react";
+import { FeeReceiptPDF } from "@/components/finance/fee-receipt-pdf";
+import { Button } from "@/components/ui/button";
 
 export function ReceiptButton({
   record,
@@ -20,7 +20,7 @@ export function ReceiptButton({
     (entry: any) =>
       entry.academicYearId === record.academicYearId &&
       entry.classId === record.classId &&
-      !entry.isDeleted
+      !entry.isDeleted,
   ) ??
     record.student.enrollments.find((entry: any) => !entry.isDeleted) ?? {
       rollNumber: record.student.admissionNumber,
@@ -38,16 +38,20 @@ export function ReceiptButton({
   return (
     <PDFDownloadLink
       document={<FeeReceiptPDF {...pdfData} />}
-      fileName={`Receipt-${record.student.fullName.replaceAll(/\s+/g, '-')}-${latestPayment.id.substring(0, 6)}.pdf`}
+      fileName={`Receipt-${record.student.fullName.replaceAll(/\s+/g, "-")}-${latestPayment.id.substring(0, 6)}.pdf`}
     >
       {({ loading }) => (
         <Button
-          variant='ghost'
-          size='icon'
-          className='h-8 w-8 text-blue-500 hover:text-blue-600'
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-blue-500 hover:text-blue-600"
           disabled={loading}
         >
-          {loading ? <Loader2 className='h-4 w-4 animate-spin' /> : <Receipt className='h-4 w-4' />}
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Receipt className="h-4 w-4" />
+          )}
         </Button>
       )}
     </PDFDownloadLink>

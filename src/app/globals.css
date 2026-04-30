@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @plugin "tailwindcss-animate";
 
@@ -199,9 +199,9 @@
 
 /* ─── Dropdown / Popover Fix ─────────────────────────────── */
 [data-radix-popper-content-wrapper],
-[role='listbox'],
-[role='menu'],
-[role='dialog'],
+[role="listbox"],
+[role="menu"],
+[role="dialog"],
 [cmdk-root],
 .dropdown-content {
   background-color: hsl(var(--popover)) !important;
@@ -248,7 +248,11 @@
 }
 
 .gradient-contrast {
-  background: linear-gradient(135deg, hsl(var(--contrast)), hsl(var(--contrast-strong)));
+  background: linear-gradient(
+    135deg,
+    hsl(var(--contrast)),
+    hsl(var(--contrast-strong))
+  );
 }
 
 .gradient-mixed {
@@ -256,7 +260,11 @@
 }
 
 .gradient-subtle {
-  background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--secondary)));
+  background: linear-gradient(
+    135deg,
+    hsl(var(--background)),
+    hsl(var(--secondary))
+  );
 }
 
 /* ─── Premium Textures & Animations ─────────────────────── */

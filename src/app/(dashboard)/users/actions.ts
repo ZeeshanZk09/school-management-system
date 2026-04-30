@@ -1,20 +1,20 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { writeAuditLog } from '@/lib/audit';
-import { requirePermission } from '@/lib/auth/permissions';
-import { revokeAllUserSessions } from '@/lib/auth/session';
-import prisma from '@/lib/prisma';
-import { hashPassword } from '@/lib/security/password';
+import { revalidatePath } from "next/cache";
+import { writeAuditLog } from "@/lib/audit";
+import { requirePermission } from "@/lib/auth/permissions";
+import { revokeAllUserSessions } from "@/lib/auth/session";
+import prisma from "@/lib/prisma";
+import { hashPassword } from "@/lib/security/password";
 
 export async function upsertUser(formData: FormData, userId?: string) {
   try {
-    const actor = await requirePermission('system.manage');
+    const actor = await requirePermission("system.manage");
 
-    const fullName = formData.get('fullName') as string;
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const roleIds = JSON.parse(formData.get('roleIds') as string) as string[];
+    const fullName = formData.get("fullName") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const roleIds = JSON.parse(formData.get("roleIds") as string) as string[];
 
     if (userId) {
       // Update existing user
@@ -42,8 +42,8 @@ export async function upsertUser(formData: FormData, userId?: string) {
 
       await writeAuditLog({
         actorUserId: actor.id,
-        action: 'UPDATE',
-        tableName: 'User',
+        action: "UPDATE",
+        tableName: "User",
         recordId: userId,
         oldValue: oldUser,
         newValue: { fullName, email, roleIds },
@@ -53,10 +53,12 @@ export async function upsertUser(formData: FormData, userId?: string) {
       const oldRoleIds = oldUser?.roles
         .map((r) => r.roleId)
         .sort()
-        .join(',');
-      const newRoleIds = roleIds.toSorted((a, b) => a.localeCompare(b)).join(',');
+        .join(",");
+      const newRoleIds = roleIds
+        .toSorted((a, b) => a.localeCompare(b))
+        .join(",");
       if (oldRoleIds !== newRoleIds) {
-        await revokeAllUserSessions(userId, 'ROLE_CHANGED');
+        await revokeAllUserSessions(userId, "ROLE_CHANGED");
       }
     } else {
       // Create new user
@@ -78,26 +80,26 @@ export async function upsertUser(formData: FormData, userId?: string) {
 
       await writeAuditLog({
         actorUserId: actor.id,
-        action: 'CREATE',
-        tableName: 'User',
+        action: "CREATE",
+        tableName: "User",
         recordId: newUser.id,
         newValue: { fullName, email, roleIds },
       });
     }
 
-    revalidatePath('/users');
+    revalidatePath("/users");
     return { success: true };
   } catch (error: any) {
-    console.error('Error upserting user:', error);
+    console.error("Error upserting user:", error);
     return { success: false, message: error.message };
   }
 }
 
 export async function resetUserPassword(userId: string) {
   try {
-    const actor = await requirePermission('system.manage');
+    const actor = await requirePermission("system.manage");
     const defaultPassword = process.env.BOOTSTRAP_ADMIN_PASSWORD;
-    const passwordHash = await hashPassword(defaultPassword || '');
+    const passwordHash = await hashPassword(defaultPassword || "");
 
     await prisma.user.update({
       where: { id: userId },
@@ -106,13 +108,13 @@ export async function resetUserPassword(userId: string) {
 
     await writeAuditLog({
       actorUserId: actor.id,
-      action: 'UPDATE',
-      tableName: 'User',
+      action: "UPDATE",
+      tableName: "User",
       recordId: userId,
-      note: 'Password reset to default',
+      note: "Password reset to default",
     });
 
-    await revokeAllUserSessions(userId, 'PASSWORD_CHANGED');
+    await revokeAllUserSessions(userId, "PASSWORD_CHANGED");
     return { success: true };
   } catch (error: any) {
     return { success: false, message: error.message };
@@ -121,12 +123,12 @@ export async function resetUserPassword(userId: string) {
 
 export async function toggleUserStatus(userId: string) {
   try {
-    const actor = await requirePermission('system.manage');
+    const actor = await requirePermission("system.manage");
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
-    if (!user) throw new Error('User not found');
+    if (!user) throw new Error("User not found");
 
-    const newStatus = user.status === 'ACTIVE' ? 'DEACTIVATED' : 'ACTIVE';
+    const newStatus = user.status === "ACTIVE" ? "DEACTIVATED" : "ACTIVE";
 
     await prisma.user.update({
       where: { id: userId },
@@ -135,17 +137,17 @@ export async function toggleUserStatus(userId: string) {
 
     await writeAuditLog({
       actorUserId: actor.id,
-      action: 'UPDATE',
-      tableName: 'User',
+      action: "UPDATE",
+      tableName: "User",
       recordId: userId,
       note: `Status changed to ${newStatus}`,
     });
 
-    if (newStatus === 'DEACTIVATED') {
-      await revokeAllUserSessions(userId, 'ACCOUNT_DEACTIVATED');
+    if (newStatus === "DEACTIVATED") {
+      await revokeAllUserSessions(userId, "ACCOUNT_DEACTIVATED");
     }
 
-    revalidatePath('/users');
+    revalidatePath("/users");
     return { success: true, status: newStatus };
   } catch (error: any) {
     return { success: false, message: error.message };
@@ -154,13 +156,13 @@ export async function toggleUserStatus(userId: string) {
 
 export async function approveUser(userId: string, roleIds: string[]) {
   try {
-    const actor = await requirePermission('system.manage');
+    const actor = await requirePermission("system.manage");
 
     await prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: userId },
         data: {
-          status: 'ACTIVE',
+          status: "ACTIVE",
           approvedByUserId: actor.id,
         },
       });
@@ -177,13 +179,13 @@ export async function approveUser(userId: string, roleIds: string[]) {
 
     await writeAuditLog({
       actorUserId: actor.id,
-      action: 'UPDATE',
-      tableName: 'User',
+      action: "UPDATE",
+      tableName: "User",
       recordId: userId,
-      note: 'Account approved and roles assigned',
+      note: "Account approved and roles assigned",
     });
 
-    revalidatePath('/users');
+    revalidatePath("/users");
     return { success: true };
   } catch (error: any) {
     return { success: false, message: error.message };

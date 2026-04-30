@@ -1,19 +1,22 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { writeAuditLog } from '@/lib/audit';
-import { requirePermission } from '@/lib/auth/permissions';
-import prisma from '@/lib/prisma';
-import { hashPassword } from '@/lib/security/password';
-import { staffSchema } from '@/lib/validations/staff';
-import { z } from 'zod';
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { writeAuditLog } from "@/lib/audit";
+import { requirePermission } from "@/lib/auth/permissions";
+import prisma from "@/lib/prisma";
+import { hashPassword } from "@/lib/security/password";
+import { staffSchema } from "@/lib/validations/staff";
 
 export async function createStaff(data: any) {
-  const user = await requirePermission('staff.manage');
+  const user = await requirePermission("staff.manage");
 
   const validated = staffSchema.safeParse(data);
   if (!validated.success) {
-    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
+    return {
+      success: false,
+      errors: z.flattenError(validated.error).fieldErrors,
+    };
   }
 
   try {
@@ -27,16 +30,16 @@ export async function createStaff(data: any) {
 
       const userAccount = await tx.user.create({
         data: {
-          email: email?.toLowerCase() || '',
+          email: email?.toLowerCase() || "",
           fullName,
           passwordHash,
-          status: 'ACTIVE',
+          status: "ACTIVE",
         },
       });
 
       // 2. Assign TEACHER role by default (can be changed later)
       const teacherRole = await tx.role.findUnique({
-        where: { name: 'TEACHER' },
+        where: { name: "TEACHER" },
       });
       if (teacherRole) {
         await tx.userRole.create({
@@ -65,30 +68,33 @@ export async function createStaff(data: any) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: 'CREATE',
-      tableName: 'Staff',
+      action: "CREATE",
+      tableName: "Staff",
       recordId: result.id,
       newValue: result,
     });
 
     return { success: true, staffId: result.id };
   } catch (error: any) {
-    if (error.code === 'P2002') {
+    if (error.code === "P2002") {
       return {
         success: false,
-        message: 'Email or staff number already exists',
+        message: "Email or staff number already exists",
       };
     }
-    return { success: false, message: 'Failed to create staff' };
+    return { success: false, message: "Failed to create staff" };
   }
 }
 
 export async function updateStaff(id: string, data: any) {
-  const user = await requirePermission('staff.manage');
+  const user = await requirePermission("staff.manage");
 
   const validated = staffSchema.safeParse(data);
   if (!validated.success) {
-    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
+    return {
+      success: false,
+      errors: z.flattenError(validated.error).fieldErrors,
+    };
   }
 
   try {
@@ -108,30 +114,30 @@ export async function updateStaff(id: string, data: any) {
         where: { id: staff.userId },
         data: {
           fullName: validated.data.fullName,
-          email: validated.data.email?.toLowerCase() || '',
+          email: validated.data.email?.toLowerCase() || "",
         },
       });
     }
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: 'UPDATE',
-      tableName: 'Staff',
+      action: "UPDATE",
+      tableName: "Staff",
       recordId: id,
       oldValue: oldStaff,
       newValue: staff,
     });
 
-    revalidatePath('/staff');
+    revalidatePath("/staff");
     revalidatePath(`/staff/${id}`);
     return { success: true };
   } catch (_error) {
-    return { success: false, message: 'Failed to update staff' };
+    return { success: false, message: "Failed to update staff" };
   }
 }
 
 export async function deleteStaff(id: string) {
-  const user = await requirePermission('staff.manage');
+  const user = await requirePermission("staff.manage");
 
   try {
     const staff = await prisma.staff.update({
@@ -143,20 +149,20 @@ export async function deleteStaff(id: string) {
     if (staff.userId) {
       await prisma.user.update({
         where: { id: staff.userId },
-        data: { status: 'DEACTIVATED', isDeleted: true },
+        data: { status: "DEACTIVATED", isDeleted: true },
       });
     }
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: 'DELETE',
-      tableName: 'Staff',
+      action: "DELETE",
+      tableName: "Staff",
       recordId: id,
     });
 
-    revalidatePath('/staff');
+    revalidatePath("/staff");
     return { success: true };
   } catch (_error) {
-    return { success: false, message: 'Failed to delete staff' };
+    return { success: false, message: "Failed to delete staff" };
   }
 }

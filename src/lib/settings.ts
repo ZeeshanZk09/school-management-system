@@ -1,11 +1,11 @@
-import { cache } from 'react';
+import { cache } from "react";
 
-import prisma from '@/lib/prisma';
+import prisma from "@/lib/prisma";
 
 const EMPTY_SYSTEM_SETTINGS = {
-  schoolName: '',
+  schoolName: "",
   schoolLogoUrl: null,
-  addressLine1: '',
+  addressLine1: "",
   addressLine2: null,
   city: null,
   state: null,
@@ -14,13 +14,15 @@ const EMPTY_SYSTEM_SETTINGS = {
   contactEmail: null,
   contactPhone: null,
   allowSelfRegistration: false,
-  attendanceSessions: ['Morning', 'Afternoon'],
+  attendanceSessions: ["Morning", "Afternoon"],
 };
 
 function hasDatabaseUrl() {
   const databaseUrl = process.env.DATABASE_URL?.trim();
 
-  return Boolean(databaseUrl && databaseUrl !== 'undefined' && databaseUrl !== 'null');
+  return Boolean(
+    databaseUrl && databaseUrl !== "undefined" && databaseUrl !== "null",
+  );
 }
 
 export const getSystemSettings = cache(async () => {
@@ -32,7 +34,7 @@ export const getSystemSettings = cache(async () => {
     const settings = await prisma.systemSettings.findFirst();
     return settings || EMPTY_SYSTEM_SETTINGS;
   } catch (error) {
-    console.error('Failed to fetch settings:', error);
+    console.error("Failed to fetch settings:", error);
     return EMPTY_SYSTEM_SETTINGS;
   }
 });

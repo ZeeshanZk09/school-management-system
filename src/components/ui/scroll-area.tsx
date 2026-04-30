@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type * as React from 'react';
-import { cn } from '@/lib/utils';
+import type * as React from "react";
+import { cn } from "@/lib/utils";
 
 function ScrollArea({
   className,
@@ -9,8 +9,8 @@ function ScrollArea({
   ...props
 }: Readonly<React.HTMLAttributes<HTMLDivElement>>) {
   return (
-    <div className={cn('relative overflow-hidden', className)} {...props}>
-      <div className='h-full w-full overflow-auto'>{children}</div>
+    <div className={cn("relative overflow-hidden", className)} {...props}>
+      <div className="h-full w-full overflow-auto">{children}</div>
     </div>
   );
 }

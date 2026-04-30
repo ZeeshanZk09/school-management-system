@@ -1,13 +1,13 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { writeAuditLog } from '@/lib/audit';
-import { requirePermission } from '@/lib/auth/permissions';
-import prisma from '@/lib/prisma';
+import { revalidatePath } from "next/cache";
+import { writeAuditLog } from "@/lib/audit";
+import { requirePermission } from "@/lib/auth/permissions";
+import prisma from "@/lib/prisma";
 
 export async function uploadStaffDocument(staffId: string, formData: FormData) {
   try {
-    const user = await requirePermission('staff.manage');
+    const user = await requirePermission("staff.manage");
 
     const title = formData.get("title") as string;
     const fileName = formData.get("fileName") as string;
@@ -29,8 +29,8 @@ export async function uploadStaffDocument(staffId: string, formData: FormData) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: 'CREATE',
-      tableName: 'StaffDocument',
+      action: "CREATE",
+      tableName: "StaffDocument",
       recordId: document.id,
       newValue: document,
     });
@@ -44,7 +44,7 @@ export async function uploadStaffDocument(staffId: string, formData: FormData) {
 
 export async function deleteStaffDocument(id: string, staffId: string) {
   try {
-    const user = await requirePermission('staff.manage');
+    const user = await requirePermission("staff.manage");
 
     await prisma.staffDocument.update({
       where: { id },
@@ -53,8 +53,8 @@ export async function deleteStaffDocument(id: string, staffId: string) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: 'DELETE',
-      tableName: 'StaffDocument',
+      action: "DELETE",
+      tableName: "StaffDocument",
       recordId: id,
     });
 

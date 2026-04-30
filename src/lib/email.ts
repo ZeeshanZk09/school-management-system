@@ -1,7 +1,6 @@
-import nodemailer from 'nodemailer';
-
-import { decrypt } from '@/lib/security/encryption';
-import prisma from '@/lib/prisma';
+import nodemailer from "nodemailer";
+import prisma from "@/lib/prisma";
+import { decrypt } from "@/lib/security/encryption";
 
 /**
  * Sends an email using the SMTP credentials configured in SystemSettings.
@@ -18,14 +17,14 @@ export async function sendEmail(params: {
     });
 
     if (!settings?.smtpEmail || !settings?.smtpAppPassword) {
-      console.error('[email] SMTP not configured in system settings.');
+      console.error("[email] SMTP not configured in system settings.");
       return false;
     }
 
     const decryptedPassword = decrypt(settings.smtpAppPassword);
 
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: "smtp.gmail.com",
       port: 587,
       secure: false,
       auth: {
@@ -43,7 +42,7 @@ export async function sendEmail(params: {
 
     return true;
   } catch (error) {
-    console.error('[email] Failed to send email:', error);
+    console.error("[email] Failed to send email:", error);
     return false;
   }
 }

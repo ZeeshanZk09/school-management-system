@@ -1,24 +1,27 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { writeAuditLog } from '@/lib/audit';
-import { requirePermission } from '@/lib/auth/permissions';
-import prisma from '@/lib/prisma';
-import { academicYearSchema } from '@/lib/validations/academic-year';
-import { z } from 'zod';
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { writeAuditLog } from "@/lib/audit";
+import { requirePermission } from "@/lib/auth/permissions";
+import prisma from "@/lib/prisma";
+import { academicYearSchema } from "@/lib/validations/academic-year";
 
 export async function createAcademicYear(formData: FormData) {
-  const user = await requirePermission('settings.manage');
+  const user = await requirePermission("settings.manage");
 
   const validated = academicYearSchema.safeParse({
-    name: formData.get('name'),
-    startDate: formData.get('startDate'),
-    endDate: formData.get('endDate'),
-    isActive: formData.get('isActive') === 'true',
+    name: formData.get("name"),
+    startDate: formData.get("startDate"),
+    endDate: formData.get("endDate"),
+    isActive: formData.get("isActive") === "true",
   });
 
   if (!validated.success) {
-    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
+    return {
+      success: false,
+      errors: z.flattenError(validated.error).fieldErrors,
+    };
   }
 
   const { name, startDate, endDate, isActive } = validated.data;
@@ -43,37 +46,40 @@ export async function createAcademicYear(formData: FormData) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: 'CREATE',
-      tableName: 'AcademicYear',
+      action: "CREATE",
+      tableName: "AcademicYear",
       recordId: year.id,
       newValue: year,
     });
 
-    revalidatePath('/academic-years');
+    revalidatePath("/academic-years");
     return { success: true };
   } catch (error) {
     if (error instanceof Error) {
       const prismaError = error as unknown as Record<string, string>;
-      if (prismaError.code === 'P2002') {
-        return { success: false, message: 'Academic year name already exists' };
+      if (prismaError.code === "P2002") {
+        return { success: false, message: "Academic year name already exists" };
       }
     }
-    return { success: false, message: 'Failed to create academic year' };
+    return { success: false, message: "Failed to create academic year" };
   }
 }
 
 export async function updateAcademicYear(id: string, formData: FormData) {
-  const user = await requirePermission('settings.manage');
+  const user = await requirePermission("settings.manage");
 
   const validated = academicYearSchema.safeParse({
-    name: formData.get('name'),
-    startDate: formData.get('startDate'),
-    endDate: formData.get('endDate'),
-    isActive: formData.get('isActive') === 'true',
+    name: formData.get("name"),
+    startDate: formData.get("startDate"),
+    endDate: formData.get("endDate"),
+    isActive: formData.get("isActive") === "true",
   });
 
   if (!validated.success) {
-    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
+    return {
+      success: false,
+      errors: z.flattenError(validated.error).fieldErrors,
+    };
   }
 
   const { name, startDate, endDate, isActive } = validated.data;
@@ -82,7 +88,7 @@ export async function updateAcademicYear(id: string, formData: FormData) {
     const oldYear = await prisma.academicYear.findUnique({ where: { id } });
 
     if (!oldYear) {
-      return { success: false, message: 'Academic year not found' };
+      return { success: false, message: "Academic year not found" };
     }
 
     // If setting to active, deactivate others
@@ -105,22 +111,22 @@ export async function updateAcademicYear(id: string, formData: FormData) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: 'UPDATE',
-      tableName: 'AcademicYear',
+      action: "UPDATE",
+      tableName: "AcademicYear",
       recordId: year.id,
       oldValue: oldYear,
       newValue: year,
     });
 
-    revalidatePath('/academic-years');
+    revalidatePath("/academic-years");
     return { success: true };
   } catch (_error) {
-    return { success: false, message: 'Failed to update academic year' };
+    return { success: false, message: "Failed to update academic year" };
   }
 }
 
 export async function deleteAcademicYear(id: string) {
-  const user = await requirePermission('settings.manage');
+  const user = await requirePermission("settings.manage");
 
   try {
     const _year = await prisma.academicYear.update({
@@ -130,20 +136,20 @@ export async function deleteAcademicYear(id: string) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: 'DELETE',
-      tableName: 'AcademicYear',
+      action: "DELETE",
+      tableName: "AcademicYear",
       recordId: id,
     });
 
-    revalidatePath('/academic-years');
+    revalidatePath("/academic-years");
     return { success: true };
   } catch (_error) {
-    return { success: false, message: 'Failed to delete academic year' };
+    return { success: false, message: "Failed to delete academic year" };
   }
 }
 
 export async function setActiveAcademicYear(id: string) {
-  const user = await requirePermission('settings.manage');
+  const user = await requirePermission("settings.manage");
 
   try {
     await prisma.$transaction([
@@ -159,15 +165,15 @@ export async function setActiveAcademicYear(id: string) {
 
     await writeAuditLog({
       actorUserId: user.id,
-      action: 'UPDATE',
-      tableName: 'AcademicYear',
+      action: "UPDATE",
+      tableName: "AcademicYear",
       recordId: id,
       newValue: { isActive: true },
     });
 
-    revalidatePath('/academic-years');
+    revalidatePath("/academic-years");
     return { success: true };
   } catch (_error) {
-    return { success: false, message: 'Failed to set active academic year' };
+    return { success: false, message: "Failed to set active academic year" };
   }
 }

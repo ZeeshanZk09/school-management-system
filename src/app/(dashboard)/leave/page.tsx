@@ -158,7 +158,9 @@ export default async function LeaveManagementPage() {
                   </TableCell>
                   <TableCell>
                     <Badge
-                      className={STATUS_STYLES[req.status] || STATUS_STYLES.REJECTED}
+                      className={
+                        STATUS_STYLES[req.status] || STATUS_STYLES.REJECTED
+                      }
                     >
                       {req.status}
                     </Badge>

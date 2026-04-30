@@ -1,17 +1,17 @@
-import { format } from 'date-fns';
-import { Filter, User } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Pagination } from '@/components/ui/pagination';
-import { Label } from '@/components/ui/label';
+import { format } from "date-fns";
+import { Filter, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -19,16 +19,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { requirePermission } from '@/lib/auth/permissions';
-import prisma from '@/lib/prisma';
-import { AuditAction } from '@/lib/generated/prisma/enums';
-import { Prisma } from '@/lib/generated/prisma/client';
+} from "@/components/ui/table";
+import { requirePermission } from "@/lib/auth/permissions";
+import type { Prisma } from "@/lib/generated/prisma/client";
+import type { AuditAction } from "@/lib/generated/prisma/enums";
+import prisma from "@/lib/prisma";
 
 const ACTION_STYLES: Record<string, string> = {
-  CREATE: 'text-emerald-600 bg-emerald-50 border-emerald-100 font-bold text-[10px]',
-  UPDATE: 'text-blue-600 bg-blue-50 border-blue-100 font-bold text-[10px]',
-  DELETE: 'text-rose-600 bg-rose-50 border-rose-100 font-bold text-[10px]',
+  CREATE:
+    "text-emerald-600 bg-emerald-50 border-emerald-100 font-bold text-[10px]",
+  UPDATE: "text-blue-600 bg-blue-50 border-blue-100 font-bold text-[10px]",
+  DELETE: "text-rose-600 bg-rose-50 border-rose-100 font-bold text-[10px]",
 };
 
 export default async function AuditLogsPage({
@@ -41,24 +42,24 @@ export default async function AuditLogsPage({
     actorId?: string;
   }>;
 }>) {
-  await requirePermission('system.manage');
+  await requirePermission("system.manage");
   const params = await searchParams;
-  const page = Number.parseInt(params.page ?? '1', 10);
+  const page = Number.parseInt(params.page ?? "1", 10);
   const action = params.action as AuditAction | undefined;
   const table = params.table;
   const actorId = params.actorId;
   const pageSize = 50;
 
   const where: Prisma.AuditLogWhereInput = {};
-  if (action && (action as string) !== 'ALL') where.action = action;
-  if (table && table !== 'ALL') where.tableName = table;
-  if (actorId && actorId !== 'ALL') where.actorUserId = actorId;
+  if (action && (action as string) !== "ALL") where.action = action;
+  if (table && table !== "ALL") where.tableName = table;
+  if (actorId && actorId !== "ALL") where.actorUserId = actorId;
 
   const [logs, totalCount, users] = await Promise.all([
     prisma.auditLog.findMany({
       where,
       include: { actor: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),
@@ -69,63 +70,71 @@ export default async function AuditLogsPage({
     }),
   ]);
 
-  console.log('logs', logs);
-  console.log('totalCount', totalCount);
-  console.log('users', users);
+  console.log("logs", logs);
+  console.log("totalCount", totalCount);
+  console.log("users", users);
 
   // Unique tables for filter
   const tables = await prisma.auditLog.groupBy({
-    by: ['tableName'],
+    by: ["tableName"],
     _count: { id: true },
   });
 
   return (
-    <div className='space-y-6 animate-in fade-in duration-500'>
-      <div className='flex items-center justify-between'>
-        <div className='space-y-1'>
-          <h1 className='text-3xl font-bold tracking-tight font-outfit'>Audit Trail</h1>
-          <p className='text-slate-500 dark:text-slate-400'>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight font-outfit">
+            Audit Trail
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400">
             Security log of all data modifications and system events.
           </p>
         </div>
       </div>
 
-      <Card className='border-none shadow-sm glass'>
-        <CardContent className='p-4'>
-          <form className='flex flex-wrap items-end gap-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='action' className='text-xs font-bold text-slate-500 uppercase'>
+      <Card className="border-none shadow-sm glass">
+        <CardContent className="p-4">
+          <form className="flex flex-wrap items-end gap-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor="action"
+                className="text-xs font-bold text-slate-500 uppercase"
+              >
                 Action
               </Label>
-              <Select name='action' defaultValue={(action as any) || 'ALL'}>
+              <Select name="action" defaultValue={(action as any) || "ALL"}>
                 <SelectTrigger
-                  id='action'
-                  className='w-[140px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                  id="action"
+                  className="w-[140px] bg-white dark:bg-slate-900 border-none shadow-sm"
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='ALL'>All Actions</SelectItem>
-                  <SelectItem value='CREATE'>Create</SelectItem>
-                  <SelectItem value='UPDATE'>Update</SelectItem>
-                  <SelectItem value='DELETE'>Delete</SelectItem>
+                  <SelectItem value="ALL">All Actions</SelectItem>
+                  <SelectItem value="CREATE">Create</SelectItem>
+                  <SelectItem value="UPDATE">Update</SelectItem>
+                  <SelectItem value="DELETE">Delete</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className='space-y-2'>
-              <Label htmlFor='table' className='text-xs font-bold text-slate-500 uppercase'>
+            <div className="space-y-2">
+              <Label
+                htmlFor="table"
+                className="text-xs font-bold text-slate-500 uppercase"
+              >
                 Table
               </Label>
-              <Select name='table' defaultValue={table || 'ALL'}>
+              <Select name="table" defaultValue={table || "ALL"}>
                 <SelectTrigger
-                  id='table'
-                  className='w-[180px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                  id="table"
+                  className="w-[180px] bg-white dark:bg-slate-900 border-none shadow-sm"
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='ALL'>All Resources</SelectItem>
+                  <SelectItem value="ALL">All Resources</SelectItem>
                   {tables.map((t) => (
                     <SelectItem key={t.tableName} value={t.tableName}>
                       {t.tableName}
@@ -135,19 +144,22 @@ export default async function AuditLogsPage({
               </Select>
             </div>
 
-            <div className='space-y-2'>
-              <Label htmlFor='actorId' className='text-xs font-bold text-slate-500 uppercase'>
+            <div className="space-y-2">
+              <Label
+                htmlFor="actorId"
+                className="text-xs font-bold text-slate-500 uppercase"
+              >
                 Actor
               </Label>
-              <Select name='actorId' defaultValue={actorId || 'ALL'}>
+              <Select name="actorId" defaultValue={actorId || "ALL"}>
                 <SelectTrigger
-                  id='actorId'
-                  className='w-[200px] bg-white dark:bg-slate-900 border-none shadow-sm'
+                  id="actorId"
+                  className="w-[200px] bg-white dark:bg-slate-900 border-none shadow-sm"
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='ALL'>All Users</SelectItem>
+                  <SelectItem value="ALL">All Users</SelectItem>
                   {users.map((u) => (
                     <SelectItem key={u.id} value={u.id}>
                       {u.fullName}
@@ -157,18 +169,22 @@ export default async function AuditLogsPage({
               </Select>
             </div>
 
-            <Button type='submit' variant='secondary' className='h-10 px-6 rounded-xl'>
-              <Filter className='mr-2 h-4 w-4' />
+            <Button
+              type="submit"
+              variant="secondary"
+              className="h-10 px-6 rounded-xl"
+            >
+              <Filter className="mr-2 h-4 w-4" />
               Filter
             </Button>
           </form>
         </CardContent>
       </Card>
 
-      <Card className='border-none shadow-sm glass overflow-hidden'>
+      <Card className="border-none shadow-sm glass overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className='bg-slate-50/50 dark:bg-slate-900/50 border-y'>
+            <TableRow className="bg-slate-50/50 dark:bg-slate-900/50 border-y">
               <TableHead>Time</TableHead>
               <TableHead>Actor</TableHead>
               <TableHead>Action</TableHead>
@@ -179,7 +195,10 @@ export default async function AuditLogsPage({
           <TableBody>
             {logs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className='h-64 text-center text-slate-400 italic'>
+                <TableCell
+                  colSpan={5}
+                  className="h-64 text-center text-slate-400 italic"
+                >
                   No audit logs found for the selected criteria.
                 </TableCell>
               </TableRow>
@@ -187,41 +206,45 @@ export default async function AuditLogsPage({
               logs.map((log) => (
                 <TableRow
                   key={log.id}
-                  className='group hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors'
+                  className="group hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors"
                 >
-                  <TableCell className='text-xs font-medium text-slate-500'>
-                    {format(new Date(log.createdAt), 'MMM d, HH:mm:ss')}
+                  <TableCell className="text-xs font-medium text-slate-500">
+                    {format(new Date(log.createdAt), "MMM d, HH:mm:ss")}
                   </TableCell>
                   <TableCell>
-                    <div className='flex items-center gap-2'>
-                      <div className='h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center'>
-                        <User className='h-3 w-3 text-slate-500' />
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                        <User className="h-3 w-3 text-slate-500" />
                       </div>
-                      <span className='text-sm font-semibold'>
-                        {log.actor?.fullName || 'System'}
+                      <span className="text-sm font-semibold">
+                        {log.actor?.fullName || "System"}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant='outline'
-                      className={ACTION_STYLES[log.action] || ACTION_STYLES.DELETE}
+                      variant="outline"
+                      className={
+                        ACTION_STYLES[log.action] || ACTION_STYLES.DELETE
+                      }
                     >
                       {log.action}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <span className='font-mono text-[10px] font-black uppercase text-slate-500 tracking-tighter bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded'>
+                    <span className="font-mono text-[10px] font-black uppercase text-slate-500 tracking-tighter bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                       {log.tableName}
                     </span>
                   </TableCell>
-                  <TableCell className='max-w-[400px]'>
-                    <div className='flex flex-col gap-1'>
-                      <span className='text-xs font-medium text-slate-600'>
-                        ID: {log.recordId || 'N/A'}
+                  <TableCell className="max-w-[400px]">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-slate-600">
+                        ID: {log.recordId || "N/A"}
                       </span>
                       {log.note && (
-                        <span className='text-[10px] text-slate-400 italic'>{log.note}</span>
+                        <span className="text-[10px] text-slate-400 italic">
+                          {log.note}
+                        </span>
                       )}
                     </div>
                   </TableCell>
@@ -231,7 +254,11 @@ export default async function AuditLogsPage({
           </TableBody>
         </Table>
       </Card>
-      <Pagination totalItems={totalCount} pageSize={pageSize} currentPage={page} />
+      <Pagination
+        totalItems={totalCount}
+        pageSize={pageSize}
+        currentPage={page}
+      />
     </div>
   );
 }

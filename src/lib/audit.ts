@@ -1,9 +1,9 @@
-import { headers } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { headers } from "next/headers";
+import prisma from "@/lib/prisma";
 
 type AuditLogInput = {
   actorUserId: string | null;
-  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'ERROR';
+  action: "CREATE" | "UPDATE" | "DELETE" | "ERROR";
   tableName: string;
   recordId?: string | null;
   oldValue?: unknown;
@@ -29,7 +29,7 @@ function resolveForwardedIp(headerValue: string | null): string | null {
   if (!headerValue) {
     return null;
   }
-  return headerValue.split(',')[0]?.trim() ?? null;
+  return headerValue.split(",")[0]?.trim() ?? null;
 }
 
 /**
@@ -43,10 +43,10 @@ export async function writeAuditLog(input: AuditLogInput): Promise<void> {
   try {
     const requestHeaders = await headers();
     ipAddress =
-      resolveForwardedIp(requestHeaders.get('x-forwarded-for')) ??
-      requestHeaders.get('x-real-ip') ??
+      resolveForwardedIp(requestHeaders.get("x-forwarded-for")) ??
+      requestHeaders.get("x-real-ip") ??
       null;
-    userAgent = requestHeaders.get('user-agent');
+    userAgent = requestHeaders.get("user-agent");
   } catch {
     // Headers unavailable in some execution contexts
   }
@@ -71,7 +71,7 @@ export async function writeAuditLog(input: AuditLogInput): Promise<void> {
  */
 export async function writeAuthEvent(params: {
   userId?: string | null;
-  eventType: 'LOGIN' | 'LOGOUT';
+  eventType: "LOGIN" | "LOGOUT";
   ipAddress?: string | null;
   userAgent?: string | null;
 }): Promise<void> {
@@ -83,12 +83,12 @@ export async function writeAuthEvent(params: {
       const requestHeaders = await headers();
       if (!ip) {
         ip =
-          resolveForwardedIp(requestHeaders.get('x-forwarded-for')) ??
-          requestHeaders.get('x-real-ip') ??
+          resolveForwardedIp(requestHeaders.get("x-forwarded-for")) ??
+          requestHeaders.get("x-real-ip") ??
           null;
       }
       if (!ua) {
-        ua = requestHeaders.get('user-agent');
+        ua = requestHeaders.get("user-agent");
       }
     } catch {
       // Headers unavailable

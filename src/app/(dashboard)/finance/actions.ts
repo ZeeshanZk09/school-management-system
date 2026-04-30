@@ -1,13 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
+import { z } from "zod";
 import { getActiveAcademicYear } from "@/lib/academic-year";
 import { writeAuditLog } from "@/lib/audit";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 import { feePaymentSchema } from "@/lib/validations/finance";
-import { z } from "zod";
 
 type FeeRecordStatus = "OPEN" | "PARTIALLY_PAID" | "PAID" | "OVERDUE";
 
@@ -112,7 +111,10 @@ export async function recordPayment(data: unknown) {
 
   const validated = feePaymentSchema.safeParse(data);
   if (!validated.success) {
-    return { success: false, errors: z.flattenError(validated.error).fieldErrors };
+    return {
+      success: false,
+      errors: z.flattenError(validated.error).fieldErrors,
+    };
   }
 
   try {

@@ -16,9 +16,9 @@ import { ApprovalButton } from "./approval-button";
 import { UserForm } from "./user-form";
 
 const STATUS_STYLES: Record<string, string> = {
-  ACTIVE: 'bg-emerald-100 text-emerald-700 border-none',
-  PENDING_APPROVAL: 'bg-amber-100 text-amber-700 border-none',
-  DEACTIVATED: 'bg-rose-100 text-rose-700 border-none',
+  ACTIVE: "bg-emerald-100 text-emerald-700 border-none",
+  PENDING_APPROVAL: "bg-amber-100 text-amber-700 border-none",
+  DEACTIVATED: "bg-rose-100 text-rose-700 border-none",
 };
 
 export default async function UsersPage() {
@@ -98,7 +98,9 @@ export default async function UsersPage() {
                 </TableCell>
                 <TableCell>
                   <Badge
-                    className={STATUS_STYLES[user.status] || STATUS_STYLES.DEACTIVATED}
+                    className={
+                      STATUS_STYLES[user.status] || STATUS_STYLES.DEACTIVATED
+                    }
                   >
                     {user.status}
                   </Badge>

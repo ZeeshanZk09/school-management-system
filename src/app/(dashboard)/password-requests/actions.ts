@@ -22,7 +22,10 @@ export async function approvePasswordReset(requestId: string) {
     }
 
     if (request.status !== "PENDING_APPROVAL") {
-      return { success: false, message: "This request has already been processed." };
+      return {
+        success: false,
+        message: "This request has already been processed.",
+      };
     }
 
     if (request.expiresAt <= new Date()) {
@@ -64,7 +67,10 @@ export async function approvePasswordReset(requestId: string) {
     });
 
     revalidatePath("/password-requests");
-    return { success: true, message: `Password reset approved for ${request.user.fullName}.` };
+    return {
+      success: true,
+      message: `Password reset approved for ${request.user.fullName}.`,
+    };
   } catch (error: any) {
     console.error("[password-requests] Approve error:", error);
     return { success: false, message: error.message || "Failed to approve." };
@@ -87,7 +93,10 @@ export async function rejectPasswordReset(requestId: string, note?: string) {
     }
 
     if (request.status !== "PENDING_APPROVAL") {
-      return { success: false, message: "This request has already been processed." };
+      return {
+        success: false,
+        message: "This request has already been processed.",
+      };
     }
 
     await prisma.passwordResetRequest.update({
@@ -113,7 +122,10 @@ export async function rejectPasswordReset(requestId: string, note?: string) {
     });
 
     revalidatePath("/password-requests");
-    return { success: true, message: `Password reset rejected for ${request.user.fullName}.` };
+    return {
+      success: true,
+      message: `Password reset rejected for ${request.user.fullName}.`,
+    };
   } catch (error: any) {
     console.error("[password-requests] Reject error:", error);
     return { success: false, message: error.message || "Failed to reject." };

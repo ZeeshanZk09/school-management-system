@@ -1,18 +1,9 @@
-'use client';
+"use client";
 
-import { MoreHorizontal, Trash2, FileText, Edit } from 'lucide-react';
-import Link from 'next/link';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Edit, FileText, MoreHorizontal, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,8 +13,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { deleteStudent } from './actions';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { deleteStudent } from "./actions";
 
 export function StudentActions({ studentId }: Readonly<{ studentId: string }>) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -34,13 +34,13 @@ export function StudentActions({ studentId }: Readonly<{ studentId: string }>) {
     try {
       const result = await deleteStudent(studentId);
       if (result.success) {
-        toast.success('Student record deleted successfully');
+        toast.success("Student record deleted successfully");
         setShowDeleteDialog(false);
       } else {
-        toast.error(result.message || 'Failed to delete student record');
+        toast.error(result.message || "Failed to delete student record");
       }
     } catch (error) {
-      toast.error('An unexpected error occurred');
+      toast.error("An unexpected error occurred");
     } finally {
       setIsDeleting(false);
     }
@@ -50,31 +50,31 @@ export function StudentActions({ studentId }: Readonly<{ studentId: string }>) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant='ghost' size='icon' className='h-8 w-8 p-0'>
-            <MoreHorizontal className='h-4 w-4' />
+          <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+            <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align='end' className='w-48'>
+        <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link href={`/students/new?edit=true&studentId=${studentId}`}>
-              <Edit className='mr-2 h-4 w-4' />
+              <Edit className="mr-2 h-4 w-4" />
               Edit Details
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href={`/students/${studentId}/finance`}>
-              <FileText className='mr-2 h-4 w-4' />
+              <FileText className="mr-2 h-4 w-4" />
               Finance Records
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className='text-rose-600 focus:text-rose-600'
+            className="text-rose-600 focus:text-rose-600"
             onSelect={() => setShowDeleteDialog(true)}
           >
-            <Trash2 className='mr-2 h-4 w-4' />
+            <Trash2 className="mr-2 h-4 w-4" />
             Delete Record
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -85,8 +85,8 @@ export function StudentActions({ studentId }: Readonly<{ studentId: string }>) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will mark the student record as deleted. This action can be reversed by an
-              administrator later if needed.
+              This will mark the student record as deleted. This action can be
+              reversed by an administrator later if needed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -96,10 +96,10 @@ export function StudentActions({ studentId }: Readonly<{ studentId: string }>) {
                 e?.preventDefault?.();
                 handleDelete();
               }}
-              className='bg-rose-600 hover:bg-rose-700'
+              className="bg-rose-600 hover:bg-rose-700"
               disabled={isDeleting}
             >
-              {isDeleting ? 'Deleting...' : 'Delete Student'}
+              {isDeleting ? "Deleting..." : "Delete Student"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
