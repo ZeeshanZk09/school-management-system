@@ -1,0 +1,180 @@
+Software Guide — Implementation Report
+
+Source: requirements.txt (project root)
+
+Purpose: For each core requirement/feature from requirements.txt this report records
+- Implementation status: Implemented / Partially implemented / Not implemented
+- Where to access (UI route / API route / component file)
+- Who can access (role: ADMIN / TEACHER / ACCOUNTANT / etc.)
+
+---
+
+1) Authentication & Session
+- Requirement: Secure login with email/password; hashed passwords; session expiry; remember-me; log login/logout with IP
+- Status: Implemented
+- Files / Routes:
+  - Login page & action: src/app/login/page.tsx, src/app/login/actions.ts
+  - Session creation/validation: src/lib/auth/session.ts
+  - Authentication helpers: src/lib/auth/authenticate.ts (used by login) and permissions in src/lib/auth/permissions.ts
+  - Logout route: src/app/api/auth/logout/route.ts
+  - Audit of login/logout: src/lib/audit.ts (writeAuthEvent)
+- Roles: All authenticated users; admin privileges applied in `requireRole` / `requirePermission` logic
+
+2) Role-Based Access Control (RBAC)
+- Requirement: RBAC with Admin/Accountant/Teacher at minimum; permission checks on routes and APIs
+- Status: Implemented
+- Files / Routes:
+  - Route-role map (edge middleware proxy): src/proxy.ts (maps prefixes to roles)
+  - Permission enforcement utilities: src/lib/auth/permissions.ts
+  - User management UI & actions: src/app/(dashboard)/users/page.tsx and src/app/(dashboard)/users/actions.ts
+- Roles: Admin, Accountant, Teacher (and role assignment UI present)
+
+3) Shared Entities (Student, Staff, Class, AcademicYear) with CRUD
+- Requirement: CRUD for Student/Staff/Class/AcademicYear, shared entities used by modules
+- Status: Implemented (core CRUD exists)
+- Files / Routes:
+  - Students: src/app/(dashboard)/students/page.tsx, src/app/(dashboard)/students/actions.ts, student form: student-form.tsx
+  - Staff: src/app/(dashboard)/staff/page.tsx, src/app/(dashboard)/staff/actions.ts, staff-form.tsx
+  - Classes & academic years: src/app/(dashboard)/classes/** and src/app/(dashboard)/academic-years/** (pages & actions present)
+- Roles: `students.manage` / `staff.manage` permission checks used (via `requirePermission`); admin has full access
+
+4) Contacts Module (Students' guardians, Staff contacts, directory)
+- Requirement: Contact info, guardians, emergency contact, searchable directory, exports
+- Status: Implemented
+- Files / Routes:
+  - Student guardians and documents: src/app/(dashboard)/students/[id]/guardian-form.tsx and actions in students/actions.ts
+  - Staff contact pages: src/app/(dashboard)/staff/[id]/page.tsx
+  - Directory and search: src/app/api/search/route.ts and components/dashboard/global-search.tsx
+  - Directory export: CSV export helpers exist under reports/export components
+- Roles: Admin & Teacher (proxy and permission checks restrict access)
+
+5) Attendance (Student + Staff)
+- Requirement: Student attendance (class, date, session), statuses (Present/Absent/Late/Excused), bulk entry, prevent duplicates, retro-corrections with reason; staff attendance and leave workflow
+- Status: Implemented
+- Files / Routes:
+  - Attendance UI: src/app/(dashboard)/attendance/page.tsx, src/app/(dashboard)/attendance/attendance-entry.tsx
+  - Attendance actions: src/app/(dashboard)/attendance/actions.ts (recordAttendance, exportAttendanceCSV)
+  - Staff attendance forms: src/app/(dashboard)/attendance/staff/staff-attendance-form.tsx and staff-actions.ts
+  - Leave workflow: src/app/(dashboard)/leave/actions.ts and related components
+- Notes: Upsert logic prevents duplicate student attendance; retroactive corrections recorded via upsert + audit log
+- Roles: `attendance.manage` permission (Admin & Teacher per proxy mapping)
+
+6) Finance — Fees, Payments, Receipts
+- Requirement: FeeStructures per class/year, FeeComponents, FeeRecord generation, partial payments, receipts, outstanding balance, printable PDF receipts
+- Status: Implemented
+- Files / Routes:
+  - Fee structures UI & actions: src/app/(dashboard)/finance/fee-structures/** (fee-structure-form.tsx, actions.ts)
+  - Fee record & payments: src/app/(dashboard)/finance/records/page.tsx, payment-form.tsx, src/app/(dashboard)/finance/actions.ts (generateMonthlyFees, recordPayment)
+  - Fee receipt component: src/components/finance/fee-receipt-pdf.tsx
+  - Per-student finance page: src/app/(dashboard)/students/[id]/finance/page.tsx
+- Roles: `finance.manage` enforced; proxy maps /finance to ADMIN and ACCOUNTANT
+
+7) Finance — Payroll / Salary Slips
+- Requirement: SalaryStructure, allowances/deductions, salary slip generation, disbursements, salary history
+- Status: Implemented
+- Files / Routes:
+  - Payroll UI: src/app/(dashboard)/finance/payroll/** (payroll list, disbursement dialog, salary-structure form)
+  - Payroll actions: src/app/(dashboard)/finance/payroll/actions.ts
+  - Salary slip component: src/components/finance/salary-slip-pdf.tsx
+- Roles: Admin & Accountant (via `finance.manage` permission)
+
+8) Reports (attendance, finance, payroll) and Exports (PDF/CSV)
+- Requirement: Monthly attendance summaries, collection reports, outstanding fees, payroll summary; export as PDF and CSV
+- Status: Implemented (core reports + CSV and PDF components present)
+- Files / Routes:
+  - Attendance reports/export: src/app/(dashboard)/attendance/reports/** (export-buttons.tsx)
+  - Finance reports/export: src/app/(dashboard)/finance/reports/**
+  - CSV export utilities used in actions (Papaparse imports in attendance/actions.ts)
+  - PDF components in src/components/finance/*.tsx
+- Roles: Report routes gated by permissions; some reports admin-only on dashboard (see src/app/(dashboard)/page.tsx stats)
+
+9) Admin Dashboard and Widgets
+- Requirement: Dashboard with widgets (total students, staff, today's attendance %, outstanding fees, recent payments, pending leave, audit entries). Live updates without full reload.
+- Status: Implemented
+- Files / Routes:
+  - Dashboard page: src/app/(dashboard)/page.tsx (widgets + queries)
+  - Dashboard charts: src/components/dashboard/dashboard-charts.tsx
+  - Widgets link to relevant pages (/students, /attendance, /finance/records, /finance/reports)
+- Roles: Dashboard shows admin-only widgets conditionally (isAdmin check in page.tsx)
+
+10) Audit Log
+- Requirement: Maintain audit_log table recording create/update/delete with old vs new JSON, who, when, IP
+- Status: Implemented
+- Files / Routes:
+  - Audit helper: src/lib/audit.ts (writeAuditLog, writeAuthEvent)
+  - Audit entries queried for dashboard: src/app/(dashboard)/page.tsx
+  - Audit log UI route: proxy maps /audit-log to ADMIN; UI page exists under (dashboard)/audit-logs/
+- Roles: Admin only
+
+11) File Uploads
+- Requirement: Limit file types (PDF, JPG, PNG), enforce max size, store under public/uploads per module, secure serve with authorization
+- Status: Implemented
+- Files / Routes:
+  - Upload API: src/app/api/upload/route.ts (validates MIME, module path, stores under public/uploads/{module})
+  - File serve API: src/app/api/files/[...path]/route.ts (checks requireAuth and path traversal protection)
+- Roles: Authenticated users (requireAuth); fine-grained uploads controlled by module-level actions using `requirePermission` where used
+
+12) Global Search
+- Requirement: Global search for students/staff by name or roll number
+- Status: Implemented
+- Files / Routes:
+  - Search API: src/app/api/search/route.ts
+  - UI: src/components/dashboard/global-search.tsx (hotkey + UI)
+- Roles: Authenticated users (requireAuth in API)
+
+13) Pagination & Performance
+- Requirement: All list views paginated; database-level filtering and indexing
+- Status: Implemented (UI pagination component + server-side ORM pagination usage across pages)
+- Files:
+  - Pagination UI component: src/components/ui/pagination.tsx
+  - List pages use prisma `take`/`skip` or limits (examples in students/staff listing pages)
+
+14) Data validation & Error handling
+- Requirement: Validate inputs server-side; structured errors; no raw stack traces shown
+- Status: Implemented
+- Files:
+  - Zod validation schemas in src/lib/validations/*.ts used in actions (students, auth, finance, etc.)
+  - Actions return structured error payload; server logs errors to console and audit
+
+15) PDF Generation
+- Requirement: PDFs must include school header/footer with settings
+- Status: Implemented (components available) — ensure system settings present
+- Files:
+  - PDF components: src/components/finance/fee-receipt-pdf.tsx, src/components/finance/salary-slip-pdf.tsx
+  - System settings fetch: src/lib/settings.ts used to include school name/logo in headers
+
+16) Security Notes
+- Soft deletes: Implemented via `isDeleted` flags across entities (queries filter isDeleted: false)
+- Password hashing: Implemented via src/lib/security/password.ts and used in staff creation
+- Sessions: token hashing and session revocation implemented in src/lib/auth/session.ts
+- CSRF: Most mutating operations use server-side actions and permission checks (`requirePermission`). There is no explicit CSRF token implementation found; Next.js server actions mitigate some exposure but consider adding explicit CSRF tokens for any client-side POST endpoints if needed. => Status: Partially implemented (recommend review)
+
+17) Things Noticed / Partial or Missing
+- Multi-tenancy / SaaS: Requirements asked to avoid multi-tenancy — code is single-tenant (matches requirement).
+- Unique constraints & generation safeguards: Fee generation uses simplified logic; production should add unique constraints or clearer idempotency keys for monthly fee generation.
+- External integrations: Email sending uses system settings (src/lib/email.ts) — SMTP must be configured in SystemSettings for real email delivery.
+- Tests: There are unit tests for some actions under __tests__ folders, but coverage should be reviewed.
+
+---
+
+How this map was created: scanned core app routes, server actions, lib helpers and components under `src/` and mapped requirement → implementation points. Permission enforcement primarily via `requirePermission` and `requireAuth`; route-level mapping in `src/proxy.ts` provides prefix-to-role guidance.
+
+Quick links to key files (workspace-relative):
+- src/proxy.ts (route→role map)
+- src/lib/auth/permissions.ts (RBAC + permission checks)
+- src/lib/auth/session.ts (session lifecycle)
+- src/lib/audit.ts (audit logging)
+- src/app/(dashboard)/page.tsx (admin dashboard widgets)
+- src/app/(dashboard)/students/actions.ts (students CRUD + guardians)
+- src/app/(dashboard)/staff/actions.ts (staff CRUD)
+- src/app/(dashboard)/attendance/actions.ts (attendance recording + exports)
+- src/app/(dashboard)/finance/actions.ts (fee generation, payments)
+- src/app/api/upload/route.ts (file uploads)
+- src/app/api/search/route.ts (global search)
+
+Recommended next steps (optional):
+- Add explicit CSRF protection for client-side POST endpoints if you plan to accept form posts from external origins.
+- Add idempotency/unique constraints for fee generation (to ensure duplicate months are not created).
+- Run automated tests and generate a test-coverage report to highlight any untested critical code paths.
+
+Report generated automatically by scanning repository (May 02, 2026).
