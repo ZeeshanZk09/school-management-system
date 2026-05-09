@@ -27,6 +27,8 @@ import { StudentStatus } from "@/lib/generated/prisma/enums";
 import { StudentActions } from "./student-actions";
 import { StudentFilters } from "./student-filters";
 
+import { PageHeader } from "@/components/dashboard/page-header";
+
 export default async function StudentsPage({
   searchParams,
 }: Readonly<{
@@ -41,6 +43,7 @@ export default async function StudentsPage({
 }>) {
   await requirePermission("students.read");
   const params = await searchParams;
+  // ... rest of data fetching ...
   const query = params.query || "";
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;
@@ -57,7 +60,6 @@ export default async function StudentsPage({
       OR: [
         { fullName: { contains: query, mode: "insensitive" as const } },
         { admissionNumber: { contains: query, mode: "insensitive" as const } },
-        { fatherName: { contains: query, mode: "insensitive" as const } },
         { id: { contains: query, mode: "insensitive" as const } },
       ],
     }),
@@ -108,29 +110,22 @@ export default async function StudentsPage({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Student Directory
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400">
-            View and manage all students enrolled in the system.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <StudentFilters
-            classes={classes}
-            sections={sections}
-            statuses={Object.values(StudentStatus)}
-          />
-          <Button asChild className="gradient-primary h-10 shadow-md">
-            <Link href="/students/new">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Student
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Student Directory"
+        description="View and manage all students enrolled in the system."
+      >
+        <StudentFilters
+          classes={classes}
+          sections={sections}
+          statuses={Object.values(StudentStatus)}
+        />
+        <Button asChild className="gradient-primary h-12 px-6 shadow-lg shadow-blue-500/20 rounded-xl">
+          <Link href="/students/new">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Student
+          </Link>
+        </Button>
+      </PageHeader>
 
       <Card className="border-none shadow-sm glass overflow-hidden">
         <CardHeader className="pb-0 pt-6 px-6">

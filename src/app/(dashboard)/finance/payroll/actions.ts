@@ -233,3 +233,56 @@ export async function exportFinanceCSV(
     return { success: false, message: error.message };
   }
 }
+
+export async function bulkDisburseSalaries(
+  periodMonth: number,
+  periodYear: number,
+) {
+  try {
+    const actor = await requirePermission("finance.manage");
+
+    const slips = await prisma.salarySlip.findMany({
+      where: {
+        periodMonth,
+        periodYear,
+        isDeleted: false,
+        disbursements: { none: {} },
+      },
+    });
+
+    if (slips.length === 0) {
+      return {
+        success: false,
+        message: "No pending salary slips found for this period",
+      };
+    }
+
+    const disbursements = await prisma.$transaction(
+      slips.map((slip) =>
+        prisma.salaryDisbursement.create({
+          data: {
+            salarySlipId: slip.id,
+            amountPaid: slip.netPay,
+            method: "BANK_TRANSFER",
+            paidAt: new Date(),
+            paidByUserId: actor.id,
+            referenceNumber: `BULK-${periodYear}${periodMonth.toString().padStart(2, "0")}`,
+          },
+        }),
+      ),
+    );
+
+    await writeAuditLog({
+      action: "UPDATE",
+      tableName: "SalarySlip",
+      note: `Bulk disbursement of ${slips.length} salaries for ${periodMonth}/${periodYear}`,
+      actorUserId: actor.id,
+    });
+
+    revalidatePath("/finance/payroll");
+    return { success: true, count: disbursements.length };
+  } catch (error) {
+    console.error("Bulk disburse error:", error);
+    return { success: false, message: "Failed to perform bulk disbursement" };
+  }
+}

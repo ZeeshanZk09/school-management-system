@@ -1,5 +1,11 @@
+/**
+ * Supported log levels.
+ */
 type LogLevel = "debug" | "info" | "warn" | "error";
 
+/**
+ * Structured log context for additional metadata.
+ */
 type LogContext = {
   userId?: string;
   requestId?: string;
@@ -24,12 +30,18 @@ const configuredLevel: LogLevel = (() => {
   return "info";
 })();
 
+/**
+ * Checks if a log level should be emitted based on current configuration.
+ */
 function shouldLog(level: LogLevel): boolean {
   return levelWeight[level] >= levelWeight[configuredLevel];
 }
 
+/**
+ * Redacts sensitive information from log objects.
+ */
 function redactValue(value: unknown): unknown {
-  if (typeof value === "string") {
+  if (typeof value !== "object" || value === null) {
     return value;
   }
 
@@ -37,23 +49,22 @@ function redactValue(value: unknown): unknown {
     return value.map((entry) => redactValue(entry));
   }
 
-  if (value && typeof value === "object") {
-    const output: Record<string, unknown> = {};
+  const output: Record<string, unknown> = {};
 
-    for (const [key, nestedValue] of Object.entries(value)) {
-      if (/password|secret|token|key|hash/i.test(key)) {
-        output[key] = "[REDACTED]";
-      } else {
-        output[key] = redactValue(nestedValue);
-      }
+  for (const [key, nestedValue] of Object.entries(value)) {
+    if (/password|secret|token|key|hash/i.test(key)) {
+      output[key] = "[REDACTED]";
+    } else {
+      output[key] = redactValue(nestedValue);
     }
-
-    return output;
   }
 
-  return value;
+  return output;
 }
 
+/**
+ * Core logging function that handles formatting, redaction, and output.
+ */
 function writeLog(
   level: LogLevel,
   message: string,
@@ -72,35 +83,49 @@ function writeLog(
 
   const payload = JSON.stringify(redactValue(logRecord));
 
-  if (level === "error") {
-    console.error(payload);
-    return;
+  // In production environments, stdout/stderr is usually captured by a logging agent.
+  switch (level) {
+    case "error":
+      console.error(payload);
+      break;
+    case "warn":
+      console.warn(payload);
+      break;
+    case "debug":
+      console.debug(payload);
+      break;
+    default:
+      console.info(payload);
+      break;
   }
-
-  if (level === "warn") {
-    console.warn(payload);
-    return;
-  }
-
-  if (level === "debug") {
-    console.debug(payload);
-    return;
-  }
-
-  console.info(payload);
 }
 
+/**
+ * Production-ready logger with support for structured context and sensitive data redaction.
+ */
 export const logger = {
-  debug(message: string, context?: LogContext) {
+  /**
+   * Log a debug message (lowest priority).
+   */
+  debug(message: string, context?: LogContext): void {
     writeLog("debug", message, context);
   },
-  info(message: string, context?: LogContext) {
+  /**
+   * Log an informational message.
+   */
+  info(message: string, context?: LogContext): void {
     writeLog("info", message, context);
   },
-  warn(message: string, context?: LogContext) {
+  /**
+   * Log a warning message.
+   */
+  warn(message: string, context?: LogContext): void {
     writeLog("warn", message, context);
   },
-  error(message: string, context?: LogContext) {
+  /**
+   * Log an error message (highest priority).
+   */
+  error(message: string, context?: LogContext): void {
     writeLog("error", message, context);
   },
 };

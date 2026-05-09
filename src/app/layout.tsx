@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { CustomCursor } from "@/components/ui/custom-cursor";
 
 import "./globals.css";
 
@@ -48,6 +49,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <CustomCursor />
           <Toaster position="top-right" richColors />
         </ThemeProvider>
       </body>

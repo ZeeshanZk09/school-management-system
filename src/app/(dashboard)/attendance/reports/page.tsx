@@ -2,6 +2,7 @@ import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns";
 import { Calendar as CalendarIcon, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/table";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
+import { getSystemSettings } from "@/lib/settings";
 import { AttendanceExportButtons } from "./export-buttons";
 
 export default async function AttendanceReportsPage({
@@ -48,7 +50,11 @@ export default async function AttendanceReportsPage({
   const endDate = endOfMonth(startDate);
 
   // Fetch classes for filtering
-  const classes = await prisma.class.findMany({ where: { isDeleted: false } });
+  const [classes, settings] = await Promise.all([
+    prisma.class.findMany({ where: { isDeleted: false } }),
+    getSystemSettings(),
+  ]);
+  const selectedClass = classId ? classes.find((c) => c.id === classId) : undefined;
 
   type ReportData = {
     id: string;
@@ -163,6 +169,9 @@ export default async function AttendanceReportsPage({
             month={month}
             year={year}
             classId={classId}
+            reportData={reportData}
+            settings={settings}
+            className={selectedClass?.name}
           />
         </div>
       </div>
@@ -336,12 +345,12 @@ export default async function AttendanceReportsPage({
           </Table>
         </Card>
       ) : (
-        <div className="h-64 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border-2 border-dashed border-slate-100 dark:border-slate-800">
-          <CalendarIcon className="h-12 w-12 mb-2 opacity-20" />
-          <p className="italic">
-            Select filters and generate a report to see data.
-          </p>
-        </div>
+        <EmptyState 
+          icon={CalendarIcon}
+          title="Select Filters to Begin"
+          description="Choose a report type and class above to generate a detailed attendance summary."
+          className="bg-slate-50/50 dark:bg-slate-900/50 border-2 border-dashed border-slate-100 dark:border-slate-800"
+        />
       )}
     </div>
   );

@@ -14,12 +14,14 @@ import {
   Book,
   AlertCircle,
   CheckCircle,
+  Wallet,
+  CalendarDays,
 } from 'lucide-react';
 import Link from 'next/link';
-import { DashboardCharts } from '@/components/dashboard/dashboard-charts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Sparkline } from '@/components/dashboard/sparkline';
 import { requireAuth } from '@/lib/auth/permissions';
 import prisma from '@/lib/prisma';
 import { cn } from '@/lib/utils';
@@ -29,6 +31,9 @@ import {
   getAccountantDashboardData,
   getCommonDashboardData,
 } from '@/lib/dashboard-data';
+import { DashboardCharts } from '@/components/dashboard/dashboard-charts';
+import { CurrentTime } from '@/components/dashboard/current-time';
+import { buttonVariants } from '@/components/ui/button-variants';
 
 const STAT_COLOR_STYLES: Record<string, string> = {
   blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-200 ring-1 ring-blue-500/20 group-hover:bg-blue-500 group-hover:text-white',
@@ -142,6 +147,58 @@ export default async function DashboardPage() {
               <p className='max-w-md text-base text-slate-400 font-medium leading-relaxed opacity-90'>
                 Everything is running smoothly. Here is your overview for today.
               </p>
+              <div className='flex flex-wrap items-center gap-3 pt-2'>
+                <Link
+                  href="/students/new"
+                  className={cn(
+                    buttonVariants({ size: 'sm' }),
+                    "bg-white/10 hover:bg-white/20 border-none rounded-xl h-10 px-4 text-xs font-bold transition-all hover:scale-105 active:scale-95 glow-primary"
+                  )}
+                >
+                  <Users className="mr-2 h-3.5 w-3.5 text-blue-400" />
+                  Register Student
+                </Link>
+                <Link
+                  href="/staff/new"
+                  className={cn(
+                    buttonVariants({ size: 'sm' }),
+                    "bg-white/10 hover:bg-white/20 border-none rounded-xl h-10 px-4 text-xs font-bold transition-all hover:scale-105 active:scale-95 glow-emerald"
+                  )}
+                >
+                  <Briefcase className="mr-2 h-3.5 w-3.5 text-emerald-400" />
+                  New Staff
+                </Link>
+                <Link
+                  href="/finance/records"
+                  className={cn(
+                    buttonVariants({ size: 'sm' }),
+                    "bg-white/10 hover:bg-white/20 border-none rounded-xl h-10 px-4 text-xs font-bold transition-all hover:scale-105 active:scale-95 glow-amber"
+                  )}
+                >
+                  <DollarSign className="mr-2 h-3.5 w-3.5 text-amber-400" />
+                  Create Invoice
+                </Link>
+                <Link
+                  href="/attendance/staff"
+                  className={cn(
+                    buttonVariants({ size: 'sm' }),
+                    "bg-white/10 hover:bg-white/20 border-none rounded-xl h-10 px-4 text-xs font-bold transition-all hover:scale-105 active:scale-95 glow-rose"
+                  )}
+                >
+                  <CalendarDays className="mr-2 h-3.5 w-3.5 text-rose-400" />
+                  Staff Attendance
+                </Link>
+                <Link
+                  href="/finance/payroll"
+                  className={cn(
+                    buttonVariants({ size: 'sm' }),
+                    "bg-white/10 hover:bg-white/20 border-none rounded-xl h-10 px-4 text-xs font-bold transition-all hover:scale-105 active:scale-95 glow-primary"
+                  )}
+                >
+                  <Wallet className="mr-2 h-3.5 w-3.5 text-indigo-400" />
+                  Payroll
+                </Link>
+              </div>
             </div>
 
             <div className='flex flex-wrap items-center gap-4'>
@@ -150,27 +207,29 @@ export default async function DashboardPage() {
                   Current Time
                 </span>
                 <span className='text-2xl font-black font-outfit tabular-nums'>
-                  {format(new Date(), 'HH:mm')}
+                  <CurrentTime pattern="HH:mm" />
                 </span>
               </div>
-              <Button
-                asChild
-                className='h-12 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 px-6 font-black shadow-xl transition-all hover:scale-105 active:scale-95'
+              <Link
+                href='/attendance'
+                className={cn(
+                  buttonVariants({ variant: 'outline' }),
+                  'h-12 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 px-6 font-black shadow-xl transition-all hover:scale-105 active:scale-95 border-none'
+                )}
               >
-                <Link href='/attendance'>
-                  <Calendar className='mr-2 h-4 w-4 text-primary' />
-                  {format(new Date(), 'EEE, MMM dd')}
-                </Link>
-              </Button>
-              <Button
-                asChild
-                className='gradient-primary h-12 px-6 rounded-2xl shadow-xl shadow-blue-500/25 font-black transition-all hover:scale-105 active:scale-95'
+                <Calendar className='mr-2 h-4 w-4 text-primary' />
+                <CurrentTime pattern="EEE, MMM dd" />
+              </Link>
+              <Link
+                href='/announcements'
+                className={cn(
+                  buttonVariants(),
+                  'gradient-primary h-12 px-6 rounded-2xl shadow-xl shadow-blue-500/25 font-black transition-all hover:scale-105 active:scale-95'
+                )}
               >
-                <Link href='/announcements'>
-                  <Bell className='mr-2 h-4 w-4' />
-                  Notifications
-                </Link>
-              </Button>
+                <Bell className='mr-2 h-4 w-4' />
+                Notifications
+              </Link>
             </div>
           </div>
         </div>
@@ -249,20 +308,24 @@ export default async function DashboardPage() {
                     {commonData.announcements[0].body}
                   </p>
                   <div className='flex flex-wrap items-center gap-4'>
-                    <Button
-                      asChild
-                      variant='secondary'
-                      className='bg-white text-indigo-600 hover:bg-indigo-50 font-black px-8 rounded-2xl h-14 shadow-2xl transition-all hover:scale-105 active:scale-95'
+                    <Link
+                      href='/announcements'
+                      className={cn(
+                        buttonVariants({ variant: 'secondary' }),
+                        'bg-white text-indigo-600 hover:bg-indigo-50 font-black px-8 rounded-2xl h-14 shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center'
+                      )}
                     >
-                      <Link href='/announcements'>READ STORY</Link>
-                    </Button>
-                    <Button
-                      asChild
-                      variant='ghost'
-                      className='text-white hover:bg-white/10 h-14 px-6 rounded-2xl font-bold tracking-wider'
+                      READ STORY
+                    </Link>
+                    <Link
+                      href='/announcements'
+                      className={cn(
+                        buttonVariants({ variant: 'ghost' }),
+                        'text-white hover:bg-white/10 h-14 px-6 rounded-2xl font-bold tracking-wider flex items-center justify-center'
+                      )}
                     >
-                      <Link href='/announcements'>ALL UPDATES</Link>
-                    </Button>
+                      ALL UPDATES
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
@@ -325,37 +388,56 @@ export default async function DashboardPage() {
                     <p className='text-base font-black italic text-slate-400'>All caught up!</p>
                   </div>
                 ) : (
-                  adminData.upcomingFees.map((fee) => (
-                    <Link
-                      key={fee.id}
-                      href={`/students/${fee.student.id}/finance`}
-                      className='flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group'
-                    >
-                      <div className='flex flex-col gap-0.5'>
-                        <span className='text-sm font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors'>
-                          {fee.student.fullName}
-                        </span>
-                        <span className='text-[8px] text-slate-400 font-black uppercase tracking-widest'>
-                          {fee.feeStructure.name.substring(0, 20)}...
-                        </span>
-                      </div>
-                      <div className='flex flex-col items-end gap-1'>
-                        <span className='text-base font-black text-rose-600 tabular-nums'>
-                          Rs {Number(fee.outstandingAmount).toLocaleString()}
-                        </span>
-                      </div>
-                    </Link>
-                  ))
+                  adminData.upcomingFees.map((fee) => {
+                    // Generate some dummy historical data for the sparkline
+                    const history = [
+                      Number(fee.outstandingAmount) * 0.8,
+                      Number(fee.outstandingAmount) * 0.9,
+                      Number(fee.outstandingAmount) * 0.85,
+                      Number(fee.outstandingAmount),
+                    ];
+
+                    return (
+                      <Link
+                        key={fee.id}
+                        href={`/students/${fee.student.id}/finance`}
+                        className='flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group'
+                      >
+                        <div className='flex items-center gap-4'>
+                          <div className='flex flex-col gap-0.5'>
+                            <span className='text-sm font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors'>
+                              {fee.student.fullName}
+                            </span>
+                            <span className='text-[8px] text-slate-400 font-black uppercase tracking-widest'>
+                              {fee.feeStructure.name.substring(0, 20)}...
+                            </span>
+                          </div>
+                        </div>
+                        <div className='flex items-center gap-6'>
+                          <div className='hidden sm:block'>
+                            <Sparkline data={history} color='#f43f5e' />
+                          </div>
+                          <div className='flex flex-col items-end gap-1'>
+                            <span className='text-base font-black text-rose-600 tabular-nums'>
+                              Rs {Number(fee.outstandingAmount).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })
                 )}
               </div>
               <div className='p-6'>
-                <Button
-                  asChild
-                  variant='outline'
-                  className='w-full h-11 rounded-2xl border-slate-200 dark:border-slate-800 font-black text-xs tracking-[0.2em] uppercase hover:bg-slate-50'
+                <Link
+                  href='/finance/records'
+                  className={cn(
+                    buttonVariants({ variant: 'outline' }),
+                    'w-full h-11 rounded-2xl border-slate-200 dark:border-slate-800 font-black text-xs tracking-[0.2em] uppercase hover:bg-slate-50 flex items-center justify-center'
+                  )}
                 >
-                  <Link href='/finance/records'>VIEW ALL</Link>
-                </Button>
+                  VIEW ALL
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -397,13 +479,15 @@ export default async function DashboardPage() {
                 ))
               )}
             </div>
-            <Button
-              asChild
-              variant='outline'
-              className='w-full mt-6 h-11 rounded-2xl border-slate-200 dark:border-slate-800 font-black text-xs tracking-[0.2em] uppercase hover:bg-slate-50'
+            <Link
+              href='/audit-logs'
+              className={cn(
+                buttonVariants({ variant: 'outline' }),
+                'w-full mt-6 h-11 rounded-2xl border-slate-200 dark:border-slate-800 font-black text-xs tracking-[0.2em] uppercase hover:bg-slate-50 flex items-center justify-center'
+              )}
             >
-              <Link href='/audit-logs'>AUDIT TRAIL</Link>
-            </Button>
+              AUDIT TRAIL
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -487,6 +571,28 @@ export default async function DashboardPage() {
               <p className='max-w-md text-base text-slate-400 font-medium leading-relaxed opacity-90'>
                 Here is your teaching overview for today.
               </p>
+              <div className='flex flex-wrap items-center gap-3 pt-2'>
+                <Link
+                  href="/attendance"
+                  className={cn(
+                    buttonVariants({ size: 'sm' }),
+                    "bg-white/10 hover:bg-white/20 border-none rounded-xl h-10 px-4 text-xs font-bold transition-all hover:scale-105 active:scale-95 glow-primary"
+                  )}
+                >
+                  <Calendar className="mr-2 h-3.5 w-3.5 text-blue-400" />
+                  Mark Attendance
+                </Link>
+                <Link
+                  href="/leave"
+                  className={cn(
+                    buttonVariants({ size: 'sm' }),
+                    "bg-white/10 hover:bg-white/20 border-none rounded-xl h-10 px-4 text-xs font-bold transition-all hover:scale-105 active:scale-95 glow-amber"
+                  )}
+                >
+                  <Clock className="mr-2 h-3.5 w-3.5 text-amber-400" />
+                  Submit Leave
+                </Link>
+              </div>
             </div>
 
             <div className='flex flex-wrap items-center gap-4'>
@@ -495,27 +601,29 @@ export default async function DashboardPage() {
                   Current Time
                 </span>
                 <span className='text-2xl font-black font-outfit tabular-nums'>
-                  {format(new Date(), 'HH:mm')}
+                  <CurrentTime pattern="HH:mm" />
                 </span>
               </div>
-              <Button
-                asChild
-                className='h-12 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 px-6 font-black shadow-xl transition-all hover:scale-105 active:scale-95'
+              <Link
+                href='/attendance'
+                className={cn(
+                  buttonVariants({ variant: 'outline' }),
+                  'h-12 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 px-6 font-black shadow-xl transition-all hover:scale-105 active:scale-95 border-none'
+                )}
               >
-                <Link href='/attendance'>
-                  <Calendar className='mr-2 h-4 w-4 text-primary' />
-                  {format(new Date(), 'EEE, MMM dd')}
-                </Link>
-              </Button>
-              <Button
-                asChild
-                className='gradient-primary h-12 px-6 rounded-2xl shadow-xl shadow-blue-500/25 font-black transition-all hover:scale-105 active:scale-95'
+                <Calendar className='mr-2 h-4 w-4 text-primary' />
+                <CurrentTime pattern="EEE, MMM dd" />
+              </Link>
+              <Link
+                href='/announcements'
+                className={cn(
+                  buttonVariants(),
+                  'gradient-primary h-12 px-6 rounded-2xl shadow-xl shadow-blue-500/25 font-black transition-all hover:scale-105 active:scale-95'
+                )}
               >
-                <Link href='/announcements'>
-                  <Bell className='mr-2 h-4 w-4' />
-                  Notifications
-                </Link>
-              </Button>
+                <Bell className='mr-2 h-4 w-4' />
+                Notifications
+              </Link>
             </div>
           </div>
         </div>
@@ -585,13 +693,15 @@ export default async function DashboardPage() {
                   <p className='text-indigo-50/90 max-w-2xl line-clamp-2 leading-relaxed font-medium mb-6'>
                     {commonData.announcements[0].body}
                   </p>
-                  <Button
-                    asChild
-                    variant='secondary'
-                    className='bg-white text-indigo-600 hover:bg-indigo-50 font-black px-6 rounded-2xl h-12 shadow-2xl transition-all hover:scale-105 active:scale-95'
+                  <Link
+                    href='/announcements'
+                    className={cn(
+                      buttonVariants({ variant: 'secondary' }),
+                      'bg-white text-indigo-600 hover:bg-indigo-50 font-black px-6 rounded-2xl h-12 shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center'
+                    )}
                   >
-                    <Link href='/announcements'>READ MORE</Link>
-                  </Button>
+                    READ MORE
+                  </Link>
                 </CardContent>
               </Card>
             )}
@@ -705,6 +815,28 @@ export default async function DashboardPage() {
               <p className='max-w-md text-base text-slate-400 font-medium leading-relaxed opacity-90'>
                 Manage your school finances efficiently.
               </p>
+              <div className='flex flex-wrap items-center gap-3 pt-2'>
+                <Link
+                  href="/finance/records"
+                  className={cn(
+                    buttonVariants({ size: 'sm' }),
+                    "bg-white/10 hover:bg-white/20 border-none rounded-xl h-10 px-4 text-xs font-bold transition-all hover:scale-105 active:scale-95 glow-emerald"
+                  )}
+                >
+                  <Wallet className="mr-2 h-3.5 w-3.5 text-emerald-400" />
+                  Record Fees
+                </Link>
+                <Link
+                  href="/finance/records"
+                  className={cn(
+                    buttonVariants({ size: 'sm' }),
+                    "bg-white/10 hover:bg-white/20 border-none rounded-xl h-10 px-4 text-xs font-bold transition-all hover:scale-105 active:scale-95 glow-primary"
+                  )}
+                >
+                  <DollarSign className="mr-2 h-3.5 w-3.5 text-blue-400" />
+                  Generate Invoice
+                </Link>
+              </div>
             </div>
 
             <div className='flex flex-wrap items-center gap-4'>
@@ -713,27 +845,29 @@ export default async function DashboardPage() {
                   Current Time
                 </span>
                 <span className='text-2xl font-black font-outfit tabular-nums'>
-                  {format(new Date(), 'HH:mm')}
+                  <CurrentTime pattern="HH:mm" />
                 </span>
               </div>
-              <Button
-                asChild
-                className='h-12 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 px-6 font-black shadow-xl transition-all hover:scale-105 active:scale-95'
+              <Link
+                href='/finance/reports'
+                className={cn(
+                  buttonVariants({ variant: 'outline' }),
+                  'h-12 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 px-6 font-black shadow-xl transition-all hover:scale-105 active:scale-95 border-none'
+                )}
               >
-                <Link href='/finance/reports'>
-                  <DollarSign className='mr-2 h-4 w-4 text-primary' />
-                  Reports
-                </Link>
-              </Button>
-              <Button
-                asChild
-                className='gradient-primary h-12 px-6 rounded-2xl shadow-xl shadow-blue-500/25 font-black transition-all hover:scale-105 active:scale-95'
+                <DollarSign className='mr-2 h-4 w-4 text-primary' />
+                Reports
+              </Link>
+              <Link
+                href='/announcements'
+                className={cn(
+                  buttonVariants(),
+                  'gradient-primary h-12 px-6 rounded-2xl shadow-xl shadow-blue-500/25 font-black transition-all hover:scale-105 active:scale-95'
+                )}
               >
-                <Link href='/announcements'>
-                  <Bell className='mr-2 h-4 w-4' />
-                  Notifications
-                </Link>
-              </Button>
+                <Bell className='mr-2 h-4 w-4' />
+                Notifications
+              </Link>
             </div>
           </div>
         </div>
@@ -828,13 +962,15 @@ export default async function DashboardPage() {
                 )}
               </div>
               <div className='p-6'>
-                <Button
-                  asChild
-                  variant='outline'
-                  className='w-full h-11 rounded-2xl border-slate-200 dark:border-slate-800 font-black text-xs tracking-[0.2em] uppercase hover:bg-slate-50'
+                <Link
+                  href='/finance/records'
+                  className={cn(
+                    buttonVariants({ variant: 'outline' }),
+                    'w-full h-11 rounded-2xl border-slate-200 dark:border-slate-800 font-black text-xs tracking-[0.2em] uppercase hover:bg-slate-50 flex items-center justify-center'
+                  )}
                 >
-                  <Link href='/finance/records'>VIEW ALL</Link>
-                </Button>
+                  VIEW ALL
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -974,13 +1110,15 @@ export default async function DashboardPage() {
             <p className='text-indigo-50/90 text-lg max-w-2xl leading-relaxed font-medium mb-6'>
               {commonData.announcements[0].body}
             </p>
-            <Button
-              asChild
-              variant='secondary'
-              className='bg-white text-indigo-600 hover:bg-indigo-50 font-black px-8 rounded-2xl h-14 shadow-2xl transition-all hover:scale-105 active:scale-95'
+            <Link
+              href='/announcements'
+              className={cn(
+                buttonVariants({ variant: 'secondary' }),
+                'bg-white text-indigo-600 hover:bg-indigo-50 font-black px-8 rounded-2xl h-14 shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center'
+              )}
             >
-              <Link href='/announcements'>READ MORE</Link>
-            </Button>
+              READ MORE
+            </Link>
           </CardContent>
         </Card>
       )}

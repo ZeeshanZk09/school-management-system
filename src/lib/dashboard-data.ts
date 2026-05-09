@@ -1,12 +1,57 @@
 import prisma from '@/lib/prisma';
 
-const getTodayRange = () => ({
-  gte: new Date(new Date().setHours(0, 0, 0, 0)),
-  lt: new Date(new Date().setHours(23, 59, 59, 999)),
-});
+// ============ CONSTANTS ============
+const DASHBOARD_RECENT_LOGS_LIMIT = 6;
+const DASHBOARD_UPCOMING_FEES_DAYS = 7;
+const DASHBOARD_UPCOMING_FEES_LIMIT = 5;
+const DASHBOARD_RECENT_ATTENDANCE_LIMIT = 10;
+const DASHBOARD_RECENT_PAYMENTS_LIMIT = 10;
 
-// ============ COMMON DATA (All Roles) ============
-export const getCommonDashboardData = async () => {
+// ============ TYPES ============
+export interface DashboardAnnouncements {
+  announcements: any[]; // Replace with actual Prisma type if available
+}
+
+export interface AttendanceHistoryEntry {
+  date: Date;
+  rate: number;
+}
+
+export interface AdminDashboardData {
+  studentCount: number;
+  staffCount: number;
+  totalCollection: { _sum: { amountPaid: number | null } };
+  pendingLeaveCount: number;
+  recentLogs: any[];
+  presentToday: number;
+  totalAttendanceToday: number;
+  outstandingBalance: { _sum: { outstandingAmount: number | null } };
+  staffPresentToday: number;
+  staffAbsentToday: number;
+  staffOnLeaveToday: number;
+  attendanceHistory: AttendanceHistoryEntry[];
+  studentEnrollments: any[];
+  staffList: any[];
+  upcomingFees: any[];
+}
+
+/**
+ * Returns a Prisma-compatible date range for today (00:00:00 to 23:59:59).
+ */
+const getTodayRange = () => {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+  
+  return { gte: start, lt: end };
+};
+
+/**
+ * Fetches recent announcements for the common dashboard view.
+ */
+export async function getCommonDashboardData(): Promise<DashboardAnnouncements> {
   const announcements = await prisma.announcement.findMany({
     where: {
       isDeleted: false,
@@ -18,10 +63,64 @@ export const getCommonDashboardData = async () => {
   });
 
   return { announcements };
-};
+}
 
-// ============ ADMIN DASHBOARD DATA ============
-export const getAdminDashboardData = async () => {
+// ============ ATOMIC QUERIES (Shared) ============
+
+/**
+ * Gets the total count of active students.
+ */
+async function getStudentCount() {
+  return prisma.student.count({
+    where: { isDeleted: false, status: 'ACTIVE' },
+  });
+}
+
+/**
+ * Gets the total count of active staff.
+ */
+async function getStaffCount() {
+  return prisma.staff.count({
+    where: { isDeleted: false },
+  });
+}
+
+/**
+ * Gets total fee collection aggregate.
+ */
+async function getTotalCollection() {
+  return prisma.feePayment.aggregate({
+    where: { isDeleted: false },
+    _sum: { amountPaid: true },
+  });
+}
+
+/**
+ * Gets total outstanding balance aggregate.
+ */
+async function getOutstandingBalance() {
+  return prisma.feeRecord.aggregate({
+    where: { isDeleted: false },
+    _sum: { outstandingAmount: true },
+  });
+}
+
+/**
+ * Gets count of pending leave requests.
+ */
+async function getPendingLeaveCount() {
+  return prisma.leaveRequest.count({
+    where: {
+      status: 'PENDING',
+      isDeleted: false,
+    },
+  });
+}
+
+/**
+ * Aggregates all necessary data for the Admin Dashboard.
+ */
+export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const [
     studentCount,
     staffCount,
@@ -39,29 +138,13 @@ export const getAdminDashboardData = async () => {
     staffList,
     upcomingFees,
   ] = await Promise.all([
-    // School-wide student count
-    prisma.student.count({
-      where: { isDeleted: false, status: 'ACTIVE' },
-    }),
-    // School-wide staff count
-    prisma.staff.count({
-      where: { isDeleted: false },
-    }),
-    // Total fees collected
-    prisma.feePayment.aggregate({
-      where: { isDeleted: false },
-      _sum: { amountPaid: true },
-    }),
-    // Pending leave requests
-    prisma.leaveRequest.count({
-      where: {
-        status: 'PENDING',
-        isDeleted: false,
-      },
-    }),
+    getStudentCount(),
+    getStaffCount(),
+    getTotalCollection(),
+    getPendingLeaveCount(),
     // Recent audit logs
     prisma.auditLog.findMany({
-      take: 6,
+      take: DASHBOARD_RECENT_LOGS_LIMIT,
       orderBy: { createdAt: 'desc' },
       include: { actor: true },
     }),
@@ -79,12 +162,8 @@ export const getAdminDashboardData = async () => {
         isDeleted: false,
       },
     }),
-    // Outstanding fees
-    prisma.feeRecord.aggregate({
-      where: { isDeleted: false },
-      _sum: { outstandingAmount: true },
-    }),
-    // Staff attendance today
+    getOutstandingBalance(),
+    // Staff attendance breakdown
     prisma.staffAttendance.count({
       where: {
         attendanceDate: getTodayRange(),
@@ -107,7 +186,7 @@ export const getAdminDashboardData = async () => {
       },
     }),
     // 7-day attendance history
-    prisma.$queryRaw<any[]>`
+    prisma.$queryRaw<AttendanceHistoryEntry[]>`
       SELECT 
         CAST("attendanceDate" AS DATE) as date,
         CAST(COUNT(CASE WHEN status = 'PRESENT' THEN 1 END) AS FLOAT) / NULLIF(CAST(COUNT(*) AS FLOAT), 0) * 100 as rate
@@ -127,18 +206,18 @@ export const getAdminDashboardData = async () => {
       where: { isDeleted: false },
       select: { department: true },
     }),
-    // Upcoming fees (due within 7 days)
+    // Upcoming fees
     prisma.feeRecord.findMany({
       where: {
         isDeleted: false,
         outstandingAmount: { gt: 0 },
         dueDate: {
           gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          lte: new Date(new Date().setDate(new Date().getDate() + 7)),
+          lte: new Date(new Date().getTime() + DASHBOARD_UPCOMING_FEES_DAYS * 24 * 60 * 60 * 1000),
         },
       },
       include: { student: true, feeStructure: true },
-      take: 5,
+      take: DASHBOARD_UPCOMING_FEES_LIMIT,
       orderBy: { dueDate: 'asc' },
     }),
   ]);
@@ -146,12 +225,20 @@ export const getAdminDashboardData = async () => {
   return {
     studentCount,
     staffCount,
-    totalCollection,
+    totalCollection: {
+      _sum: {
+        amountPaid: totalCollection._sum.amountPaid ? Number(totalCollection._sum.amountPaid) : 0
+      }
+    },
     pendingLeaveCount,
     recentLogs,
     presentToday,
     totalAttendanceToday,
-    outstandingBalance,
+    outstandingBalance: {
+      _sum: {
+        outstandingAmount: outstandingBalance._sum.outstandingAmount ? Number(outstandingBalance._sum.outstandingAmount) : 0
+      }
+    },
     staffPresentToday,
     staffAbsentToday,
     staffOnLeaveToday,
@@ -160,10 +247,35 @@ export const getAdminDashboardData = async () => {
     staffList,
     upcomingFees,
   };
-};
+}
 
-// ============ TEACHER DASHBOARD DATA ============
-export const getTeacherDashboardData = async (staffId: string) => {
+export interface TeacherDashboardData {
+  classTeacherAssignments: any[];
+  studentEnrollmentsInClasses: any[];
+  attendanceSummary: {
+    presentToday: number;
+    totalToday: number;
+    rate: number;
+  };
+  recentStudentAttendance: any[];
+  pendingLeaveCount: number;
+  assignedClasses: any[];
+}
+
+export interface AccountantDashboardData {
+  totalCollection: { _sum: { amountPaid: number | null } };
+  outstandingBalance: { _sum: { outstandingAmount: number | null } };
+  upcomingFees: any[];
+  overdueFees: any[];
+  feePaymentsRecent: any[];
+  feeStructures: any[];
+  classWiseFeeStatus: any[];
+}
+
+/**
+ * Aggregates all necessary data for the Teacher Dashboard.
+ */
+export async function getTeacherDashboardData(staffId: string): Promise<TeacherDashboardData> {
   // Get classes assigned to this teacher
   const classTeacherAssignments = await prisma.classTeacherAssignment.findMany({
     where: {
@@ -247,16 +359,9 @@ export const getTeacherDashboardData = async (staffId: string) => {
       },
       include: { student: true },
       orderBy: { attendanceDate: 'desc' },
-      take: 10,
+      take: DASHBOARD_RECENT_ATTENDANCE_LIMIT,
     }),
-    // Pending leave requests from students
-    prisma.leaveRequest.count({
-      where: {
-        status: 'PENDING',
-        isDeleted: false,
-        // Could filter by students in teacher's classes if needed
-      },
-    }),
+    getPendingLeaveCount(),
   ]);
 
   const attendanceRate =
@@ -274,10 +379,12 @@ export const getTeacherDashboardData = async (staffId: string) => {
     pendingLeaveCount,
     assignedClasses: classTeacherAssignments.map((a) => a.class),
   };
-};
+}
 
-// ============ ACCOUNTANT DASHBOARD DATA ============
-export const getAccountantDashboardData = async () => {
+/**
+ * Aggregates all necessary data for the Accountant Dashboard.
+ */
+export async function getAccountantDashboardData(): Promise<AccountantDashboardData> {
   const [
     totalCollection,
     outstandingBalance,
@@ -287,28 +394,20 @@ export const getAccountantDashboardData = async () => {
     feeStructures,
     classWiseFeeStatus,
   ] = await Promise.all([
-    // Total fees collected
-    prisma.feePayment.aggregate({
-      where: { isDeleted: false },
-      _sum: { amountPaid: true },
-    }),
-    // Outstanding fees
-    prisma.feeRecord.aggregate({
-      where: { isDeleted: false },
-      _sum: { outstandingAmount: true },
-    }),
-    // Fees due within 7 days
+    getTotalCollection(),
+    getOutstandingBalance(),
+    // Fees due within DASHBOARD_UPCOMING_FEES_DAYS
     prisma.feeRecord.findMany({
       where: {
         isDeleted: false,
         outstandingAmount: { gt: 0 },
         dueDate: {
           gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          lte: new Date(new Date().setDate(new Date().getDate() + 7)),
+          lte: new Date(new Date().setDate(new Date().getDate() + DASHBOARD_UPCOMING_FEES_DAYS)),
         },
       },
       include: { student: true, feeStructure: true },
-      take: 5,
+      take: DASHBOARD_UPCOMING_FEES_LIMIT,
       orderBy: { dueDate: 'asc' },
     }),
     // Overdue fees
@@ -321,7 +420,7 @@ export const getAccountantDashboardData = async () => {
         },
       },
       include: { student: true, feeStructure: true },
-      take: 5,
+      take: DASHBOARD_UPCOMING_FEES_LIMIT,
       orderBy: { dueDate: 'asc' },
     }),
     // Recent fee payments
@@ -329,7 +428,7 @@ export const getAccountantDashboardData = async () => {
       where: { isDeleted: false },
       include: { feeRecord: { include: { student: true, feeStructure: true } } },
       orderBy: { paidAt: 'desc' },
-      take: 10,
+      take: DASHBOARD_RECENT_PAYMENTS_LIMIT,
     }),
     // Fee structures
     prisma.feeStructure.findMany({
@@ -355,12 +454,20 @@ export const getAccountantDashboardData = async () => {
   ]);
 
   return {
-    totalCollection,
-    outstandingBalance,
+    totalCollection: {
+      _sum: {
+        amountPaid: totalCollection._sum.amountPaid ? Number(totalCollection._sum.amountPaid) : 0
+      }
+    },
+    outstandingBalance: {
+      _sum: {
+        outstandingAmount: outstandingBalance._sum.outstandingAmount ? Number(outstandingBalance._sum.outstandingAmount) : 0
+      }
+    },
     upcomingFees,
     overdueFees,
     feePaymentsRecent,
     feeStructures,
     classWiseFeeStatus,
   };
-};
+}

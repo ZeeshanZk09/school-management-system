@@ -1,19 +1,25 @@
-import { headers } from "next/headers";
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/prisma';
+import { getClientIp, getClientUserAgent } from './security/request';
+import { Prisma } from './generated/prisma/client';
 
-type AuditLogInput = {
+type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'ERROR';
+
+interface AuditLogInput {
   actorUserId: string | null;
-  action: "CREATE" | "UPDATE" | "DELETE" | "ERROR";
+  action: AuditAction;
   tableName: string;
   recordId?: string | null;
   oldValue?: unknown;
   note?: string | null;
   newValue?: unknown;
-};
+}
 
-function toJsonValue(value: unknown): any {
+/**
+ * Normalizes values for JSON storage, converting Dates to ISO strings.
+ */
+function normalizeJsonValue(value: unknown): Prisma.InputJsonValue {
   if (value === null || value === undefined) {
-    return null;
+    return Prisma.JsonNull as unknown as Prisma.InputJsonValue;
   }
 
   const cloned = structuredClone(value);
@@ -22,14 +28,7 @@ function toJsonValue(value: unknown): any {
     return cloned.toISOString();
   }
 
-  return cloned;
-}
-
-function resolveForwardedIp(headerValue: string | null): string | null {
-  if (!headerValue) {
-    return null;
-  }
-  return headerValue.split(",")[0]?.trim() ?? null;
+  return cloned as Prisma.InputJsonValue;
 }
 
 /**
@@ -37,19 +36,7 @@ function resolveForwardedIp(headerValue: string | null): string | null {
  * Records who did what, when, on which table, with old vs new values as JSON.
  */
 export async function writeAuditLog(input: AuditLogInput): Promise<void> {
-  let ipAddress: string | null = null;
-  let userAgent: string | null = null;
-
-  try {
-    const requestHeaders = await headers();
-    ipAddress =
-      resolveForwardedIp(requestHeaders.get("x-forwarded-for")) ??
-      requestHeaders.get("x-real-ip") ??
-      null;
-    userAgent = requestHeaders.get("user-agent");
-  } catch {
-    // Headers unavailable in some execution contexts
-  }
+  const [ipAddress, userAgent] = await Promise.all([getClientIp(), getClientUserAgent()]);
 
   await prisma.auditLog.create({
     data: {
@@ -57,8 +44,8 @@ export async function writeAuditLog(input: AuditLogInput): Promise<void> {
       action: input.action,
       tableName: input.tableName,
       recordId: input.recordId ?? null,
-      oldValue: toJsonValue(input.oldValue),
-      newValue: toJsonValue(input.newValue),
+      oldValue: normalizeJsonValue(input.oldValue),
+      newValue: normalizeJsonValue(input.newValue),
       note: input.note ?? null,
       ipAddress,
       userAgent,
@@ -71,36 +58,19 @@ export async function writeAuditLog(input: AuditLogInput): Promise<void> {
  */
 export async function writeAuthEvent(params: {
   userId?: string | null;
-  eventType: "LOGIN" | "LOGOUT";
+  eventType: 'LOGIN' | 'LOGOUT';
   ipAddress?: string | null;
   userAgent?: string | null;
 }): Promise<void> {
-  let ip = params.ipAddress ?? null;
-  let ua = params.userAgent ?? null;
-
-  if (!ip || !ua) {
-    try {
-      const requestHeaders = await headers();
-      if (!ip) {
-        ip =
-          resolveForwardedIp(requestHeaders.get("x-forwarded-for")) ??
-          requestHeaders.get("x-real-ip") ??
-          null;
-      }
-      if (!ua) {
-        ua = requestHeaders.get("user-agent");
-      }
-    } catch {
-      // Headers unavailable
-    }
-  }
+  const ipAddress = params.ipAddress ?? (await getClientIp());
+  const userAgent = params.userAgent ?? (await getClientUserAgent());
 
   await prisma.authEvent.create({
     data: {
       userId: params.userId ?? null,
       eventType: params.eventType,
-      ipAddress: ip,
-      userAgent: ua,
+      ipAddress,
+      userAgent,
     },
   });
 }

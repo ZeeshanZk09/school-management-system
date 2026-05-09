@@ -19,6 +19,10 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
+        "glow-blue": "bg-blue-500/10 text-blue-600 border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.2)]",
+        "glow-emerald": "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]",
+        "glow-rose": "bg-rose-500/10 text-rose-600 border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.2)]",
+        "glow-amber": "bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]",
       },
     },
     defaultVariants: {

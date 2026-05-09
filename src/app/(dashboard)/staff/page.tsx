@@ -39,6 +39,8 @@ const EMPLOYMENT_TYPE_STYLES: Record<string, string> = {
   PART_TIME: "bg-slate-50 text-slate-700 border-slate-100",
 };
 
+import { PageHeader } from "@/components/dashboard/page-header";
+
 export default async function StaffPage({
   searchParams,
 }: Readonly<{
@@ -77,32 +79,23 @@ export default async function StaffPage({
     }),
   ]);
 
-  const _totalPages = Math.ceil(totalCount / pageSize);
-
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Staff Management
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400">
-            View and manage all teachers and school employees.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="h-10">
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-          </Button>
-          <Button asChild className="gradient-primary h-10 shadow-md">
-            <Link href="/staff/new">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Staff Member
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Staff Management"
+        description="View and manage all teachers and school employees."
+      >
+        <Button variant="outline" className="h-12 px-5 border-none bg-slate-100 dark:bg-slate-800 rounded-xl">
+          <Filter className="mr-2 h-4 w-4" />
+          Filters
+        </Button>
+        <Button asChild className="gradient-primary h-12 px-6 shadow-lg shadow-blue-500/20 rounded-xl">
+          <Link href="/staff/new">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Staff Member
+          </Link>
+        </Button>
+      </PageHeader>
 
       <Card className="border-none shadow-sm glass overflow-hidden">
         <CardHeader className="pb-0 pt-6 px-6">

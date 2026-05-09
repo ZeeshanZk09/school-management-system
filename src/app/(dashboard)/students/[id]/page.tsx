@@ -27,6 +27,7 @@ import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 import { GuardianForm } from "./guardian-form";
+import { SiblingForm } from "./sibling-form";
 
 export default async function StudentProfilePage({
   params,
@@ -59,6 +60,29 @@ export default async function StudentProfilePage({
       documents: {
         where: { isDeleted: false },
         orderBy: { uploadedAt: "desc" },
+      },
+      siblings: {
+        where: { isDeleted: false },
+        include: {
+          group: {
+            include: {
+              members: {
+                where: { isDeleted: false, studentId: { not: id } },
+                include: {
+                  student: {
+                    include: {
+                      enrollments: {
+                        where: { isDeleted: false },
+                        include: { class: true },
+                        take: 1,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
   });
@@ -424,6 +448,73 @@ export default async function StudentProfilePage({
                   </CardContent>
                 </Card>
               ))
+            )}
+          </div>
+
+          <div className="mt-12">
+            <div className="flex items-center justify-between mb-6">
+              <div className="space-y-1">
+                <h2 className="text-xl font-bold">Siblings</h2>
+                <p className="text-sm text-slate-500">
+                  Students linked as part of the same family group.
+                </p>
+              </div>
+              <SiblingForm studentId={student.id}>
+                <Button variant="outline" size="sm" className="h-9">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Link Sibling
+                </Button>
+              </SiblingForm>
+            </div>
+
+            {student.siblings.length === 0 ||
+            student.siblings[0].group.members.length === 0 ? (
+              <div className="h-32 flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400">
+                No siblings linked to this student.
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {student.siblings[0].group.members.map((member) => (
+                  <Link
+                    key={member.studentId}
+                    href={`/students/${member.studentId}`}
+                    className="group"
+                  >
+                    <Card className="border-none shadow-sm glass hover:shadow-md transition-all">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-4">
+                          <Avatar className="h-12 w-12 ring-2 ring-white dark:ring-slate-800">
+                            <AvatarImage
+                              src={member.student.photoUrl || ""}
+                            />
+                            <AvatarFallback className="bg-slate-100 text-slate-500 font-bold">
+                              {member.student.fullName
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-bold text-sm group-hover:text-primary transition-colors truncate">
+                              {member.student.fullName}
+                            </span>
+                            <span className="text-[10px] text-slate-400 uppercase tracking-widest font-medium">
+                              {member.student.admissionNumber}
+                            </span>
+                            <Badge
+                              variant="secondary"
+                              className="w-fit mt-1 text-[9px] py-0 h-4"
+                            >
+                              {member.student.enrollments[0]?.class.name ||
+                                "N/A"}
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
             )}
           </div>
         </TabsContent>

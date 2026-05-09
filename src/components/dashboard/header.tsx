@@ -16,6 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { GlobalSearch } from "./global-search";
 import { useSidebar } from "./sidebar-context";
+import { Breadcrumbs } from "./breadcrumbs";
 
 export function DashboardHeader({
   user,
@@ -47,6 +48,9 @@ export function DashboardHeader({
         >
           <Menu className="h-5 w-5" />
         </Button>
+        <div className="hidden md:block">
+          <Breadcrumbs />
+        </div>
         <GlobalSearch />
       </div>
 

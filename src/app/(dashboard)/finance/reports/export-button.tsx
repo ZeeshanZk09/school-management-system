@@ -1,26 +1,36 @@
 "use client";
 
-import { Download, Loader2 } from "lucide-react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { Download, FileText, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { FinanceReportPDF } from "@/components/pdf/finance-report-pdf";
 import { Button } from "@/components/ui/button";
-import { exportFinanceCSV } from "../payroll/actions"; // Adjust if moved
+import { exportFinanceCSV } from "../payroll/actions";
 
 export function FinanceExportButtons({
   type,
   month,
   year,
+  reportData,
+  settings,
 }: Readonly<{
-  type: "collection" | "outstanding";
+  type: "collection" | "outstanding" | "payroll";
   month?: number;
   year?: number;
+  reportData?: any[];
+  settings?: any;
 }>) {
   const [isPending, setIsPending] = useState(false);
 
   const handleExportCSV = async () => {
     setIsPending(true);
     try {
-      const result = await exportFinanceCSV(type, month, year);
+      const result = await exportFinanceCSV(
+        type as "collection" | "outstanding",
+        month,
+        year,
+      );
       if (result.success && result.csv) {
         const blob = new Blob([result.csv], {
           type: "text/csv;charset=utf-8;",
@@ -47,22 +57,58 @@ export function FinanceExportButtons({
     }
   };
 
+  const canExportPDF = reportData && reportData.length > 0 && settings;
+
+  const pdfFileName = `${type}_report_${month ?? "all"}_${year ?? "all"}.pdf`;
+
   return (
     <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        className="h-10 bg-white dark:bg-slate-900 border-none shadow-sm"
-        onClick={() => toast.info("PDF Export coming soon...")}
-        disabled={isPending}
-      >
-        <Download className="mr-2 h-4 w-4" />
-        Export PDF
-      </Button>
+      {canExportPDF ? (
+        <PDFDownloadLink
+          document={
+            <FinanceReportPDF
+              type={type as "collection" | "outstanding" | "payroll"}
+              reportData={reportData}
+              month={month}
+              year={year}
+              settings={settings}
+            />
+          }
+          fileName={pdfFileName}
+        >
+          {({ loading }) => (
+            <Button
+              variant="outline"
+              className="h-10 bg-white dark:bg-slate-900 border-none shadow-sm"
+              disabled={loading || isPending}
+            >
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <FileText className="mr-2 h-4 w-4" />
+              )}
+              Export PDF
+            </Button>
+          )}
+        </PDFDownloadLink>
+      ) : (
+        <Button
+          variant="outline"
+          className="h-10 bg-white dark:bg-slate-900 border-none shadow-sm opacity-50"
+          onClick={() => toast.info("Generate a report first to enable PDF export")}
+          disabled={isPending}
+        >
+          <FileText className="mr-2 h-4 w-4" />
+          Export PDF
+        </Button>
+      )}
+
       <Button
         variant="outline"
         className="h-10 bg-white dark:bg-slate-900 border-none shadow-sm"
         onClick={handleExportCSV}
-        disabled={isPending}
+        disabled={isPending || type === "payroll"}
+        title={type === "payroll" ? "CSV not available for payroll" : undefined}
       >
         {isPending ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

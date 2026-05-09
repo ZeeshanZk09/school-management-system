@@ -1,8 +1,10 @@
 "use client";
 
-import { Download, Loader2 } from "lucide-react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { Download, FileText, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AttendanceReportPDF } from "@/components/pdf/attendance-report-pdf";
 import { Button } from "@/components/ui/button";
 import { exportAttendanceCSV } from "../actions";
 
@@ -11,11 +13,17 @@ export function AttendanceExportButtons({
   month,
   year,
   classId,
+  reportData,
+  settings,
+  className: selectedClassName,
 }: Readonly<{
   type: "student" | "staff";
   month: number;
   year: number;
   classId?: string;
+  reportData?: any[];
+  settings?: any;
+  className?: string;
 }>) {
   const [isPending, setIsPending] = useState(false);
 
@@ -54,17 +62,57 @@ export function AttendanceExportButtons({
     }
   };
 
+  // Only show PDF button if we have data and settings
+  const canExportPDF =
+    reportData && reportData.length > 0 && settings;
+
   return (
     <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        className="h-10 bg-white dark:bg-slate-900 border-none shadow-sm"
-        onClick={() => toast.info("PDF Export coming soon...")}
-        disabled={isPending}
-      >
-        <Download className="mr-2 h-4 w-4" />
-        Export PDF
-      </Button>
+      {canExportPDF ? (
+        <PDFDownloadLink
+          document={
+            <AttendanceReportPDF
+              reportData={reportData}
+              type={type}
+              month={month}
+              year={year}
+              settings={settings}
+              className={selectedClassName}
+            />
+          }
+          fileName={`${type}_attendance_report_${month}_${year}.pdf`}
+        >
+          {({ loading }) => (
+            <Button
+              variant="outline"
+              className="h-10 bg-white dark:bg-slate-900 border-none shadow-sm"
+              disabled={loading || isPending}
+            >
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <FileText className="mr-2 h-4 w-4" />
+              )}
+              Export PDF
+            </Button>
+          )}
+        </PDFDownloadLink>
+      ) : (
+        <Button
+          variant="outline"
+          className="h-10 bg-white dark:bg-slate-900 border-none shadow-sm opacity-50"
+          onClick={() =>
+            toast.info(
+              "Generate a report first to enable PDF export",
+            )
+          }
+          disabled={isPending}
+        >
+          <FileText className="mr-2 h-4 w-4" />
+          Export PDF
+        </Button>
+      )}
+
       <Button
         variant="outline"
         className="h-10 bg-white dark:bg-slate-900 border-none shadow-sm"

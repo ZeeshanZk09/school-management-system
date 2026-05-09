@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,6 +25,7 @@ import prisma from "@/lib/prisma";
 import { getSystemSettings } from "@/lib/settings";
 import { PaymentForm } from "./payment-form";
 import { ReceiptButton } from "./receipt-button";
+import { PageHeader } from "@/components/dashboard/page-header";
 
 type FeeRecordStatus = "OPEN" | "PARTIALLY_PAID" | "PAID" | "OVERDUE";
 
@@ -39,14 +41,14 @@ export default async function FeeRecordsPage({
   const settings = await getSystemSettings();
   const getStatusBadgeClass = (recordStatus: FeeRecordStatus) => {
     if (recordStatus === "PAID") {
-      return "bg-emerald-100 text-emerald-700 border-none";
+      return "glow-emerald";
     }
 
     if (recordStatus === "PARTIALLY_PAID") {
-      return "bg-amber-100 text-amber-700 border-none";
+      return "glow-amber";
     }
 
-    return "bg-rose-100 text-rose-700 border-none";
+    return "glow-rose";
   };
 
   const records = await prisma.feeRecord.findMany({
@@ -84,26 +86,22 @@ export default async function FeeRecordsPage({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Student Billing
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400">
-            Track fee records, outstanding balances, and collection history.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="h-10">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
-          </Button>
-          <Button className="gradient-primary h-10 shadow-md">
-            <DollarSign className="mr-2 h-4 w-4" />
-            Generate Monthly Fees
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Student Billing"
+        description="Track fee records, outstanding balances, and collection history."
+      >
+        <Button
+          variant="outline"
+          className="h-12 px-5 border-none bg-slate-100 dark:bg-slate-800 rounded-xl"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Export Report
+        </Button>
+        <Button className="gradient-primary h-12 px-6 shadow-lg shadow-blue-500/20 rounded-xl">
+          <DollarSign className="mr-2 h-4 w-4" />
+          Generate Monthly Fees
+        </Button>
+      </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="border-none shadow-sm glass">
@@ -208,9 +206,14 @@ export default async function FeeRecordsPage({
               <TableRow>
                 <TableCell
                   colSpan={6}
-                  className="h-32 text-center text-slate-500"
+                  className="p-0"
                 >
-                  No billing records found.
+                  <EmptyState 
+                    icon={Search}
+                    title="No billing records found"
+                    description="Try adjusting your search query or filters to find what you're looking for."
+                    className="border-none"
+                  />
                 </TableCell>
               </TableRow>
             ) : (
@@ -243,7 +246,7 @@ export default async function FeeRecordsPage({
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusBadgeClass(record.status)}>
+                    <Badge variant={getStatusBadgeClass(record.status) as any}>
                       {record.status.replace("_", " ")}
                     </Badge>
                   </TableCell>

@@ -31,6 +31,7 @@ import {
 } from "@/lib/academic-year";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
+import { getSystemSettings } from "@/lib/settings";
 import { FinanceExportButtons } from "./export-button";
 
 export default async function FinanceReportsPage({
@@ -54,7 +55,10 @@ export default async function FinanceReportsPage({
 
   const startDate = startOfMonth(new Date(year, month - 1));
   const endDate = endOfMonth(startDate);
-  const activeAcademicYear = await getActiveAcademicYear();
+  const [activeAcademicYear, settings] = await Promise.all([
+    getActiveAcademicYear(),
+    getSystemSettings(),
+  ]);
 
   let reportData: any[] = [];
   const totals = { total: 0, pending: 0, collected: 0, payroll: 0 };
@@ -163,9 +167,11 @@ export default async function FinanceReportsPage({
         </div>
         <div className="flex items-center gap-2">
           <FinanceExportButtons
-            type={type as "collection" | "outstanding"}
+            type={type as "collection" | "outstanding" | "payroll"}
             month={month}
             year={year}
+            reportData={reportData}
+            settings={settings}
           />
         </div>
       </div>

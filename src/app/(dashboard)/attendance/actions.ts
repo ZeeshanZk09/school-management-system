@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { writeAuditLog } from "@/lib/audit";
-import { requirePermission } from "@/lib/auth/permissions";
+import { isTeacherForClass, requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 
 export async function recordAttendance(data: {
@@ -18,6 +18,11 @@ export async function recordAttendance(data: {
   }[];
 }) {
   const user = await requirePermission("attendance.manage");
+
+  // Strict role enforcement: Teachers can only mark attendance for their assigned classes
+  if (!isTeacherForClass(user, data.classId, data.sectionId)) {
+    return { success: false, message: "Forbidden: You are not assigned to this class/section." };
+  }
 
   try {
     const attendanceDate = new Date(data.attendanceDate);

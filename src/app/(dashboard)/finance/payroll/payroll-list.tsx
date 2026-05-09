@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { generateSalarySlip } from "./actions";
+import { bulkDisburseSalaries, generateSalarySlip } from "./actions";
 import { DisbursementDialog } from "./disbursement-dialog";
 
 export function PayrollList({
@@ -49,6 +49,7 @@ export function PayrollList({
 }>) {
   const router = useRouter();
   const [isPending, setIsPending] = useState<string | null>(null);
+  const [isBulkPending, setIsBulkPending] = useState(false);
 
   const months = [
     "January",
@@ -78,10 +79,29 @@ export function PayrollList({
     }
   };
 
+  const handleBulkDisburse = async () => {
+    if (!confirm("Are you sure you want to disburse all pending salary slips for this period?")) {
+      return;
+    }
+    
+    setIsBulkPending(true);
+    const result = await bulkDisburseSalaries(month, year);
+    setIsBulkPending(false);
+
+    if (result.success) {
+      toast.success(`Successfully disbursed ${result.count} salaries`);
+      router.refresh();
+    } else {
+      toast.error(result.message || "Bulk disbursement failed");
+    }
+  };
+
+  const pendingSlips = slips.filter(s => s.disbursements.length === 0);
+
   return (
     <div className="space-y-6">
       <Card className="border-none shadow-sm glass">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <div className="flex items-center gap-4">
             <Select
               value={month.toString()}
@@ -120,6 +140,22 @@ export function PayrollList({
                 ))}
               </SelectContent>
             </Select>
+
+            {pendingSlips.length > 0 && (
+              <Button
+                variant="outline"
+                className="h-10 border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                onClick={handleBulkDisburse}
+                disabled={isBulkPending}
+              >
+                {isBulkPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                )}
+                Disburse All Pending ({pendingSlips.length})
+              </Button>
+            )}
           </div>
           <div className="text-right">
             <p className="text-sm font-medium text-slate-500">Period Total</p>

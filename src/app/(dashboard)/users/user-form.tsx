@@ -21,7 +21,7 @@ import { resetUserPassword, toggleUserStatus, upsertUser } from "./actions";
 
 export function UserForm({
   children,
-  roles,
+  roles = [],
   initialData,
 }: Readonly<{
   children: React.ReactNode;
@@ -30,9 +30,15 @@ export function UserForm({
 }>) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const [selectedRoles, setSelectedRoles] = useState<string[]>(
-    initialData?.roles.map((r: any) => r.roleId) || [],
-  );
+  
+  // Safely initialize selected roles
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(() => {
+    if (!initialData || !initialData.roles || !Array.isArray(initialData.roles)) {
+      return [];
+    }
+    return initialData.roles.map((r: any) => r.roleId).filter(Boolean);
+  });
+
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -64,7 +70,7 @@ export function UserForm({
       return;
 
     setIsPending(true);
-    const result = await resetUserPassword(initialData.id);
+    const result = await resetUserPassword(initialData?.id);
     setIsPending(false);
 
     if (result.success) {
@@ -76,7 +82,7 @@ export function UserForm({
 
   const handleToggleStatus = async () => {
     setIsPending(true);
-    const result = await toggleUserStatus(initialData.id);
+    const result = await toggleUserStatus(initialData?.id);
     setIsPending(false);
 
     if (result.success) {

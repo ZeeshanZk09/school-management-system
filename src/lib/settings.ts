@@ -1,9 +1,12 @@
 import { cache } from "react";
-
 import prisma from "@/lib/prisma";
+import { logger } from "./logger";
 
+/**
+ * Fallback settings used when the database is unavailable or empty.
+ */
 const EMPTY_SYSTEM_SETTINGS = {
-  schoolName: "",
+  schoolName: "Zebotix School",
   schoolLogoUrl: null,
   addressLine1: "",
   addressLine2: null,
@@ -17,14 +20,20 @@ const EMPTY_SYSTEM_SETTINGS = {
   attendanceSessions: ["Morning", "Afternoon"],
 };
 
-function hasDatabaseUrl() {
+/**
+ * Checks if the DATABASE_URL environment variable is properly configured.
+ */
+function hasDatabaseUrl(): boolean {
   const databaseUrl = process.env.DATABASE_URL?.trim();
-
-  return Boolean(
-    databaseUrl && databaseUrl !== "undefined" && databaseUrl !== "null",
-  );
+  return Boolean(databaseUrl && !["undefined", "null", ""].includes(databaseUrl));
 }
 
+/**
+ * Fetches global system settings from the database.
+ * Results are cached for the duration of the request.
+ * 
+ * @returns The current system settings or a default fallback.
+ */
 export const getSystemSettings = cache(async () => {
   if (!hasDatabaseUrl()) {
     return EMPTY_SYSTEM_SETTINGS;
@@ -34,7 +43,7 @@ export const getSystemSettings = cache(async () => {
     const settings = await prisma.systemSettings.findFirst();
     return settings || EMPTY_SYSTEM_SETTINGS;
   } catch (error) {
-    console.error("Failed to fetch settings:", error);
+    logger.error("Failed to fetch system settings", { error });
     return EMPTY_SYSTEM_SETTINGS;
   }
 });

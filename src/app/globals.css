@@ -110,6 +110,9 @@
     --contrast-muted: 30 90% 93%;
     --contrast-strong: 20 100% 42%;
     --contrast-deep: 15 100% 35%;
+
+    /* Premium Shadows */
+    --shadow-premium: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
 
   .dark {
@@ -147,6 +150,9 @@
     --contrast-muted: 28 55% 16%;
     --contrast-strong: 40 100% 65%;
     --contrast-deep: 25 95% 48%;
+
+    /* Premium Shadows */
+    --shadow-premium: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -237,6 +243,15 @@
   @apply bg-white/80 dark:bg-black/60 backdrop-blur-md border border-white/30 dark:border-white/10;
 }
 
+.shadow-premium {
+  box-shadow: var(--shadow-premium);
+}
+
+.dark-card-border {
+  @apply border border-slate-200 dark:border-white/10;
+  background-image: linear-gradient(to bottom right, rgba(255,255,255,0.05), transparent);
+}
+
 /* ─── Hover lift ────────────────────────────────────────── */
 .hover-lift {
   @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
@@ -290,4 +305,28 @@
 
 .text-gradient {
   @apply bg-clip-text text-transparent bg-linear-to-r from-primary to-indigo-600;
+}
+
+/* ─── Premium Glows ─────────────────────────────────────── */
+.glow-primary {
+  @apply transition-all duration-300;
+}
+.glow-primary:hover {
+  box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.5);
+  @apply -translate-y-0.5;
+}
+
+.glow-emerald {
+  @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border-none;
+  box-shadow: 0 0 15px -5px hsl(142 76% 36% / 0.4);
+}
+
+.glow-amber {
+  @apply bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border-none;
+  box-shadow: 0 0 15px -5px hsl(38 92% 50% / 0.4);
+}
+
+.glow-rose {
+  @apply bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border-none;
+  box-shadow: 0 0 15px -5px hsl(0 84% 60% / 0.4);
 }

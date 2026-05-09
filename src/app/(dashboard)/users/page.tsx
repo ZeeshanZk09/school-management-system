@@ -14,6 +14,7 @@ import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 import { ApprovalButton } from "./approval-button";
 import { UserForm } from "./user-form";
+import { PageHeader } from "@/components/dashboard/page-header";
 
 const STATUS_STYLES: Record<string, string> = {
   ACTIVE: "bg-emerald-100 text-emerald-700 border-none",
@@ -38,22 +39,18 @@ export default async function UsersPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            User Management
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400">
-            Control system access, assign roles, and manage user accounts.
-          </p>
-        </div>
-        <UserForm roles={roles}>
-          <Button className="gradient-primary h-11 px-6 rounded-xl shadow-lg">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Create System User
-          </Button>
-        </UserForm>
-      </div>
+      <PageHeader
+        title="User Management"
+        description="Control system access, assign roles, and manage user accounts."
+        action={
+          <UserForm roles={roles}>
+            <Button className="gradient-primary h-11 px-6 rounded-xl shadow-lg">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Create System User
+            </Button>
+          </UserForm>
+        }
+      />
 
       <Card className="border-none shadow-sm glass overflow-hidden">
         <Table>
@@ -85,13 +82,13 @@ export default async function UsersPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
-                    {user.roles.map((ur) => (
+                    {user.roles?.map((ur: any) => (
                       <Badge
                         key={ur.roleId}
                         variant="secondary"
                         className="bg-blue-50 text-blue-700 border-blue-100 text-[10px] font-bold"
                       >
-                        {ur.role.name}
+                        {ur.role?.name || "Unknown"}
                       </Badge>
                     ))}
                   </div>

@@ -29,12 +29,14 @@ export async function createStudent(data: any) {
   }
 
   try {
+    const { classId, academicYearId, sectionId, ...studentData } = validated.data;
+
     const student = await prisma.student.create({
       data: {
-        ...validated.data,
-        dateOfBirth: new Date(validated.data.dateOfBirth),
-        admissionDate: new Date(validated.data.admissionDate),
-        email: validated.data.email || null,
+        ...studentData,
+        dateOfBirth: new Date(studentData.dateOfBirth),
+        admissionDate: new Date(studentData.admissionDate),
+        email: studentData.email || null,
       },
     });
 
@@ -98,14 +100,15 @@ export async function updateStudent(id: string, data: any) {
   }
 
   try {
+    const { classId, academicYearId, sectionId, ...studentData } = validated.data;
     const oldStudent = await prisma.student.findUnique({ where: { id } });
     const student = await prisma.student.update({
       where: { id },
       data: {
-        ...validated.data,
-        dateOfBirth: new Date(validated.data.dateOfBirth),
-        admissionDate: new Date(validated.data.admissionDate),
-        email: validated.data.email || null,
+        ...studentData,
+        dateOfBirth: new Date(studentData.dateOfBirth),
+        admissionDate: new Date(studentData.admissionDate),
+        email: studentData.email || null,
       },
     });
 
