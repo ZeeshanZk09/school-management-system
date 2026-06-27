@@ -1,11 +1,4 @@
-import {
-  Briefcase,
-  Filter,
-  Mail,
-  MoreHorizontal,
-  Search,
-  UserPlus,
-} from "lucide-react";
+import { Briefcase, Filter, Mail, MoreHorizontal, Search, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -85,11 +78,17 @@ export default async function StaffPage({
         title="Staff Management"
         description="View and manage all teachers and school employees."
       >
-        <Button variant="outline" className="h-12 px-5 border-none bg-slate-100 dark:bg-slate-800 rounded-xl">
+        <Button
+          variant="outline"
+          className="h-12 px-5 border-none bg-slate-100 dark:bg-slate-800 rounded-xl"
+        >
           <Filter className="mr-2 h-4 w-4" />
           Filters
         </Button>
-        <Button asChild className="gradient-primary h-12 px-6 shadow-lg shadow-blue-500/20 rounded-xl">
+        <Button
+          asChild
+          className="gradient-primary h-12 px-6 shadow-lg shadow-blue-500/20 rounded-xl"
+        >
           <Link href="/staff/new">
             <UserPlus className="mr-2 h-4 w-4" />
             Add Staff Member
@@ -127,9 +126,7 @@ export default async function StaffPage({
                 <TableCell colSpan={5} className="h-64 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <Briefcase className="h-10 w-10 text-slate-300" />
-                    <p className="text-slate-500 font-medium">
-                      No staff members found.
-                    </p>
+                    <p className="text-slate-500 font-medium">No staff members found.</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -167,9 +164,7 @@ export default async function StaffPage({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm font-medium">
-                    {staff.designation}
-                  </TableCell>
+                  <TableCell className="text-sm font-medium">{staff.designation}</TableCell>
                   <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                     {staff.department}
                   </TableCell>
@@ -196,11 +191,7 @@ export default async function StaffPage({
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 p-0"
-                          >
+                          <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -208,9 +199,7 @@ export default async function StaffPage({
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild>
-                            <Link href={`/staff/${staff.id}/edit`}>
-                              Edit Details
-                            </Link>
+                            <Link href={`/staff/${staff.id}/edit`}>Edit Details</Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem>Mark Attendance</DropdownMenuItem>
                           <DropdownMenuItem>Salary Records</DropdownMenuItem>
@@ -229,11 +218,7 @@ export default async function StaffPage({
           </TableBody>
         </Table>
         <div className="px-6 border-t bg-slate-50/30 dark:bg-slate-900/30">
-          <Pagination
-            totalItems={totalCount}
-            pageSize={pageSize}
-            currentPage={page}
-          />
+          <Pagination totalItems={totalCount} pageSize={pageSize} currentPage={page} />
         </div>
       </Card>
     </div>

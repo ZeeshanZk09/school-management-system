@@ -21,11 +21,7 @@ interface FilterProps {
   statuses: string[];
 }
 
-export function StudentFilters({
-  classes,
-  sections,
-  statuses,
-}: Readonly<FilterProps>) {
+export function StudentFilters({ classes, sections, statuses }: Readonly<FilterProps>) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -56,11 +52,9 @@ export function StudentFilters({
     router.push("/students");
   };
 
-  const activeFiltersCount = [
-    currentStatus,
-    currentClassId,
-    currentSectionId,
-  ].filter(Boolean).length;
+  const activeFiltersCount = [currentStatus, currentClassId, currentSectionId].filter(
+    Boolean,
+  ).length;
 
   return (
     <DropdownMenu>
@@ -78,10 +72,7 @@ export function StudentFilters({
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-56 glass border-none shadow-xl"
-      >
+      <DropdownMenuContent align="end" className="w-56 glass border-none shadow-xl">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Filter Students</span>
           {activeFiltersCount > 0 && (
@@ -104,17 +95,11 @@ export function StudentFilters({
           {statuses.map((status) => (
             <DropdownMenuItem
               key={status}
-              onClick={() =>
-                handleFilter("status", currentStatus === status ? null : status)
-              }
+              onClick={() => handleFilter("status", currentStatus === status ? null : status)}
               className="flex items-center justify-between"
             >
-              <span className="capitalize">
-                {status.replace("_", " ").toLowerCase()}
-              </span>
-              {currentStatus === status && (
-                <div className="h-2 w-2 rounded-full bg-primary" />
-              )}
+              <span className="capitalize">{status.replace("_", " ").toLowerCase()}</span>
+              {currentStatus === status && <div className="h-2 w-2 rounded-full bg-primary" />}
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>
@@ -129,18 +114,11 @@ export function StudentFilters({
             {classes.map((cls) => (
               <DropdownMenuItem
                 key={cls.id}
-                onClick={() =>
-                  handleFilter(
-                    "classId",
-                    currentClassId === cls.id ? null : cls.id,
-                  )
-                }
+                onClick={() => handleFilter("classId", currentClassId === cls.id ? null : cls.id)}
                 className="flex items-center justify-between"
               >
                 <span>{cls.name}</span>
-                {currentClassId === cls.id && (
-                  <div className="h-2 w-2 rounded-full bg-primary" />
-                )}
+                {currentClassId === cls.id && <div className="h-2 w-2 rounded-full bg-primary" />}
               </DropdownMenuItem>
             ))}
           </div>
@@ -160,10 +138,7 @@ export function StudentFilters({
                     <DropdownMenuItem
                       key={sec.id}
                       onClick={() =>
-                        handleFilter(
-                          "sectionId",
-                          currentSectionId === sec.id ? null : sec.id,
-                        )
+                        handleFilter("sectionId", currentSectionId === sec.id ? null : sec.id)
                       }
                       className="flex items-center justify-between"
                     >

@@ -115,7 +115,55 @@ const styles = StyleSheet.create({
   },
 });
 
-export function FeeReceiptPDF({ payment, settings, student, enrollment }: any) {
+interface FeeReceiptProps {
+  payment: {
+    id: string;
+    amountPaid: string | number;
+    paidAt: string | Date;
+    method: string;
+    referenceNumber?: string | null;
+    note?: string | null;
+    receipt?: {
+      id: string | number;
+    } | null;
+    feeRecord: {
+      feeStructure: {
+        name: string;
+      };
+    };
+  };
+  settings: {
+    schoolName: string;
+    addressLine1: string;
+    addressLine2?: string | null;
+    city: string | null;
+    state: string | null;
+    postalCode: string | null;
+    contactPhone?: string | null;
+    contactEmail?: string | null;
+  };
+  student: {
+    fullName: string;
+    admissionNumber: string;
+    rollNumber?: string | null;
+  };
+  enrollment?: {
+    rollNumber?: string | null;
+    class?: {
+      name: string;
+    } | null;
+    section?: {
+      name: string;
+    } | null;
+  } | null;
+}
+
+export function FeeReceiptPDF({
+  payment,
+  settings,
+  student,
+  enrollment,
+}: Readonly<FeeReceiptProps>) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -124,20 +172,18 @@ export function FeeReceiptPDF({ payment, settings, student, enrollment }: any) {
           <View style={styles.schoolInfo}>
             <Text style={styles.schoolName}>{settings.schoolName}</Text>
             <Text style={styles.address}>{settings.addressLine1}</Text>
-            {settings.addressLine2 && (
-              <Text style={styles.address}>{settings.addressLine2}</Text>
-            )}
+            {settings.addressLine2 && <Text style={styles.address}>{settings.addressLine2}</Text>}
             <Text style={styles.address}>
-              {settings.city}, {settings.state} {settings.postalCode}
+              {settings.city ?? ""}, {settings.state ?? ""} {settings.postalCode ?? ""}
             </Text>
             <Text style={styles.address}>
-              Email: {settings.contactEmail} | Phone: {settings.contactPhone}
+              Email: {settings.contactEmail ?? "N/A"} | Phone: {settings.contactPhone ?? "N/A"}
             </Text>
           </View>
           <View>
             <Text style={styles.receiptTitle}>FEE RECEIPT</Text>
             <Text style={{ textAlign: "right", fontSize: 10, marginTop: 4 }}>
-              # {payment.receipt?.id.toString().padStart(6, "0")}
+              # {payment.receipt?.id ? String(payment.receipt.id).substring(0, 6) : payment.id.substring(0, 6)}
             </Text>
           </View>
         </View>
@@ -147,24 +193,16 @@ export function FeeReceiptPDF({ payment, settings, student, enrollment }: any) {
           <View style={styles.infoBox}>
             <Text style={styles.label}>Student Details</Text>
             <Text style={styles.value}>{student.fullName}</Text>
-            <Text style={{ fontSize: 9, marginTop: 2 }}>
-              Roll #: {enrollment.rollNumber}
-            </Text>
+            <Text style={{ fontSize: 9, marginTop: 2 }}>Roll #: {enrollment?.rollNumber ?? student.rollNumber ?? "N/A"}</Text>
             <Text style={{ fontSize: 9 }}>
-              Class: {enrollment.class.name} - {enrollment.section?.name}
+              Class: {enrollment?.class?.name ?? "N/A"}{enrollment?.section?.name ? ` - ${enrollment.section.name}` : ""}
             </Text>
           </View>
           <View style={styles.infoBox}>
             <Text style={styles.label}>Payment Details</Text>
-            <Text style={styles.value}>
-              {format(new Date(payment.paidAt), "PPPP")}
-            </Text>
-            <Text style={{ fontSize: 9, marginTop: 2 }}>
-              Method: {payment.method}
-            </Text>
-            <Text style={{ fontSize: 9 }}>
-              Reference: {payment.referenceNumber || "N/A"}
-            </Text>
+            <Text style={styles.value}>{format(new Date(payment.paidAt), "PPPP")}</Text>
+            <Text style={{ fontSize: 9, marginTop: 2 }}>Method: {payment.method}</Text>
+            <Text style={{ fontSize: 9 }}>Reference: {payment.referenceNumber || "N/A"}</Text>
           </View>
         </View>
 
@@ -175,19 +213,15 @@ export function FeeReceiptPDF({ payment, settings, student, enrollment }: any) {
             <Text style={styles.col2}>Amount</Text>
           </View>
           <View style={styles.tableRow}>
-            <Text style={styles.col1}>
-              {payment.feeRecord.feeStructure.name}
-            </Text>
+            <Text style={styles.col1}>{payment.feeRecord.feeStructure.name}</Text>
             <Text style={styles.col2}>
-              Rs {Number.parseFloat(payment.amountPaid).toLocaleString()}
+              Rs {Number(payment.amountPaid).toLocaleString()}
             </Text>
           </View>
           {payment.note && (
             <View style={{ marginTop: 10, padding: 8 }}>
               <Text style={styles.label}>Note</Text>
-              <Text style={{ fontSize: 9, fontStyle: "italic" }}>
-                {payment.note}
-              </Text>
+              <Text style={{ fontSize: 9, fontStyle: "italic" }}>{payment.note}</Text>
             </View>
           )}
         </View>
@@ -197,7 +231,7 @@ export function FeeReceiptPDF({ payment, settings, student, enrollment }: any) {
           <View style={styles.totalBox}>
             <Text style={styles.totalLabel}>Total Amount Paid</Text>
             <Text style={styles.totalAmount}>
-              Rs {Number.parseFloat(payment.amountPaid).toLocaleString()}
+              Rs {Number(payment.amountPaid).toLocaleString()}
             </Text>
           </View>
         </View>

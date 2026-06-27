@@ -21,12 +21,9 @@ export default async function RegisterPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-black font-outfit">
-                Registration Closed
-              </h1>
+              <h1 className="text-2xl font-black font-outfit">Registration Closed</h1>
               <p className="text-slate-500 dark:text-slate-400 font-medium">
-                Self-registration is currently disabled by the school
-                administrator.
+                Self-registration is currently disabled by the school administrator.
               </p>
             </div>
             <Button asChild className="w-full gradient-primary h-11 rounded-xl">
@@ -63,10 +60,7 @@ export default async function RegisterPage() {
 
         <p className="text-center text-sm text-slate-500 font-medium">
           Already have an account?{" "}
-          <Link
-            href="/login"
-            className="text-primary font-bold hover:underline underline-offset-4"
-          >
+          <Link href="/login" className="text-primary font-bold hover:underline underline-offset-4">
             Sign in
           </Link>
         </p>

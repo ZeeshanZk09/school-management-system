@@ -4,7 +4,7 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Download, FileText, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { FinanceReportPDF } from "@/components/pdf/finance-report-pdf";
+import { FinanceReportPDF, type FinanceReportSettings } from "@/components/pdf/finance-report-pdf";
 import { Button } from "@/components/ui/button";
 import { exportFinanceCSV } from "../payroll/actions";
 
@@ -18,19 +18,15 @@ export function FinanceExportButtons({
   type: "collection" | "outstanding" | "payroll";
   month?: number;
   year?: number;
-  reportData?: any[];
-  settings?: any;
+  reportData?: unknown[];
+  settings?: FinanceReportSettings | null;
 }>) {
   const [isPending, setIsPending] = useState(false);
 
   const handleExportCSV = async () => {
     setIsPending(true);
     try {
-      const result = await exportFinanceCSV(
-        type as "collection" | "outstanding",
-        month,
-        year,
-      );
+      const result = await exportFinanceCSV(type as "collection" | "outstanding", month, year);
       if (result.success && result.csv) {
         const blob = new Blob([result.csv], {
           type: "text/csv;charset=utf-8;",
@@ -50,7 +46,7 @@ export function FinanceExportButtons({
       } else {
         toast.error(result.message || "Export failed");
       }
-    } catch (_error) {
+    } catch {
       toast.error("An error occurred during export");
     } finally {
       setIsPending(false);
@@ -67,7 +63,7 @@ export function FinanceExportButtons({
         <PDFDownloadLink
           document={
             <FinanceReportPDF
-              type={type as "collection" | "outstanding" | "payroll"}
+              type={type}
               reportData={reportData}
               month={month}
               year={year}

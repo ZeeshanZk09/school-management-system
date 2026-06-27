@@ -22,10 +22,7 @@ function SheetPortal({ ...props }: Readonly<SheetPrimitive.Portal.Props>) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
 }
 
-function SheetOverlay({
-  className,
-  ...props
-}: Readonly<SheetPrimitive.Backdrop.Props>) {
+function SheetOverlay({ className, ...props }: Readonly<SheetPrimitive.Backdrop.Props>) {
   return (
     <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
@@ -64,13 +61,7 @@ function SheetContent({
         {showCloseButton && (
           <SheetPrimitive.Close
             data-slot="sheet-close"
-            render={
-              <Button
-                variant="ghost"
-                className="absolute top-3 right-3"
-                size="icon-sm"
-              />
-            }
+            render={<Button variant="ghost" className="absolute top-3 right-3" size="icon-sm" />}
           >
             <XIcon />
             <span className="sr-only">Close</span>
@@ -101,10 +92,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function SheetTitle({
-  className,
-  ...props
-}: Readonly<SheetPrimitive.Title.Props>) {
+function SheetTitle({ className, ...props }: Readonly<SheetPrimitive.Title.Props>) {
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
@@ -114,10 +102,7 @@ function SheetTitle({
   );
 }
 
-function SheetDescription({
-  className,
-  ...props
-}: Readonly<SheetPrimitive.Description.Props>) {
+function SheetDescription({ className, ...props }: Readonly<SheetPrimitive.Description.Props>) {
   return (
     <SheetPrimitive.Description
       data-slot="sheet-description"

@@ -37,8 +37,11 @@ export async function uploadStaffDocument(staffId: string, formData: FormData) {
 
     revalidatePath(`/staff/${staffId}`);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+    };
   }
 }
 
@@ -60,7 +63,10 @@ export async function deleteStaffDocument(id: string, staffId: string) {
 
     revalidatePath(`/staff/${staffId}`);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+    };
   }
 }

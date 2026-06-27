@@ -23,9 +23,7 @@ export async function forgotPasswordAction(
   if (!validated.success) {
     return {
       success: false,
-      message:
-        z.flattenError(validated.error).fieldErrors.email?.[0] ||
-        "Invalid email",
+      message: z.flattenError(validated.error).fieldErrors.email?.[0] || "Invalid email",
     };
   }
 

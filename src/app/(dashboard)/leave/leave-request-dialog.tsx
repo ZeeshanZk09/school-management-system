@@ -25,6 +25,16 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { submitLeaveRequest } from "./actions";
 
+interface LeaveTypeOption {
+  id: string;
+  name: string;
+}
+
+interface StaffOption {
+  id: string;
+  fullName: string;
+}
+
 export function LeaveRequestDialog({
   children,
   leaveTypes,
@@ -32,8 +42,8 @@ export function LeaveRequestDialog({
   activeYearId,
 }: Readonly<{
   children: React.ReactNode;
-  leaveTypes: any[];
-  staffMembers: any[];
+  leaveTypes: LeaveTypeOption[];
+  staffMembers: StaffOption[];
   activeYearId: string;
 }>) {
   const [open, setOpen] = useState(false);
@@ -70,12 +80,8 @@ export function LeaveRequestDialog({
       <DialogContent className="sm:max-w-[500px] glass border-none">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle className="font-outfit text-2xl">
-              Leave Application
-            </DialogTitle>
-            <DialogDescription>
-              Submit a new leave request for a staff member.
-            </DialogDescription>
+            <DialogTitle className="font-outfit text-2xl">Leave Application</DialogTitle>
+            <DialogDescription>Submit a new leave request for a staff member.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -148,11 +154,7 @@ export function LeaveRequestDialog({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary h-11 px-8"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary h-11 px-8" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Submit Request
             </Button>

@@ -66,8 +66,11 @@ export async function updateSettings(formData: FormData) {
 
     revalidatePath("/settings");
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error updating settings:", error);
-    return { success: false, message: error.message };
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to update settings",
+    };
   }
 }

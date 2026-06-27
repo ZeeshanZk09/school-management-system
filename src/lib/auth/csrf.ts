@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 
 const CSRF_COOKIE_NAME = "csrf_token";
@@ -7,10 +7,6 @@ const CSRF_FORM_FIELD = "_csrf";
 
 function generateCsrfToken(): string {
   return randomBytes(32).toString("base64url");
-}
-
-function _hashCsrf(token: string): string {
-  return createHash("sha256").update(token).digest("hex");
 }
 
 /**
@@ -43,10 +39,7 @@ export async function getCsrfToken(): Promise<string> {
  * Validate CSRF token from form data or header against the cookie.
  * Must be called in every server action that mutates data.
  */
-export async function validateCsrf(
-  formData?: FormData,
-  request?: Request,
-): Promise<boolean> {
+export async function validateCsrf(formData?: FormData, request?: Request): Promise<boolean> {
   const cookieStore = await cookies();
   const cookieToken = cookieStore.get(CSRF_COOKIE_NAME)?.value;
 
@@ -76,10 +69,7 @@ export async function validateCsrf(
 /**
  * Require valid CSRF. Throws if invalid.
  */
-export async function requireCsrf(
-  formData?: FormData,
-  request?: Request,
-): Promise<void> {
+export async function requireCsrf(formData?: FormData, request?: Request): Promise<void> {
   const valid = await validateCsrf(formData, request);
   if (!valid) {
     throw new Error("CSRF validation failed");

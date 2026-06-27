@@ -9,7 +9,22 @@ export async function createAnnouncement(data: {
   title: string;
   body: string;
   expiresAt?: Date;
-}) {
+}): Promise<{
+  success: boolean;
+  data?: {
+    id: string;
+    expiresAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+    isDeleted: boolean;
+    isActive: boolean;
+    title: string;
+    body: string;
+    publishedAt: Date;
+    createdByUserId: string;
+  };
+  message?: string;
+}> {
   try {
     const actor = await requirePermission("system.manage");
 
@@ -39,7 +54,9 @@ export async function createAnnouncement(data: {
   }
 }
 
-export async function deleteAnnouncement(id: string) {
+export async function deleteAnnouncement(
+  id: string,
+): Promise<{ success: boolean; message?: string }> {
   try {
     const actor = await requirePermission("system.manage");
 

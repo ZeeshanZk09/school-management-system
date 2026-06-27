@@ -5,19 +5,16 @@ import { z } from "zod";
 import { writeAuditLog } from "@/lib/audit";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
-import {
-  studentEnrollmentSchema,
-  studentSchema,
-} from "@/lib/validations/student";
+import { studentEnrollmentSchema, studentSchema } from "@/lib/validations/student";
 
 export type ActionResponse = {
   success: boolean;
   message?: string;
   errors?: Record<string, string[] | undefined>;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
-export async function createStudent(data: any) {
+export async function createStudent(data: unknown) {
   const user = await requirePermission("students.manage");
 
   const validated = studentSchema.safeParse(data);
@@ -29,7 +26,10 @@ export async function createStudent(data: any) {
   }
 
   try {
-    const { classId, academicYearId, sectionId, ...studentData } = validated.data;
+    const studentData = { ...validated.data };
+    delete (studentData as Record<string, unknown>).classId;
+    delete (studentData as Record<string, unknown>).academicYearId;
+    delete (studentData as Record<string, unknown>).sectionId;
 
     const student = await prisma.student.create({
       data: {
@@ -49,15 +49,15 @@ export async function createStudent(data: any) {
     });
 
     return { success: true, studentId: student.id };
-  } catch (error: any) {
-    if (error.code === "P2002") {
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
       return { success: false, message: "Admission number already exists" };
     }
     return { success: false, message: "Failed to create student" };
   }
 }
 
-export async function enrollStudent(data: any) {
+export async function enrollStudent(data: unknown) {
   const user = await requirePermission("students.manage");
 
   const validated = studentEnrollmentSchema.safeParse(data);
@@ -83,12 +83,12 @@ export async function enrollStudent(data: any) {
 
     revalidatePath("/students");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to enroll student" };
   }
 }
 
-export async function updateStudent(id: string, data: any) {
+export async function updateStudent(id: string, data: unknown) {
   const user = await requirePermission("students.manage");
 
   const validated = studentSchema.safeParse(data);
@@ -100,7 +100,10 @@ export async function updateStudent(id: string, data: any) {
   }
 
   try {
-    const { classId, academicYearId, sectionId, ...studentData } = validated.data;
+    const studentData = { ...validated.data };
+    delete (studentData as Record<string, unknown>).classId;
+    delete (studentData as Record<string, unknown>).academicYearId;
+    delete (studentData as Record<string, unknown>).sectionId;
     const oldStudent = await prisma.student.findUnique({ where: { id } });
     const student = await prisma.student.update({
       where: { id },
@@ -124,7 +127,7 @@ export async function updateStudent(id: string, data: any) {
     revalidatePath("/students");
     revalidatePath(`/students/${id}`);
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to update student" };
   }
 }
@@ -147,16 +150,13 @@ export async function deleteStudent(id: string) {
 
     revalidatePath("/students");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to delete student" };
   }
 }
 
 // Guardian Actions
-export async function addGuardian(
-  studentId: string,
-  data: any,
-): Promise<ActionResponse> {
+export async function addGuardian(studentId: string, data: unknown): Promise<ActionResponse> {
   const user = await requirePermission("students.manage");
   const { guardianSchema } = await import("@/lib/validations/guardian");
 
@@ -209,7 +209,7 @@ export async function addGuardian(
       revalidatePath(`/students/${studentId}`);
       return { success: true };
     });
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to add guardian" };
   }
 }
@@ -217,7 +217,7 @@ export async function addGuardian(
 export async function updateGuardian(
   id: string,
   studentId: string,
-  data: any,
+  data: unknown,
 ): Promise<ActionResponse> {
   const user = await requirePermission("students.manage");
   const { guardianSchema } = await import("@/lib/validations/guardian");
@@ -278,7 +278,7 @@ export async function updateGuardian(
       revalidatePath(`/students/${studentId}`);
       return { success: true };
     });
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to update guardian" };
   }
 }
@@ -306,16 +306,13 @@ export async function deleteGuardian(id: string, studentId: string) {
 
     revalidatePath(`/students/${studentId}`);
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to remove guardian link" };
   }
 }
 
 // Sibling Actions
-export async function linkSiblings(
-  studentId: string,
-  siblingStudentId: string,
-) {
+export async function linkSiblings(studentId: string, siblingStudentId: string) {
   const user = await requirePermission("students.manage");
 
   try {
@@ -374,7 +371,7 @@ export async function linkSiblings(
       revalidatePath(`/students/${siblingStudentId}`);
       return { success: true };
     });
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to link siblings" };
   }
 }

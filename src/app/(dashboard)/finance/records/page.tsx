@@ -1,12 +1,5 @@
 import { format } from "date-fns";
-import {
-  CreditCard,
-  DollarSign,
-  Download,
-  History,
-  Receipt,
-  Search,
-} from "lucide-react";
+import { CreditCard, DollarSign, Download, History, Receipt, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -66,14 +59,22 @@ export default async function FeeRecordsPage({
             where: { isDeleted: false },
             include: {
               academicYear: true,
-              class: true,
+              class: {
+                include: {
+                  sections: true,
+                },
+              },
               section: true,
             },
           },
         },
       },
       academicYear: true,
-      class: true,
+      class: {
+        include: {
+          sections: true,
+        },
+      },
       feeStructure: true,
       payments: {
         where: { isDeleted: false },
@@ -113,10 +114,7 @@ export default async function FeeRecordsPage({
               <DollarSign className="h-5 w-5 text-rose-500" />
             </div>
             <p className="text-3xl font-black mt-2">
-              Rs{" "}
-              {records
-                .reduce((acc, r) => acc + Number(r.outstandingAmount), 0)
-                .toLocaleString()}
+              Rs {records.reduce((acc, r) => acc + Number(r.outstandingAmount), 0).toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -131,11 +129,7 @@ export default async function FeeRecordsPage({
             <p className="text-3xl font-black mt-2">
               $
               {records
-                .reduce(
-                  (acc, r) =>
-                    acc + (Number(r.totalAmount) - Number(r.outstandingAmount)),
-                  0,
-                )
+                .reduce((acc, r) => acc + (Number(r.totalAmount) - Number(r.outstandingAmount)), 0)
                 .toLocaleString()}
             </p>
           </CardContent>
@@ -173,18 +167,10 @@ export default async function FeeRecordsPage({
               <Button variant="ghost" size="sm" className="h-8 text-xs">
                 All
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 text-xs text-rose-500"
-              >
+              <Button variant="ghost" size="sm" className="h-8 text-xs text-rose-500">
                 Overdue
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 text-xs text-amber-500"
-              >
+              <Button variant="ghost" size="sm" className="h-8 text-xs text-amber-500">
                 Partial
               </Button>
             </div>
@@ -204,11 +190,8 @@ export default async function FeeRecordsPage({
           <TableBody>
             {records.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="p-0"
-                >
-                  <EmptyState 
+                <TableCell colSpan={6} className="p-0">
+                  <EmptyState
                     icon={Search}
                     title="No billing records found"
                     description="Try adjusting your search query or filters to find what you're looking for."
@@ -224,9 +207,7 @@ export default async function FeeRecordsPage({
                 >
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-bold">
-                        {record.student.fullName}
-                      </span>
+                      <span className="font-bold">{record.student.fullName}</span>
                       <span className="text-[10px] text-slate-400 uppercase font-medium">
                         {record.class.name} • {record.academicYear.name}
                       </span>
@@ -246,7 +227,7 @@ export default async function FeeRecordsPage({
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={getStatusBadgeClass(record.status) as any}>
+                    <Badge variant={getStatusBadgeClass(record.status)}>
                       {record.status.replace("_", " ")}
                     </Badge>
                   </TableCell>
@@ -262,7 +243,49 @@ export default async function FeeRecordsPage({
                           </Button>
                         </PaymentForm>
                       )}
-                      <ReceiptButton record={record} settings={settings} />
+                      <ReceiptButton
+                        record={{
+                          payments: record.payments.map((p) => ({
+                            ...p,
+                            amountPaid: Number(p.amountPaid),
+                          })),
+                          student: {
+                            ...record.student,
+                            enrollments: record.student.enrollments.map((enrollment) => ({
+                              ...enrollment,
+                              class: {
+                                name: enrollment.class.name,
+                                sections: enrollment.class.sections.map((section) => ({
+                                  name: section.name,
+                                })),
+                              },
+                              section: enrollment.section,
+                              academicYear: enrollment.academicYear,
+                            })),
+                          },
+                          academicYearId: record.academicYearId,
+                          classId: record.classId,
+                          class: {
+                            name: record.class.name,
+                            sections: record.class.sections.map((section) => ({
+                              name: section.name,
+                            })),
+                          },
+                          feeStructure: record.feeStructure,
+                        }}
+                        settings={{
+                          schoolName: settings.schoolName,
+                          schoolLogoUrl: settings.schoolLogoUrl,
+                          addressLine1: settings.addressLine1,
+                          addressLine2: settings.addressLine2,
+                          city: settings.city,
+                          state: settings.state,
+                          country: settings.country,
+                          postalCode: settings.postalCode,
+                          contactEmail: settings.contactEmail,
+                          contactPhone: settings.contactPhone,
+                        }}
+                      />
                       <Button
                         variant="ghost"
                         size="icon"

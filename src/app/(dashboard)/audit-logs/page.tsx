@@ -26,8 +26,7 @@ import type { AuditAction } from "@/lib/generated/prisma/enums";
 import prisma from "@/lib/prisma";
 
 const ACTION_STYLES: Record<string, string> = {
-  CREATE:
-    "text-emerald-600 bg-emerald-50 border-emerald-100 font-bold text-[10px]",
+  CREATE: "text-emerald-600 bg-emerald-50 border-emerald-100 font-bold text-[10px]",
   UPDATE: "text-blue-600 bg-blue-50 border-blue-100 font-bold text-[10px]",
   DELETE: "text-rose-600 bg-rose-50 border-rose-100 font-bold text-[10px]",
 };
@@ -84,9 +83,7 @@ export default async function AuditLogsPage({
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Audit Trail
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-outfit">Audit Trail</h1>
           <p className="text-slate-500 dark:text-slate-400">
             Security log of all data modifications and system events.
           </p>
@@ -97,13 +94,10 @@ export default async function AuditLogsPage({
         <CardContent className="p-4">
           <form className="flex flex-wrap items-end gap-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="action"
-                className="text-xs font-bold text-slate-500 uppercase"
-              >
+              <Label htmlFor="action" className="text-xs font-bold text-slate-500 uppercase">
                 Action
               </Label>
-              <Select name="action" defaultValue={(action as any) || "ALL"}>
+              <Select name="action" defaultValue={action || "ALL"}>
                 <SelectTrigger
                   id="action"
                   className="w-[140px] bg-white dark:bg-slate-900 border-none shadow-sm"
@@ -120,10 +114,7 @@ export default async function AuditLogsPage({
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="table"
-                className="text-xs font-bold text-slate-500 uppercase"
-              >
+              <Label htmlFor="table" className="text-xs font-bold text-slate-500 uppercase">
                 Table
               </Label>
               <Select name="table" defaultValue={table || "ALL"}>
@@ -145,10 +136,7 @@ export default async function AuditLogsPage({
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="actorId"
-                className="text-xs font-bold text-slate-500 uppercase"
-              >
+              <Label htmlFor="actorId" className="text-xs font-bold text-slate-500 uppercase">
                 Actor
               </Label>
               <Select name="actorId" defaultValue={actorId || "ALL"}>
@@ -169,11 +157,7 @@ export default async function AuditLogsPage({
               </Select>
             </div>
 
-            <Button
-              type="submit"
-              variant="secondary"
-              className="h-10 px-6 rounded-xl"
-            >
+            <Button type="submit" variant="secondary" className="h-10 px-6 rounded-xl">
               <Filter className="mr-2 h-4 w-4" />
               Filter
             </Button>
@@ -195,10 +179,7 @@ export default async function AuditLogsPage({
           <TableBody>
             {logs.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="h-64 text-center text-slate-400 italic"
-                >
+                <TableCell colSpan={5} className="h-64 text-center text-slate-400 italic">
                   No audit logs found for the selected criteria.
                 </TableCell>
               </TableRow>
@@ -224,9 +205,7 @@ export default async function AuditLogsPage({
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className={
-                        ACTION_STYLES[log.action] || ACTION_STYLES.DELETE
-                      }
+                      className={ACTION_STYLES[log.action] || ACTION_STYLES.DELETE}
                     >
                       {log.action}
                     </Badge>
@@ -242,9 +221,7 @@ export default async function AuditLogsPage({
                         ID: {log.recordId || "N/A"}
                       </span>
                       {log.note && (
-                        <span className="text-[10px] text-slate-400 italic">
-                          {log.note}
-                        </span>
+                        <span className="text-[10px] text-slate-400 italic">{log.note}</span>
                       )}
                     </div>
                   </TableCell>
@@ -254,11 +231,7 @@ export default async function AuditLogsPage({
           </TableBody>
         </Table>
       </Card>
-      <Pagination
-        totalItems={totalCount}
-        pageSize={pageSize}
-        currentPage={page}
-      />
+      <Pagination totalItems={totalCount} pageSize={pageSize} currentPage={page} />
     </div>
   );
 }

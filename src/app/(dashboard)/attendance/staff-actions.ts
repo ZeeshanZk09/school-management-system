@@ -7,9 +7,9 @@ import { writeAuditLog } from "@/lib/audit";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 
-type StaffAttendanceStatus = "PRESENT" | "ABSENT" | "ON_LEAVE" | "HALF_DAY";
+type StaffAttendanceStatus = "ABSENT" | "HALF_DAY" | "ON_LEAVE" | "PRESENT";
 
-function getErrorMessage(error: unknown) {
+function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return "Unexpected error";
 }
@@ -17,7 +17,10 @@ function getErrorMessage(error: unknown) {
 export async function markStaffAttendance(
   staffId: string,
   data: { status: StaffAttendanceStatus; note?: string; date: Date },
-) {
+): Promise<{
+  success: boolean;
+  message?: string;
+}> {
   try {
     const user = await requirePermission("attendance.manage");
 
@@ -62,7 +65,10 @@ export async function submitLeaveRequest(data: {
   startDate: Date;
   endDate: Date;
   reason?: string;
-}) {
+}): Promise<{
+  success: boolean;
+  message?: string;
+}> {
   try {
     const user = await requirePermission("attendance.read"); // Anyone can apply
 
@@ -72,8 +78,9 @@ export async function submitLeaveRequest(data: {
       include: { staff: true },
     });
 
-    if (!dbUser?.staff)
+    if (!dbUser?.staff) {
       throw new Error("Only staff members can apply for leave");
+    }
 
     // Get active academic year
     const activeYear = await getActiveAcademicYear();
@@ -110,7 +117,10 @@ export async function decideLeaveRequest(
   requestId: string,
   decision: "APPROVED" | "REJECTED",
   note?: string,
-) {
+): Promise<{
+  success: boolean;
+  message?: string;
+}> {
   try {
     const user = await requirePermission("system.manage"); // Only admin/manager can approve
 

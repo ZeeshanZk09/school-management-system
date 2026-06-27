@@ -9,11 +9,7 @@ export function DocumentUploadButton() {
       variant="ghost"
       size="sm"
       className="h-7 px-2 text-primary"
-      onClick={() =>
-        toast.info(
-          "Document upload feature will be available in the next update.",
-        )
-      }
+      onClick={() => toast.info("Document upload feature will be available in the next update.")}
     >
       Upload
     </Button>

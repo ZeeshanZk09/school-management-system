@@ -1,14 +1,8 @@
 import { endOfMonth, format, startOfMonth } from "date-fns";
-import { Filter, PieChart } from "lucide-react";
+import { Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -25,10 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  formatAcademicYearName,
-  getActiveAcademicYear,
-} from "@/lib/academic-year";
+import { formatAcademicYearName, getActiveAcademicYear } from "@/lib/academic-year";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 import { getSystemSettings } from "@/lib/settings";
@@ -46,12 +37,8 @@ export default async function FinanceReportsPage({
   await requirePermission("finance.read");
   const params = await searchParams;
   const type = params.type || "collection";
-  const month = params.month
-    ? Number.parseInt(params.month, 10)
-    : new Date().getMonth() + 1;
-  const year = params.year
-    ? Number.parseInt(params.year, 10)
-    : new Date().getFullYear();
+  const month = params.month ? Number.parseInt(params.month, 10) : new Date().getMonth() + 1;
+  const year = params.year ? Number.parseInt(params.year, 10) : new Date().getFullYear();
 
   const startDate = startOfMonth(new Date(year, month - 1));
   const endDate = endOfMonth(startDate);
@@ -60,7 +47,23 @@ export default async function FinanceReportsPage({
     getSystemSettings(),
   ]);
 
-  let reportData: any[] = [];
+  interface ReportRow {
+    id: string;
+    date?: Date | string;
+    student?: string;
+    class?: string;
+    amount?: number;
+    method?: string;
+    staff?: string;
+    department?: string;
+    total?: number;
+    gross?: number;
+    outstanding?: number;
+    disbursed?: number;
+    net?: number;
+  }
+
+  let reportData: ReportRow[] = [];
   const totals = { total: 0, pending: 0, collected: 0, payroll: 0 };
 
   if (type === "collection") {
@@ -89,10 +92,7 @@ export default async function FinanceReportsPage({
       ref: p.referenceNumber,
     }));
 
-    totals.collected = payments.reduce(
-      (sum, p) => sum + Number(p.amountPaid),
-      0,
-    );
+    totals.collected = payments.reduce((sum, p) => sum + Number(p.amountPaid), 0);
   } else if (type === "outstanding") {
     const records = await prisma.feeRecord.findMany({
       where: {
@@ -116,10 +116,7 @@ export default async function FinanceReportsPage({
       dueDate: r.dueDate,
     }));
 
-    totals.pending = records.reduce(
-      (sum, r) => sum + Number(r.outstandingAmount),
-      0,
-    );
+    totals.pending = records.reduce((sum, r) => sum + Number(r.outstandingAmount), 0);
   } else if (type === "payroll") {
     const slips = await prisma.salarySlip.findMany({
       where: {
@@ -134,10 +131,7 @@ export default async function FinanceReportsPage({
     });
 
     reportData = slips.map((s) => {
-      const disbursed = s.disbursements.reduce(
-        (sum, d) => sum + Number(d.amountPaid),
-        0,
-      );
+      const disbursed = s.disbursements.reduce((sum, d) => sum + Number(d.amountPaid), 0);
       return {
         id: s.id,
         staff: s.staff.fullName,
@@ -157,12 +151,9 @@ export default async function FinanceReportsPage({
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Financial Reports
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-outfit">Financial Reports</h1>
           <p className="text-slate-500 dark:text-slate-400">
-            Institutional collection summaries and outstanding balance
-            oversight.
+            Institutional collection summaries and outstanding balance oversight.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -221,10 +212,7 @@ export default async function FinanceReportsPage({
         <CardContent>
           <form className="flex flex-wrap items-end gap-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="type"
-                className="text-xs font-bold text-slate-500 uppercase"
-              >
+              <Label htmlFor="type" className="text-xs font-bold text-slate-500 uppercase">
                 Report Type
               </Label>
               <Select name="type" defaultValue={type}>
@@ -236,9 +224,7 @@ export default async function FinanceReportsPage({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="collection">Fee Collection Log</SelectItem>
-                  <SelectItem value="outstanding">
-                    Outstanding Balances
-                  </SelectItem>
+                  <SelectItem value="outstanding">Outstanding Balances</SelectItem>
                   <SelectItem value="payroll">Payroll Summary</SelectItem>
                 </SelectContent>
               </Select>
@@ -246,10 +232,7 @@ export default async function FinanceReportsPage({
 
             {(type === "collection" || type === "payroll") && (
               <div className="space-y-2">
-                <Label
-                  htmlFor="month"
-                  className="text-xs font-bold text-slate-500 uppercase"
-                >
+                <Label htmlFor="month" className="text-xs font-bold text-slate-500 uppercase">
                   Month
                 </Label>
                 <Select name="month" defaultValue={month.toString()}>
@@ -283,10 +266,7 @@ export default async function FinanceReportsPage({
               </div>
             )}
 
-            <Button
-              type="submit"
-              className="gradient-primary h-10 px-6 rounded-xl"
-            >
+            <Button type="submit" className="gradient-primary h-10 px-6 rounded-xl">
               Generate Report
             </Button>
           </form>
@@ -298,11 +278,7 @@ export default async function FinanceReportsPage({
           <TableHeader>
             <TableRow className="bg-slate-50/50 dark:bg-slate-900/50 border-y">
               <TableHead>
-                {type === "collection"
-                  ? "Date"
-                  : type === "outstanding"
-                    ? "Student"
-                    : "Staff"}
+                {type === "collection" ? "Date" : type === "outstanding" ? "Student" : "Staff"}
               </TableHead>
               <TableHead>
                 {type === "collection"
@@ -333,22 +309,16 @@ export default async function FinanceReportsPage({
           <TableBody>
             {reportData.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="h-64 text-center text-slate-400 italic"
-                >
+                <TableCell colSpan={5} className="h-64 text-center text-slate-400 italic">
                   No data found for the selected criteria.
                 </TableCell>
               </TableRow>
             ) : (
               reportData.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="hover:bg-slate-50/50 transition-colors"
-                >
-                  <TableCell className="font-medium">
+                <TableRow key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                  <TableCell className="text-sm font-medium">
                     {type === "collection"
-                      ? format(new Date(row.date), "PP")
+                      ? format(new Date(row.date ?? ""), "PP")
                       : type === "outstanding"
                         ? row.student
                         : row.staff}
@@ -364,36 +334,31 @@ export default async function FinanceReportsPage({
                     {type === "collection"
                       ? row.class
                       : type === "outstanding"
-                        ? `Rs ${row.total.toLocaleString()}`
-                        : `Rs ${row.gross.toLocaleString()}`}
+                        ? `Rs ${(row.total ?? 0).toLocaleString()}`
+                        : `Rs ${(row.gross ?? 0).toLocaleString()}`}
                   </TableCell>
                   <TableCell>
                     {type === "collection" ? (
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] font-bold"
-                      >
+                      <Badge variant="outline" className="text-[10px] font-bold">
                         {row.method}
                       </Badge>
                     ) : type === "outstanding" ? (
                       <span className="font-bold text-rose-600">
-                        Rs {row.outstanding.toLocaleString()}
+                        Rs {(row.outstanding ?? 0).toLocaleString()}
                       </span>
                     ) : (
                       <span className="text-emerald-600 font-bold">
-                        Rs {row.disbursed.toLocaleString()}
+                        Rs {(row.disbursed ?? 0).toLocaleString()}
                       </span>
                     )}
                   </TableCell>
                   <TableCell className="text-right font-black text-slate-900 dark:text-white">
                     {type === "collection" ? (
-                      `Rs ${row.amount.toLocaleString()}`
+                      `Rs ${(row.amount ?? 0).toLocaleString()}`
                     ) : type === "outstanding" ? (
-                      <Badge className="bg-rose-50 text-rose-600 border-none">
-                        DEBT
-                      </Badge>
+                      <Badge className="bg-rose-50 text-rose-600 border-none">DEBT</Badge>
                     ) : (
-                      `Rs ${row.net.toLocaleString()}`
+                      `Rs ${(row.net ?? 0).toLocaleString()}`
                     )}
                   </TableCell>
                 </TableRow>

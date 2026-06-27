@@ -22,9 +22,7 @@ export async function createSession(params: {
 }): Promise<{ token: string; expiresAt: Date }> {
   const token = generateSessionToken();
   const tokenHash = hashToken(token);
-  const maxAge = params.rememberMe
-    ? REMEMBER_ME_MAX_AGE_SECONDS
-    : DEFAULT_SESSION_MAX_AGE_SECONDS;
+  const maxAge = params.rememberMe ? REMEMBER_ME_MAX_AGE_SECONDS : DEFAULT_SESSION_MAX_AGE_SECONDS;
   const expiresAt = new Date(Date.now() + maxAge * 1000);
 
   await prisma.session.create({
@@ -137,11 +135,11 @@ export async function destroySession(token: string): Promise<void> {
 export async function revokeAllUserSessions(
   userId: string,
   reason:
-    | "ADMIN_REVOKED"
-    | "PASSWORD_CHANGED"
-    | "ROLE_CHANGED"
     | "ACCOUNT_DEACTIVATED"
-    | "COMPROMISED" = "ADMIN_REVOKED",
+    | "ADMIN_REVOKED"
+    | "COMPROMISED"
+    | "PASSWORD_CHANGED"
+    | "ROLE_CHANGED" = "ADMIN_REVOKED",
 ): Promise<void> {
   await prisma.session.updateMany({
     where: { userId, revokedAt: null },

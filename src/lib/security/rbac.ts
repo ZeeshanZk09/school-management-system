@@ -8,10 +8,7 @@ export const ROLE_NAMES = {
 
 export type RoleName = (typeof ROLE_NAMES)[keyof typeof ROLE_NAMES];
 
-export async function userHasRole(
-  userId: string,
-  roleName: string,
-): Promise<boolean> {
+export async function userHasRole(userId: string, roleName: string): Promise<boolean> {
   const count = await prisma.userRole.count({
     where: {
       userId,
@@ -81,10 +78,7 @@ export async function assignRoleToUser(
   });
 }
 
-export async function removeRoleFromUser(
-  userId: string,
-  roleName: string,
-): Promise<void> {
+export async function removeRoleFromUser(userId: string, roleName: string): Promise<void> {
   const role = await prisma.role.findUnique({
     where: { name: roleName },
     select: { id: true },

@@ -8,15 +8,16 @@ import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 import { feePaymentSchema } from "@/lib/validations/finance";
 
-type FeeRecordStatus = "OPEN" | "PARTIALLY_PAID" | "PAID" | "OVERDUE";
+type FeeRecordStatus = "OPEN" | "OVERDUE" | "PAID" | "PARTIALLY_PAID";
 
 export async function generateMonthlyFees(month: number, year: number) {
   const user = await requirePermission("finance.manage");
 
   try {
     const academicYear = await getActiveAcademicYear();
-    if (!academicYear)
+    if (!academicYear) {
       return { success: false, message: "No active academic year" };
+    }
 
     // Get all active enrollments
     const enrollments = await prisma.studentEnrollment.findMany({
@@ -58,10 +59,7 @@ export async function generateMonthlyFees(month: number, year: number) {
 
         if (components.length === 0) continue;
 
-        const totalAmount = components.reduce(
-          (acc, c) => acc + Number(c.amount),
-          0,
-        );
+        const totalAmount = components.reduce((acc, c) => acc + Number(c.amount), 0);
 
         // Check if already generated for this student/month
         // For simplicity, we use a naming convention or a specific record check
@@ -137,10 +135,8 @@ export async function recordPayment(data: unknown) {
       });
 
       // Update record outstanding amount
-      const newOutstanding =
-        Number(record.outstandingAmount) - Number(validated.data.amountPaid);
-      const newStatus: FeeRecordStatus =
-        newOutstanding <= 0 ? "PAID" : "PARTIALLY_PAID";
+      const newOutstanding = Number(record.outstandingAmount) - Number(validated.data.amountPaid);
+      const newStatus: FeeRecordStatus = newOutstanding <= 0 ? "PAID" : "PARTIALLY_PAID";
 
       await tx.feeRecord.update({
         where: { id: record.id },
@@ -164,7 +160,7 @@ export async function recordPayment(data: unknown) {
         message: "Payment recorded successfully",
       };
     });
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to record payment" };
   }
 }

@@ -1,14 +1,7 @@
 "use client";
 
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import {
-  AlertCircle,
-  CheckCircle2,
-  DollarSign,
-  FileText,
-  Loader2,
-  Wallet,
-} from "lucide-react";
+import { AlertCircle, CheckCircle2, DollarSign, FileText, Loader2, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -33,6 +26,57 @@ import {
 } from "@/components/ui/table";
 import { bulkDisburseSalaries, generateSalarySlip } from "./actions";
 import { DisbursementDialog } from "./disbursement-dialog";
+import type { Decimal } from "@prisma/client/runtime/client";
+
+interface PayrollSettings {
+  schoolName: string;
+  schoolLogoUrl?: string | null;
+  addressLine1: string;
+  addressLine2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  postalCode?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  allowSelfRegistration?: boolean;
+}
+
+interface StaffWithSalary {
+  id: string;
+  fullName: string;
+  designation: string;
+  staffNumber: string;
+  department: string;
+  salaryStructures: {
+    basePay: Decimal | number;
+    components: {
+      type: "ALLOWANCE" | "DEDUCTION";
+      label: string;
+      amount: Decimal | number;
+    }[];
+  }[];
+}
+
+interface SlipDisbursement {
+  id: string;
+  amountPaid: Decimal | number;
+  method: string;
+  referenceNumber: string | null;
+  paidAt: Date;
+}
+
+interface SlipWithDisbursements {
+  id: string;
+  netPay: Decimal | number;
+  staffId: string;
+  grossPay: Decimal | number;
+  totalDeductions: Decimal | number;
+  periodMonth: number;
+  periodYear: number;
+  generatedAt: Date | string;
+  disbursements: SlipDisbursement[];
+}
 
 export function PayrollList({
   staff,
@@ -41,11 +85,11 @@ export function PayrollList({
   year,
   settings,
 }: Readonly<{
-  staff: any[];
-  slips: any[];
+  staff: StaffWithSalary[];
+  slips: SlipWithDisbursements[];
   month: number;
   year: number;
-  settings: any;
+  settings: PayrollSettings;
 }>) {
   const router = useRouter();
   const [isPending, setIsPending] = useState<string | null>(null);
@@ -83,20 +127,20 @@ export function PayrollList({
     if (!confirm("Are you sure you want to disburse all pending salary slips for this period?")) {
       return;
     }
-    
+
     setIsBulkPending(true);
     const result = await bulkDisburseSalaries(month, year);
     setIsBulkPending(false);
 
-    if (result.success) {
-      toast.success(`Successfully disbursed ${result.count} salaries`);
+    if (result.data && result.success) {
+      toast.success(`Successfully disbursed ${result.data.count} salaries`);
       router.refresh();
     } else {
       toast.error(result.message || "Bulk disbursement failed");
     }
   };
 
-  const pendingSlips = slips.filter(s => s.disbursements.length === 0);
+  const pendingSlips = slips.filter((s) => s.disbursements.length === 0);
 
   return (
     <div className="space-y-6">
@@ -105,19 +149,14 @@ export function PayrollList({
           <div className="flex items-center gap-4">
             <Select
               value={month.toString()}
-              onValueChange={(val) =>
-                router.push(`/finance/payroll?month=${val}&year=${year}`)
-              }
+              onValueChange={(val) => router.push(`/finance/payroll?month=${val}&year=${year}`)}
             >
               <SelectTrigger className="w-[180px] bg-white dark:bg-slate-900 border-none shadow-sm h-10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {months.map((m) => (
-                  <SelectItem
-                    key={m}
-                    value={(months.indexOf(m) + 1).toString()}
-                  >
+                  <SelectItem key={m} value={(months.indexOf(m) + 1).toString()}>
                     {m}
                   </SelectItem>
                 ))}
@@ -125,9 +164,7 @@ export function PayrollList({
             </Select>
             <Select
               value={year.toString()}
-              onValueChange={(val) =>
-                router.push(`/finance/payroll?month=${month}&year=${val}`)
-              }
+              onValueChange={(val) => router.push(`/finance/payroll?month=${month}&year=${val}`)}
             >
               <SelectTrigger className="w-[120px] bg-white dark:bg-slate-900 border-none shadow-sm h-10">
                 <SelectValue />
@@ -160,10 +197,7 @@ export function PayrollList({
           <div className="text-right">
             <p className="text-sm font-medium text-slate-500">Period Total</p>
             <p className="text-2xl font-black text-slate-900 dark:text-white">
-              Rs{" "}
-              {slips
-                .reduce((sum, s) => sum + Number.parseFloat(s.netPay), 0)
-                .toLocaleString()}
+              Rs {slips.reduce((sum, s) => sum + Number(s.netPay), 0).toLocaleString()}
             </p>
           </div>
         </CardHeader>
@@ -184,10 +218,7 @@ export function PayrollList({
                 const structure = s.salaryStructures[0];
 
                 return (
-                  <TableRow
-                    key={s.id}
-                    className="hover:bg-slate-50/50 transition-colors"
-                  >
+                  <TableRow key={s.id} className="hover:bg-slate-50/50 transition-colors">
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="font-bold text-slate-900 dark:text-white">
@@ -200,7 +231,7 @@ export function PayrollList({
                     </TableCell>
                     <TableCell>
                       {structure ? (
-                        `Rs ${Number.parseFloat(structure.basePay).toLocaleString()}`
+                        `Rs ${Number(structure.basePay).toLocaleString()}`
                       ) : (
                         <span className="text-rose-500 text-xs font-bold flex items-center gap-1">
                           <AlertCircle className="h-3 w-3" /> No Structure
@@ -211,11 +242,10 @@ export function PayrollList({
                       {slip ? (
                         <div className="flex flex-col">
                           <span className="text-xs text-slate-500 line-through">
-                            Rs{" "}
-                            {Number.parseFloat(slip.grossPay).toLocaleString()}
+                            Rs {Number(slip.grossPay).toLocaleString()}
                           </span>
                           <span className="font-bold text-primary">
-                            Rs {Number.parseFloat(slip.netPay).toLocaleString()}
+                            Rs {Number(slip.netPay).toLocaleString()}
                           </span>
                         </div>
                       ) : (
@@ -227,27 +257,18 @@ export function PayrollList({
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                           <Badge
-                            variant={
-                              slip.disbursements.length > 0
-                                ? "secondary"
-                                : "outline"
-                            }
+                            variant={slip.disbursements.length > 0 ? "secondary" : "outline"}
                             className={
                               slip.disbursements.length > 0
                                 ? "bg-emerald-50 text-emerald-600 border-none"
                                 : "text-amber-500 border-amber-200"
                             }
                           >
-                            {slip.disbursements.length > 0
-                              ? "PAID"
-                              : "GENERATED"}
+                            {slip.disbursements.length > 0 ? "PAID" : "GENERATED"}
                           </Badge>
                         </div>
                       ) : (
-                        <Badge
-                          variant="ghost"
-                          className="text-slate-400 font-normal italic"
-                        >
+                        <Badge variant="ghost" className="text-slate-400 font-normal italic">
                           Not Started
                         </Badge>
                       )}
@@ -256,10 +277,7 @@ export function PayrollList({
                       {slip ? (
                         <div className="flex items-center justify-end gap-2">
                           {slip.disbursements.length === 0 && (
-                            <DisbursementDialog
-                              slip={slip}
-                              staffName={s.fullName}
-                            >
+                            <DisbursementDialog slip={slip} staffName={s.fullName}>
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -273,8 +291,27 @@ export function PayrollList({
                           <PDFDownloadLink
                             document={
                               <SalarySlipPDF
-                                slip={slip}
-                                staff={s}
+                                slip={{
+                                  ...slip,
+                                  grossPay: Number(slip.grossPay),
+                                  totalDeductions: Number(slip.totalDeductions),
+                                  netPay: Number(slip.netPay),
+                                  disbursements: slip.disbursements.map((d) => ({
+                                    ...d,
+                                    amountPaid: Number(d.amountPaid),
+                                  })),
+                                }}
+                                staff={{
+                                  ...s,
+                                  salaryStructures: s.salaryStructures.map((struct) => ({
+                                    ...struct,
+                                    basePay: Number(struct.basePay),
+                                    components: struct.components.map((c) => ({
+                                      ...c,
+                                      amount: Number(c.amount),
+                                    })),
+                                  })),
+                                }}
                                 settings={settings}
                               />
                             }

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
@@ -15,11 +10,7 @@ interface PaginationProps {
   currentPage: number;
 }
 
-export function Pagination({
-  totalItems,
-  pageSize,
-  currentPage,
-}: Readonly<PaginationProps>) {
+export function Pagination({ totalItems, pageSize, currentPage }: Readonly<PaginationProps>) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const totalPages = Math.ceil(totalItems / pageSize);
@@ -39,8 +30,8 @@ export function Pagination({
   return (
     <div className="flex items-center justify-between px-2 py-4">
       <div className="flex-1 text-sm text-slate-500 font-medium">
-        Showing {(currentPage - 1) * pageSize + 1} to{" "}
-        {Math.min(currentPage * pageSize, totalItems)} of {totalItems} entries
+        Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalItems)}{" "}
+        of {totalItems} entries
       </div>
       <div className="flex items-center space-x-2">
         <Button
@@ -63,8 +54,7 @@ export function Pagination({
         </Button>
 
         <div className="flex items-center justify-center text-sm font-bold w-12">
-          {currentPage} <span className="text-slate-300 mx-1">/</span>{" "}
-          {totalPages}
+          {currentPage} <span className="text-slate-300 mx-1">/</span> {totalPages}
         </div>
 
         <Button

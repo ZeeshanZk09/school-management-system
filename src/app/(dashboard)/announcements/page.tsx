@@ -21,9 +21,7 @@ export default async function AnnouncementsPage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Announcements
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-outfit">Announcements</h1>
           <p className="text-slate-500 dark:text-slate-400">
             Institutional notices and broadcasts for all staff.
           </p>
@@ -55,9 +53,7 @@ export default async function AnnouncementsPage() {
                     <Megaphone className="h-5 w-5" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl font-bold">
-                      {ann.title}
-                    </CardTitle>
+                    <CardTitle className="text-xl font-bold">{ann.title}</CardTitle>
                     <div className="flex items-center gap-4 mt-1 text-xs text-slate-500 font-medium uppercase tracking-wider">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />

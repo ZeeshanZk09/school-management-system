@@ -112,8 +112,7 @@ export async function submitPasswordReset(
     if (!token || token.consumedAt || token.expiresAt <= new Date()) {
       return {
         success: false,
-        message:
-          "Reset link has expired or is invalid. Please request a new one.",
+        message: "Reset link has expired or is invalid. Please request a new one.",
       };
     }
 
@@ -159,8 +158,7 @@ export async function submitPasswordReset(
 
       return {
         success: true,
-        message:
-          "Your password has been reset successfully. You can now log in.",
+        message: "Your password has been reset successfully. You can now log in.",
       };
     }
 

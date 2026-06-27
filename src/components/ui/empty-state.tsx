@@ -1,4 +1,4 @@
-import { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -29,9 +29,7 @@ export function EmptyState({
         <h3 className="text-lg font-black font-outfit tracking-tight text-slate-900 dark:text-white">
           {title}
         </h3>
-        <p className="mt-2 text-sm font-medium text-slate-500 max-w-[250px]">
-          {description}
-        </p>
+        <p className="mt-2 text-sm font-medium text-slate-500 max-w-[250px]">{description}</p>
         {actionLabel && onAction && (
           <Button
             onClick={onAction}

@@ -4,12 +4,16 @@ import Papa from "papaparse";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 
-export async function exportDirectoryCSV(type: "students" | "staff") {
+export async function exportDirectoryCSV(type: "staff" | "students"): Promise<{
+  success: boolean;
+  message?: string;
+  csv?: string;
+}> {
   try {
     await requirePermission("contacts.read");
 
     type DirectoryData = {
-      [key: string]: string | number | undefined;
+      [key: string]: number | string | undefined;
     };
     let data: DirectoryData[] = [];
 
@@ -56,9 +60,7 @@ export async function exportDirectoryCSV(type: "students" | "staff") {
         Department: s.department || "N/A",
         Email: s.email,
         Phone: s.phoneNumber || "N/A",
-        "Joining Date": s.joiningDate
-          ? s.joiningDate.toLocaleDateString()
-          : "N/A",
+        "Joining Date": s.joiningDate ? s.joiningDate.toLocaleDateString() : "N/A",
         Type: s.employmentType,
       })) as unknown as DirectoryData[];
     }

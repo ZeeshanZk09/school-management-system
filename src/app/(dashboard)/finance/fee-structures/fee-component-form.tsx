@@ -34,7 +34,7 @@ export function FeeComponentForm({
 }>) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string[] | undefined>>({});
   const router = useRouter();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -48,10 +48,10 @@ export function FeeComponentForm({
     const formData = new FormData(e.currentTarget);
     const result = await addFeeComponent({
       feeStructureId,
-      label: formData.get("label"),
-      amount: formData.get("amount"),
-      dueDate: formData.get("dueDate"),
-      frequency: formData.get("frequency"),
+      label: (formData.get("label") as string) || "",
+      amount: Number(formData.get("amount")),
+      dueDate: (formData.get("dueDate") as string) || "",
+      frequency: (formData.get("frequency") as string) || "",
     });
 
     setIsPending(false);
@@ -77,12 +77,9 @@ export function FeeComponentForm({
       <DialogContent className="sm:max-w-[425px] glass border-none">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle className="font-outfit text-2xl">
-              Add Fee Component
-            </DialogTitle>
+            <DialogTitle className="font-outfit text-2xl">Add Fee Component</DialogTitle>
             <DialogDescription>
-              Define a specific fee (e.g. Tuition, Lab Fee, Admission) and its
-              schedule.
+              Define a specific fee (e.g. Tuition, Lab Fee, Admission) and its schedule.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -95,9 +92,7 @@ export function FeeComponentForm({
                 required
                 className="bg-slate-50 dark:bg-slate-900 border-none"
               />
-              {errors.label && (
-                <p className="text-xs text-rose-500">{errors.label[0]}</p>
-              )}
+              {errors.label && <p className="text-xs text-rose-500">{errors.label[0]}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="amount">Amount ($)</Label>
@@ -109,9 +104,7 @@ export function FeeComponentForm({
                 required
                 className="bg-slate-50 dark:bg-slate-900 border-none"
               />
-              {errors.amount && (
-                <p className="text-xs text-rose-500">{errors.amount[0]}</p>
-              )}
+              {errors.amount && <p className="text-xs text-rose-500">{errors.amount[0]}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="dueDate">Initial Due Date</Label>
@@ -122,9 +115,7 @@ export function FeeComponentForm({
                 required
                 className="bg-slate-50 dark:bg-slate-900 border-none"
               />
-              {errors.dueDate && (
-                <p className="text-xs text-rose-500">{errors.dueDate[0]}</p>
-              )}
+              {errors.dueDate && <p className="text-xs text-rose-500">{errors.dueDate[0]}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="frequency">Frequency</Label>
@@ -150,11 +141,7 @@ export function FeeComponentForm({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Add Component
             </Button>

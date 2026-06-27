@@ -8,7 +8,11 @@ import prisma from "@/lib/prisma";
 import { classSchema, sectionSchema } from "@/lib/validations/class";
 
 // Class Actions
-export async function createClass(formData: FormData) {
+export async function createClass(formData: FormData): Promise<{
+  success: boolean;
+  errors?: Record<string, string[]>;
+  message?: string;
+}> {
   const user = await requirePermission("classes.manage");
 
   const validated = classSchema.safeParse({
@@ -41,12 +45,19 @@ export async function createClass(formData: FormData) {
 
     revalidatePath("/classes");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to create class" };
   }
 }
 
-export async function updateClass(id: string, formData: FormData) {
+export async function updateClass(
+  id: string,
+  formData: FormData,
+): Promise<{
+  success: boolean;
+  errors?: Record<string, string[]>;
+  message?: string;
+}> {
   const user = await requirePermission("classes.manage");
 
   const validated = classSchema.safeParse({
@@ -82,12 +93,15 @@ export async function updateClass(id: string, formData: FormData) {
 
     revalidatePath("/classes");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to update class" };
   }
 }
 
-export async function deleteClass(id: string) {
+export async function deleteClass(id: string): Promise<{
+  success: boolean;
+  message?: string;
+}> {
   const user = await requirePermission("classes.manage");
 
   try {
@@ -105,13 +119,17 @@ export async function deleteClass(id: string) {
 
     revalidatePath("/classes");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to delete class" };
   }
 }
 
 // Section Actions
-export async function createSection(formData: FormData) {
+export async function createSection(formData: FormData): Promise<{
+  success: boolean;
+  errors?: Record<string, string[]>;
+  message?: string;
+}> {
   const user = await requirePermission("classes.manage");
 
   const validated = sectionSchema.safeParse({
@@ -148,12 +166,19 @@ export async function createSection(formData: FormData) {
 
     revalidatePath("/classes");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to create section" };
   }
 }
 
-export async function updateSection(id: string, formData: FormData) {
+export async function updateSection(
+  id: string,
+  formData: FormData,
+): Promise<{
+  success: boolean;
+  errors?: Record<string, string[]>;
+  message?: string;
+}> {
   const user = await requirePermission("classes.manage");
 
   const validated = sectionSchema.safeParse({
@@ -192,12 +217,15 @@ export async function updateSection(id: string, formData: FormData) {
 
     revalidatePath("/classes");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to update section" };
   }
 }
 
-export async function deleteSection(id: string) {
+export async function deleteSection(id: string): Promise<{
+  success: boolean;
+  message?: string;
+}> {
   const user = await requirePermission("classes.manage");
 
   try {
@@ -215,7 +243,7 @@ export async function deleteSection(id: string) {
 
     revalidatePath("/classes");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to delete section" };
   }
 }

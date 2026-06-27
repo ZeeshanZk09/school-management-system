@@ -8,6 +8,8 @@ import { CustomCursor } from "@/components/ui/custom-cursor";
 
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -33,11 +35,7 @@ export default async function RootLayout({
   const cspNonce = requestHeaders.get("x-csp-nonce") ?? undefined;
 
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${inter.variable} ${outfit.variable}`}
-    >
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${outfit.variable}`}>
       <body
         data-csp-nonce={cspNonce}
         className="font-sans antialiased selection:bg-primary/10 selection:text-primary"

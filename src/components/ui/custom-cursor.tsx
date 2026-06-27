@@ -1,6 +1,6 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { motion, useSpring } from 'framer-motion';
+"use client";
+import { useEffect, useState } from "react";
+import { motion, useSpring } from "framer-motion";
 
 export function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
@@ -19,21 +19,21 @@ export function CustomCursor() {
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const isInteractive =
-        target.tagName === 'BUTTON' ||
-        target.tagName === 'A' ||
-        target.closest('button') ||
-        target.closest('a') ||
-        target.getAttribute('role') === 'button';
+        target.tagName === "BUTTON" ||
+        target.tagName === "A" ||
+        target.closest("button") ||
+        target.closest("a") ||
+        target.getAttribute("role") === "button";
 
       setIsHovering(!!isInteractive);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseover', handleMouseOver);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseover", handleMouseOver);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseover', handleMouseOver);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseover", handleMouseOver);
     };
   }, [mouseX, mouseY, isVisible]);
 
@@ -41,21 +41,21 @@ export function CustomCursor() {
 
   return (
     <motion.div
-      className='pointer-events-none fixed left-0 top-0 z-9999 hidden md:block'
+      className="pointer-events-none fixed left-0 top-0 z-9999 hidden md:block"
       style={{
         x: mouseX,
         y: mouseY,
-        translateX: '-50%',
-        translateY: '-50%',
+        translateX: "-50%",
+        translateY: "-50%",
       }}
     >
       <motion.div
-        className='rounded-full bg-primary/20 mix-blend-difference border border-primary/50'
+        className="rounded-full bg-primary/20 mix-blend-difference border border-primary/50"
         animate={{
           width: isHovering ? 60 : 20,
           height: isHovering ? 60 : 20,
         }}
-        transition={{ type: 'spring', stiffness: 250, damping: 20 }}
+        transition={{ type: "spring", stiffness: 250, damping: 20 }}
       />
     </motion.div>
   );

@@ -36,7 +36,7 @@ export function ExportDirectoryButton({
       } else {
         toast.error(result.message || "Export failed");
       }
-    } catch (_error) {
+    } catch {
       toast.error("An error occurred during export");
     } finally {
       setIsPending(false);

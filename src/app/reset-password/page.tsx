@@ -23,11 +23,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  type ResetPasswordResponse,
-  submitPasswordReset,
-  verifyResetToken,
-} from "./actions";
+import { type ResetPasswordResponse, submitPasswordReset, verifyResetToken } from "./actions";
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
@@ -85,7 +81,7 @@ export default function ResetPasswordPage() {
   if (!tokenStatus.valid) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-blue-100 via-slate-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-black p-4">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
         <Card className="w-full max-w-md shadow-2xl border-none glass">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center space-y-4">
             <div className="p-4 rounded-full bg-red-100 dark:bg-red-900/30">
@@ -95,13 +91,10 @@ export default function ResetPasswordPage() {
               Invalid or Expired Link
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs">
-              This password reset link is invalid or has expired. Please request
-              a new one.
+              This password reset link is invalid or has expired. Please request a new one.
             </p>
             <Link href="/forgot-password">
-              <Button className="mt-4 gradient-primary shadow-lg">
-                Request New Link
-              </Button>
+              <Button className="mt-4 gradient-primary shadow-lg">Request New Link</Button>
             </Link>
           </CardContent>
         </Card>
@@ -113,7 +106,7 @@ export default function ResetPasswordPage() {
   if (state.success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-blue-100 via-slate-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-black p-4">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
         <Card className="w-full max-w-md shadow-2xl border-none glass">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center space-y-4">
             {state.requiresApproval ? (
@@ -156,7 +149,7 @@ export default function ResetPasswordPage() {
   // Form state
   return (
     <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-blue-100 via-slate-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-black p-4">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
 
       <Card className="w-full max-w-md shadow-2xl border-none glass hover-lift">
         <CardHeader className="space-y-1 text-center">
@@ -169,8 +162,7 @@ export default function ResetPasswordPage() {
             Reset Password
           </CardTitle>
           <CardDescription className="text-slate-500 dark:text-slate-400">
-            Hello <strong>{tokenStatus.userFullName}</strong>, enter your new
-            password below
+            Hello <strong>{tokenStatus.userFullName}</strong>, enter your new password below
             {!tokenStatus.isAdmin && (
               <span className="block mt-1 text-xs text-amber-600 dark:text-amber-400">
                 Note: Your reset will require admin approval
@@ -187,10 +179,7 @@ export default function ResetPasswordPage() {
             )}
 
             <div className="grid gap-2">
-              <Label
-                htmlFor="password"
-                className="text-slate-700 dark:text-slate-300"
-              >
+              <Label htmlFor="password" className="text-slate-700 dark:text-slate-300">
                 New Password
               </Label>
               <div className="relative">
@@ -207,17 +196,12 @@ export default function ResetPasswordPage() {
                 />
               </div>
               {state?.errors?.password && (
-                <p className="text-xs text-destructive mt-1">
-                  {state.errors.password[0]}
-                </p>
+                <p className="text-xs text-destructive mt-1">{state.errors.password[0]}</p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label
-                htmlFor="confirmPassword"
-                className="text-slate-700 dark:text-slate-300"
-              >
+              <Label htmlFor="confirmPassword" className="text-slate-700 dark:text-slate-300">
                 Confirm Password
               </Label>
               <div className="relative">
@@ -234,9 +218,7 @@ export default function ResetPasswordPage() {
                 />
               </div>
               {state?.errors?.confirmPassword && (
-                <p className="text-xs text-destructive mt-1">
-                  {state.errors.confirmPassword[0]}
-                </p>
+                <p className="text-xs text-destructive mt-1">{state.errors.confirmPassword[0]}</p>
               )}
             </div>
           </CardContent>
@@ -271,8 +253,7 @@ export default function ResetPasswordPage() {
 
       <div className="fixed bottom-4 text-center w-full">
         <p className="text-xs text-slate-400 dark:text-slate-600">
-          &copy; {new Date().getFullYear()} School Management System. All rights
-          reserved.
+          &copy; {new Date().getFullYear()} School Management System. All rights reserved.
         </p>
       </div>
     </div>

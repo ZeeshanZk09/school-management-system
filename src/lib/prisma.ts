@@ -8,7 +8,7 @@
  * https://neon.tech/docs/guides/prisma
  */
 
-import { PrismaClient } from './generated/prisma/client';
+import { PrismaClient } from "./generated/prisma/client";
 
 declare global {
   var prisma: PrismaClient;
@@ -20,18 +20,18 @@ function createPrismaClient(): PrismaClient {
 
   if (!connectionString) {
     throw new Error(
-      'DATABASE_URL is not set. Add it to your .env or Vercel Environment Variables.'
+      "DATABASE_URL is not set. Add it to your .env or Vercel Environment Variables.",
     );
   }
 
-  const isNeon = connectionString.includes('neon.tech');
+  const isNeon = connectionString.includes("neon.tech");
 
   if (isNeon) {
     // --- NEON SERVERLESS (Production on Vercel) ---
     // Official pattern from https://neon.tech/docs/guides/prisma
-    const { neonConfig } = require('@neondatabase/serverless');
-    const { PrismaNeon } = require('@prisma/adapter-neon');
-    const ws = require('ws');
+    const { neonConfig } = require("@neondatabase/serverless");
+    const { PrismaNeon } = require("@prisma/adapter-neon");
+    const ws = require("ws");
 
     neonConfig.webSocketConstructor = ws;
 
@@ -41,8 +41,8 @@ function createPrismaClient(): PrismaClient {
   }
 
   // --- STANDARD POSTGRESQL (Local Development) ---
-  const { Pool } = require('pg');
-  const { PrismaPg } = require('@prisma/adapter-pg');
+  const { Pool } = require("pg");
+  const { PrismaPg } = require("@prisma/adapter-pg");
 
   const pool = new Pool({ connectionString });
   const adapter = new PrismaPg(pool);

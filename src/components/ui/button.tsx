@@ -2,7 +2,7 @@
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import { type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { motion } from "framer-motion";
 
@@ -10,8 +10,7 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "./button-variants";
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
@@ -21,21 +20,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     if (asChild) {
       return (
-        <Slot
-          className={cn(buttonVariants({ variant, size, className }))}
-          ref={ref}
-          {...props}
-        />
+        <Slot className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
       );
     }
 
     return (
       <MotionButtonPrimitive
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size, className: `${className} text-background` }))}
         ref={ref}
         whileTap={{ scale: 0.96 }}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        {...(props as any)}
+        {...(props as Record<string, unknown>)}
       />
     );
   },

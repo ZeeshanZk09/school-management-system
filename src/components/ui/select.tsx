@@ -7,10 +7,7 @@ import { cn } from "@/lib/utils";
 
 const Select = SelectPrimitive.Root;
 
-function SelectGroup({
-  className,
-  ...props
-}: Readonly<SelectPrimitive.Group.Props>) {
+function SelectGroup({ className, ...props }: Readonly<SelectPrimitive.Group.Props>) {
   return (
     <SelectPrimitive.Group
       data-slot="select-group"
@@ -20,10 +17,7 @@ function SelectGroup({
   );
 }
 
-function SelectValue({
-  className,
-  ...props
-}: Readonly<SelectPrimitive.Value.Props>) {
+function SelectValue({ className, ...props }: Readonly<SelectPrimitive.Value.Props>) {
   return (
     <SelectPrimitive.Value
       data-slot="select-value"
@@ -53,9 +47,7 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon
-        render={
-          <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
-        }
+        render={<ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />}
       />
     </SelectPrimitive.Trigger>
   );
@@ -103,10 +95,7 @@ function SelectContent({
   );
 }
 
-function SelectLabel({
-  className,
-  ...props
-}: Readonly<SelectPrimitive.GroupLabel.Props>) {
+function SelectLabel({ className, ...props }: Readonly<SelectPrimitive.GroupLabel.Props>) {
   return (
     <SelectPrimitive.GroupLabel
       data-slot="select-label"
@@ -116,11 +105,7 @@ function SelectLabel({
   );
 }
 
-function SelectItem({
-  className,
-  children,
-  ...props
-}: Readonly<SelectPrimitive.Item.Props>) {
+function SelectItem({ className, children, ...props }: Readonly<SelectPrimitive.Item.Props>) {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -144,10 +129,7 @@ function SelectItem({
   );
 }
 
-function SelectSeparator({
-  className,
-  ...props
-}: Readonly<SelectPrimitive.Separator.Props>) {
+function SelectSeparator({ className, ...props }: Readonly<SelectPrimitive.Separator.Props>) {
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"

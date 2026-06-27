@@ -17,9 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { uploadStaffDocument } from "../document-actions";
 
-export function DocumentUploadDialog({
-  staffId,
-}: Readonly<{ staffId: string }>) {
+export function DocumentUploadDialog({ staffId }: Readonly<{ staffId: string }>) {
   const [open, setOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -69,8 +67,8 @@ export function DocumentUploadDialog({
       } else {
         toast.error(result.message || "Failed to save document record");
       }
-    } catch (error: any) {
-      toast.error(error.message || "An error occurred during upload");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "An error occurred during upload");
     } finally {
       setIsUploading(false);
     }
@@ -89,8 +87,7 @@ export function DocumentUploadDialog({
           <DialogHeader>
             <DialogTitle className="font-outfit">Upload Document</DialogTitle>
             <DialogDescription>
-              Add a new qualification, contract, or ID document to the staff
-              profile.
+              Add a new qualification, contract, or ID document to the staff profile.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -127,11 +124,7 @@ export function DocumentUploadDialog({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isUploading}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isUploading}>
               {isUploading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

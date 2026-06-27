@@ -1,4 +1,4 @@
-import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns";
+import { endOfMonth, startOfMonth } from "date-fns";
 import { Calendar as CalendarIcon, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,12 +38,8 @@ export default async function AttendanceReportsPage({
   await requirePermission("attendance.manage");
   const params = await searchParams;
   const type = params.type || "student";
-  const month = params.month
-    ? Number.parseInt(params.month, 10)
-    : new Date().getMonth() + 1;
-  const year = params.year
-    ? Number.parseInt(params.year, 10)
-    : new Date().getFullYear();
+  const month = params.month ? Number.parseInt(params.month, 10) : new Date().getMonth() + 1;
+  const year = params.year ? Number.parseInt(params.year, 10) : new Date().getFullYear();
   const classId = params.classId;
 
   const startDate = startOfMonth(new Date(year, month - 1));
@@ -77,7 +73,7 @@ export default async function AttendanceReportsPage({
         isDeleted: false,
         enrollments: {
           some: {
-            classId: classId,
+            classId,
             academicYear: { isActive: true },
           },
         },
@@ -95,15 +91,9 @@ export default async function AttendanceReportsPage({
       },
     });
 
-    const _daysInMonth = eachDayOfInterval({ start: startDate, end: endDate });
-
     reportData = students.map((student) => {
-      const present = student.attendance.filter(
-        (a) => a.status === "PRESENT",
-      ).length;
-      const absent = student.attendance.filter(
-        (a) => a.status === "ABSENT",
-      ).length;
+      const present = student.attendance.filter((a) => a.status === "PRESENT").length;
+      const absent = student.attendance.filter((a) => a.status === "ABSENT").length;
       const late = student.attendance.filter((a) => a.status === "LATE").length;
       const total = student.attendance.length;
       const rate = total > 0 ? Math.round((present / total) * 100) : 0;
@@ -156,9 +146,7 @@ export default async function AttendanceReportsPage({
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Attendance Reports
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-outfit">Attendance Reports</h1>
           <p className="text-slate-500 dark:text-slate-400">
             Monthly summaries and institutional participation analysis.
           </p>
@@ -169,8 +157,31 @@ export default async function AttendanceReportsPage({
             month={month}
             year={year}
             classId={classId}
-            reportData={reportData}
-            settings={settings}
+            reportData={reportData.map((r) => {
+              return {
+                id: r.id,
+                name: r.name,
+                designation: r.designation,
+                present: r.present,
+                absent: r.absent,
+                late: r.late,
+                leave: r.leave,
+                total: r.total,
+                rate: r.rate,
+                belowThreshold: r.belowThreshold,
+              };
+            })}
+            settings={{
+              schoolName: settings.schoolName,
+              contactInfo: {
+                email: settings.contactEmail || "",
+                phone: settings.contactPhone || "",
+              },
+              reportTitle: "Attendance Reports",
+              schoolLogo: settings.schoolLogoUrl || "",
+              addressLine1: settings.addressLine1 || "",
+              contactEmail: settings.contactEmail || "",
+            }}
             className={selectedClass?.name}
           />
         </div>
@@ -186,10 +197,7 @@ export default async function AttendanceReportsPage({
         <CardContent>
           <form className="flex flex-wrap items-end gap-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="type"
-                className="text-xs font-bold text-slate-500 uppercase"
-              >
+              <Label htmlFor="type" className="text-xs font-bold text-slate-500 uppercase">
                 Type
               </Label>
               <Select name="type" defaultValue={type}>
@@ -208,10 +216,7 @@ export default async function AttendanceReportsPage({
 
             {type === "student" && (
               <div className="space-y-2">
-                <Label
-                  htmlFor="classId"
-                  className="text-xs font-bold text-slate-500 uppercase"
-                >
+                <Label htmlFor="classId" className="text-xs font-bold text-slate-500 uppercase">
                   Class
                 </Label>
                 <Select name="classId" defaultValue={classId}>
@@ -233,10 +238,7 @@ export default async function AttendanceReportsPage({
             )}
 
             <div className="space-y-2">
-              <Label
-                htmlFor="month"
-                className="text-xs font-bold text-slate-500 uppercase"
-              >
+              <Label htmlFor="month" className="text-xs font-bold text-slate-500 uppercase">
                 Month
               </Label>
               <Select name="month" defaultValue={month.toString()}>
@@ -269,10 +271,7 @@ export default async function AttendanceReportsPage({
               </Select>
             </div>
 
-            <Button
-              type="submit"
-              className="gradient-primary h-10 px-6 rounded-xl"
-            >
+            <Button type="submit" className="gradient-primary h-10 px-6 rounded-xl">
               Generate Report
             </Button>
           </form>
@@ -284,9 +283,7 @@ export default async function AttendanceReportsPage({
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50/50 dark:bg-slate-900/50 border-y">
-                <TableHead>
-                  {type === "student" ? "Student Name" : "Staff Member"}
-                </TableHead>
+                <TableHead>{type === "student" ? "Student Name" : "Staff Member"}</TableHead>
                 <TableHead className="text-center">Present</TableHead>
                 <TableHead className="text-center">Absent</TableHead>
                 <TableHead className="text-center">
@@ -297,15 +294,10 @@ export default async function AttendanceReportsPage({
             </TableHeader>
             <TableBody>
               {reportData.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="hover:bg-slate-50/50 transition-colors"
-                >
+                <TableRow key={row.id} className="hover:bg-slate-50/50 transition-colors">
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-bold text-slate-900 dark:text-white">
-                        {row.name}
-                      </span>
+                      <span className="font-bold text-slate-900 dark:text-white">{row.name}</span>
                       <span className="text-[10px] text-slate-500 uppercase tracking-widest">
                         {type === "student"
                           ? `Roll #: ${row.rollNumber || "N/A"}`
@@ -334,9 +326,7 @@ export default async function AttendanceReportsPage({
                         {row.rate}%
                       </Badge>
                     ) : (
-                      <span className="font-bold text-slate-600">
-                        {row.total} Days
-                      </span>
+                      <span className="font-bold text-slate-600">{row.total} Days</span>
                     )}
                   </TableCell>
                 </TableRow>
@@ -345,7 +335,7 @@ export default async function AttendanceReportsPage({
           </Table>
         </Card>
       ) : (
-        <EmptyState 
+        <EmptyState
           icon={CalendarIcon}
           title="Select Filters to Begin"
           description="Choose a report type and class above to generate a detailed attendance summary."

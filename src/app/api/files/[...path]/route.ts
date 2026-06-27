@@ -29,9 +29,7 @@ export async function GET(
 
     // 4. Serve file
     const fileBuffer = await readFile(filePath);
-    const mimeType =
-      contentType(filePath.split(".").pop() || "") ||
-      "application/octet-stream";
+    const mimeType = contentType(filePath.split(".").pop() || "") || "application/octet-stream";
 
     return new NextResponse(fileBuffer, {
       headers: {

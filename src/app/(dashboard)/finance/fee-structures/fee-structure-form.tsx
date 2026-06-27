@@ -31,12 +31,19 @@ export function FeeStructureForm({
   academicYears,
 }: Readonly<{
   children: React.ReactNode;
-  classes: any[];
-  academicYears: any[];
+  classes: {
+    id: string;
+    name: string;
+  }[];
+  academicYears: {
+    id: string;
+    name: string;
+    isActive: boolean;
+  }[];
 }>) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string[] | undefined>>({});
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -46,9 +53,10 @@ export function FeeStructureForm({
 
     const formData = new FormData(e.currentTarget);
     const result = await createFeeStructure({
-      name: formData.get("name"),
-      classId: formData.get("classId"),
-      academicYearId: formData.get("academicYearId"),
+      name: (formData.get("name") as string) || "",
+      classId: (formData.get("classId") as string) || "",
+      academicYearId: (formData.get("academicYearId") as string) || "",
+
       isActive: true,
     });
 
@@ -71,12 +79,9 @@ export function FeeStructureForm({
       <DialogContent className="sm:max-w-[425px] glass border-none">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle className="font-outfit text-2xl">
-              New Fee Structure
-            </DialogTitle>
+            <DialogTitle className="font-outfit text-2xl">New Fee Structure</DialogTitle>
             <DialogDescription>
-              Create a template for student billing. You'll add specific
-              components next.
+              Create a template for student billing. You'll add specific components next.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -89,9 +94,7 @@ export function FeeStructureForm({
                 required
                 className="bg-slate-50 dark:bg-slate-900 border-none"
               />
-              {errors.name && (
-                <p className="text-xs text-rose-500">{errors.name[0]}</p>
-              )}
+              {errors.name && <p className="text-xs text-rose-500">{errors.name[0]}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="classId">Class</Label>
@@ -137,11 +140,7 @@ export function FeeStructureForm({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Structure
             </Button>

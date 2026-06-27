@@ -19,9 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createAnnouncement } from "./actions";
 
-export function AnnouncementForm({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export function AnnouncementForm({ children }: Readonly<{ children: React.ReactNode }>) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
@@ -58,12 +56,8 @@ export function AnnouncementForm({
       <DialogContent className="sm:max-w-[500px] glass border-none">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle className="font-outfit text-2xl">
-              New Announcement
-            </DialogTitle>
-            <DialogDescription>
-              Post a notice to the institutional dashboard.
-            </DialogDescription>
+            <DialogTitle className="font-outfit text-2xl">New Announcement</DialogTitle>
+            <DialogDescription>Post a notice to the institutional dashboard.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -105,11 +99,7 @@ export function AnnouncementForm({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (

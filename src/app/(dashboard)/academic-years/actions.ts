@@ -7,7 +7,9 @@ import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
 import { academicYearSchema } from "@/lib/validations/academic-year";
 
-export async function createAcademicYear(formData: FormData) {
+export async function createAcademicYear(
+  formData: FormData,
+): Promise<{ success: boolean; errors?: Record<string, string[]>; message?: string }> {
   const user = await requirePermission("settings.manage");
 
   const validated = academicYearSchema.safeParse({
@@ -65,7 +67,10 @@ export async function createAcademicYear(formData: FormData) {
   }
 }
 
-export async function updateAcademicYear(id: string, formData: FormData) {
+export async function updateAcademicYear(
+  id: string,
+  formData: FormData,
+): Promise<{ success: boolean; errors?: Record<string, string[]>; message?: string }> {
   const user = await requirePermission("settings.manage");
 
   const validated = academicYearSchema.safeParse({
@@ -120,16 +125,18 @@ export async function updateAcademicYear(id: string, formData: FormData) {
 
     revalidatePath("/academic-years");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to update academic year" };
   }
 }
 
-export async function deleteAcademicYear(id: string) {
+export async function deleteAcademicYear(
+  id: string,
+): Promise<{ success: boolean; message?: string }> {
   const user = await requirePermission("settings.manage");
 
   try {
-    const _year = await prisma.academicYear.update({
+    await prisma.academicYear.update({
       where: { id },
       data: { isDeleted: true },
     });
@@ -143,12 +150,14 @@ export async function deleteAcademicYear(id: string) {
 
     revalidatePath("/academic-years");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to delete academic year" };
   }
 }
 
-export async function setActiveAcademicYear(id: string) {
+export async function setActiveAcademicYear(
+  id: string,
+): Promise<{ success: boolean; message?: string }> {
   const user = await requirePermission("settings.manage");
 
   try {
@@ -173,7 +182,7 @@ export async function setActiveAcademicYear(id: string) {
 
     revalidatePath("/academic-years");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to set active academic year" };
   }
 }

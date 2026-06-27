@@ -26,6 +26,18 @@ import {
 } from "@/components/ui/select";
 import { addGuardian, updateGuardian } from "../actions";
 
+interface GuardianInitialData {
+  id?: string;
+  fullName?: string;
+  relationship?: string;
+  relation?: string;
+  phone?: string;
+  phoneNumber?: string;
+  email?: string;
+  occupation?: string;
+  isPrimary?: boolean;
+}
+
 export function GuardianForm({
   children,
   studentId,
@@ -33,11 +45,11 @@ export function GuardianForm({
 }: Readonly<{
   children: React.ReactNode;
   studentId: string;
-  initialData?: any;
+  initialData?: GuardianInitialData;
 }>) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string[] | undefined>>({});
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -46,14 +58,12 @@ export function GuardianForm({
     setErrors({});
 
     const formData = new FormData(e.currentTarget);
-    const data: Record<string, unknown> = Object.fromEntries(
-      formData.entries(),
-    );
+    const data: Record<string, unknown> = Object.fromEntries(formData.entries());
     const rawIsPrimary = formData.get("isPrimary") as string | null;
     data.isPrimary = rawIsPrimary === "true";
 
     const result = initialData
-      ? await updateGuardian(initialData.id, studentId, data)
+      ? await updateGuardian(initialData.id || "", studentId, data)
       : await addGuardian(studentId, data);
 
     setIsPending(false);
@@ -93,15 +103,13 @@ export function GuardianForm({
                 required
                 className="bg-slate-50 dark:bg-slate-900 border-none"
               />
-              {errors.fullName && (
-                <p className="text-xs text-rose-500">{errors.fullName[0]}</p>
-              )}
+              {errors.fullName && <p className="text-xs text-rose-500">{errors.fullName[0]}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="relation">Relation</Label>
               <Select
                 name="relation"
-                defaultValue={initialData?.relation || "FATHER"}
+                defaultValue={initialData?.relationship || initialData?.relation || "FATHER"}
               >
                 <SelectTrigger className="bg-slate-50 dark:bg-slate-900 border-none">
                   <SelectValue placeholder="Select Relation" />
@@ -113,16 +121,14 @@ export function GuardianForm({
                   <SelectItem value="OTHER">Other</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.relation && (
-                <p className="text-xs text-rose-500">{errors.relation[0]}</p>
-              )}
+              {errors.relation && <p className="text-xs text-rose-500">{errors.relation[0]}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="phoneNumber">Phone Number</Label>
               <Input
                 id="phoneNumber"
                 name="phoneNumber"
-                defaultValue={initialData?.phoneNumber}
+                defaultValue={initialData?.phone || initialData?.phoneNumber}
                 placeholder="+1..."
                 required
                 className="bg-slate-50 dark:bg-slate-900 border-none"
@@ -141,9 +147,7 @@ export function GuardianForm({
                 placeholder="guardian@example.com"
                 className="bg-slate-50 dark:bg-slate-900 border-none"
               />
-              {errors.email && (
-                <p className="text-xs text-rose-500">{errors.email[0]}</p>
-              )}
+              {errors.email && <p className="text-xs text-rose-500">{errors.email[0]}</p>}
             </div>
             <div className="flex items-center space-x-2 pt-2">
               <Checkbox
@@ -153,10 +157,7 @@ export function GuardianForm({
                 defaultChecked={initialData?.isPrimary}
                 className="border-slate-300 dark:border-slate-700"
               />
-              <Label
-                htmlFor="isPrimary"
-                className="text-sm font-medium leading-none"
-              >
+              <Label htmlFor="isPrimary" className="text-sm font-medium leading-none">
                 Set as primary contact
               </Label>
             </div>
@@ -170,11 +171,7 @@ export function GuardianForm({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {initialData ? "Update Guardian" : "Add Guardian"}
             </Button>

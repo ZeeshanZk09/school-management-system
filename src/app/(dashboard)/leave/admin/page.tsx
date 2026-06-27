@@ -1,13 +1,7 @@
 import { format } from "date-fns";
 import { CheckCircle, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -45,9 +39,7 @@ export default async function AdminLeavePage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight font-outfit">
-          Leave Approvals
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight font-outfit">Leave Approvals</h1>
         <p className="text-slate-500 dark:text-slate-400">
           Review and decide on staff leave applications.
         </p>
@@ -56,9 +48,7 @@ export default async function AdminLeavePage() {
       <div className="grid gap-6">
         <Card className="border-none shadow-sm glass overflow-hidden">
           <CardHeader className="bg-amber-50/50 dark:bg-amber-950/20 border-b">
-            <CardTitle className="text-lg font-bold">
-              Pending Requests
-            </CardTitle>
+            <CardTitle className="text-lg font-bold">Pending Requests</CardTitle>
             <CardDescription>Awaiting your decision.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
@@ -75,19 +65,13 @@ export default async function AdminLeavePage() {
               <TableBody>
                 {pendingRequests.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="h-32 text-center text-slate-400 italic"
-                    >
+                    <TableCell colSpan={5} className="h-32 text-center text-slate-400 italic">
                       No pending requests.
                     </TableCell>
                   </TableRow>
                 ) : (
                   pendingRequests.map((req) => (
-                    <TableRow
-                      key={req.id}
-                      className="hover:bg-slate-50/50 transition-colors"
-                    >
+                    <TableRow key={req.id} className="hover:bg-slate-50/50 transition-colors">
                       <TableCell>
                         <div className="flex flex-col">
                           <span className="font-bold text-slate-900 dark:text-white">
@@ -125,9 +109,7 @@ export default async function AdminLeavePage() {
 
         <Card className="border-none shadow-sm glass overflow-hidden opacity-80">
           <CardHeader className="border-b">
-            <CardTitle className="text-lg font-bold">
-              Recent Decisions
-            </CardTitle>
+            <CardTitle className="text-lg font-bold">Recent Decisions</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
@@ -141,9 +123,7 @@ export default async function AdminLeavePage() {
                       <div className="flex items-center gap-3">
                         <div
                           className={
-                            req.status === "APPROVED"
-                              ? "text-emerald-500"
-                              : "text-rose-500"
+                            req.status === "APPROVED" ? "text-emerald-500" : "text-rose-500"
                           }
                         >
                           {req.status === "APPROVED" ? (
@@ -152,19 +132,12 @@ export default async function AdminLeavePage() {
                             <XCircle className="h-4 w-4" />
                           )}
                         </div>
-                        <span className="text-sm font-medium">
-                          {req.staff.fullName}
-                        </span>
+                        <span className="text-sm font-medium">{req.staff.fullName}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs text-slate-500">
-                      {req.leaveType.name}
-                    </TableCell>
+                    <TableCell className="text-xs text-slate-500">{req.leaveType.name}</TableCell>
                     <TableCell className="text-xs text-right text-slate-400">
-                      Decided{" "}
-                      {req.decidedAt
-                        ? format(new Date(req.decidedAt), "PP")
-                        : "N/A"}
+                      Decided {req.decidedAt ? format(new Date(req.decidedAt), "PP") : "N/A"}
                     </TableCell>
                   </TableRow>
                 ))}

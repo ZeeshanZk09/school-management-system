@@ -59,11 +59,7 @@ export default async function NewStudentPage({
         </p>
       </div>
 
-      <StudentForm
-        classes={classes}
-        academicYears={academicYears}
-        initialData={initialData}
-      />
+      <StudentForm classes={classes} academicYears={academicYears} initialData={initialData} />
     </div>
   );
 }

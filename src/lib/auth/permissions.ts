@@ -6,14 +6,14 @@ import { getSessionUser } from "@/lib/auth/session";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
 
 export class UnauthorizedError extends Error {
-  constructor(message = "Unauthorized") {
+  public constructor(message = "Unauthorized") {
     super(message);
     this.name = "UnauthorizedError";
   }
 }
 
 export class ForbiddenError extends Error {
-  constructor(message = "Forbidden") {
+  public constructor(message = "Forbidden") {
     super(message);
     this.name = "ForbiddenError";
   }
@@ -53,9 +53,7 @@ export async function requireAuth(): Promise<SessionUser> {
  * Require a specific role. Throws ForbiddenError if the user doesn't have it.
  * Admin always has access to everything.
  */
-export async function requireRole(
-  ...allowedRoles: string[]
-): Promise<SessionUser> {
+export async function requireRole(...allowedRoles: string[]): Promise<SessionUser> {
   const user = await requireAuth();
 
   // Admin has unrestricted access
@@ -76,9 +74,7 @@ export async function requireRole(
  * Check if the user has permission based on the permission name.
  * Uses the RolePermission table to verify.
  */
-export async function requirePermission(
-  permissionName: string,
-): Promise<SessionUser> {
+export async function requirePermission(permissionName: string): Promise<SessionUser> {
   const user = await requireAuth();
 
   // Admin has all permissions
@@ -130,11 +126,7 @@ export function isTeacherForClass(
     if (assignment.classId !== classId) {
       return false;
     }
-    if (
-      sectionId &&
-      assignment.sectionId &&
-      assignment.sectionId !== sectionId
-    ) {
+    if (sectionId && assignment.sectionId && assignment.sectionId !== sectionId) {
       return false;
     }
     return true;
@@ -144,10 +136,7 @@ export function isTeacherForClass(
 /**
  * Check if a user has a specific permission (non-throwing)
  */
-export async function hasPermission(
-  userId: string,
-  permissionName: string,
-): Promise<boolean> {
+export async function hasPermission(userId: string, permissionName: string): Promise<boolean> {
   const { default: prisma } = await import("@/lib/prisma");
 
   // Get user with roles

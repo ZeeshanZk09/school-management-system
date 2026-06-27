@@ -8,7 +8,7 @@ import prisma from "@/lib/prisma";
 import { hashPassword } from "@/lib/security/password";
 import { staffSchema } from "@/lib/validations/staff";
 
-export async function createStaff(data: any) {
+export async function createStaff(data: unknown) {
   const user = await requirePermission("staff.manage");
 
   const validated = staffSchema.safeParse(data);
@@ -75,8 +75,8 @@ export async function createStaff(data: any) {
     });
 
     return { success: true, staffId: result.id };
-  } catch (error: any) {
-    if (error.code === "P2002") {
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
       return {
         success: false,
         message: "Email or staff number already exists",
@@ -86,7 +86,7 @@ export async function createStaff(data: any) {
   }
 }
 
-export async function updateStaff(id: string, data: any) {
+export async function updateStaff(id: string, data: unknown) {
   const user = await requirePermission("staff.manage");
 
   const validated = staffSchema.safeParse(data);
@@ -131,7 +131,7 @@ export async function updateStaff(id: string, data: any) {
     revalidatePath("/staff");
     revalidatePath(`/staff/${id}`);
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to update staff" };
   }
 }
@@ -162,7 +162,7 @@ export async function deleteStaff(id: string) {
 
     revalidatePath("/staff");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to delete staff" };
   }
 }

@@ -48,9 +48,7 @@ export default async function LeaveManagementPage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Leave Management
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-outfit">Leave Management</h1>
           <p className="text-slate-500 dark:text-slate-400">
             Manage staff leave applications, balances, and approvals.
           </p>
@@ -71,9 +69,7 @@ export default async function LeaveManagementPage() {
         <Card className="border-none shadow-sm glass bg-amber-50/50 dark:bg-amber-950/10">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-bold text-amber-600 uppercase">
-                Pending
-              </p>
+              <p className="text-sm font-bold text-amber-600 uppercase">Pending</p>
               <Clock className="h-5 w-5 text-amber-600" />
             </div>
             <p className="text-3xl font-black mt-2">
@@ -84,9 +80,7 @@ export default async function LeaveManagementPage() {
         <Card className="border-none shadow-sm glass bg-emerald-50/50 dark:bg-emerald-950/10">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-bold text-emerald-600 uppercase">
-                Approved
-              </p>
+              <p className="text-sm font-bold text-emerald-600 uppercase">Approved</p>
               <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             </div>
             <p className="text-3xl font-black mt-2">
@@ -111,10 +105,7 @@ export default async function LeaveManagementPage() {
           <TableBody>
             {requests.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="h-32 text-center text-slate-500 italic"
-                >
+                <TableCell colSpan={5} className="h-32 text-center text-slate-500 italic">
                   No leave requests found.
                 </TableCell>
               </TableRow>
@@ -148,8 +139,7 @@ export default async function LeaveManagementPage() {
                       </span>
                       <span className="text-slate-400">
                         {Math.ceil(
-                          (new Date(req.endDate).getTime() -
-                            new Date(req.startDate).getTime()) /
+                          (new Date(req.endDate).getTime() - new Date(req.startDate).getTime()) /
                             (1000 * 60 * 60 * 24),
                         ) + 1}{" "}
                         days
@@ -157,18 +147,12 @@ export default async function LeaveManagementPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      className={
-                        STATUS_STYLES[req.status] || STATUS_STYLES.REJECTED
-                      }
-                    >
+                    <Badge className={STATUS_STYLES[req.status] || STATUS_STYLES.REJECTED}>
                       {req.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {req.status === "PENDING" && (
-                      <LeaveApprovalButton id={req.id} />
-                    )}
+                    {req.status === "PENDING" && <LeaveApprovalButton id={req.id} />}
                   </TableCell>
                 </TableRow>
               ))

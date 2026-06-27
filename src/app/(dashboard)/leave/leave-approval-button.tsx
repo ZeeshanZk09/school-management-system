@@ -7,9 +7,7 @@ import { Button } from "@/components/ui/button";
 import { updateLeaveRequestStatus } from "./actions";
 
 export function LeaveApprovalButton({ id }: Readonly<{ id: string }>) {
-  const [isPending, setIsPending] = useState<"APPROVING" | "REJECTING" | null>(
-    null,
-  );
+  const [isPending, setIsPending] = useState<"APPROVING" | "REJECTING" | null>(null);
 
   const handleAction = async (status: "APPROVED" | "REJECTED") => {
     setIsPending(status === "APPROVED" ? "APPROVING" : "REJECTING");
@@ -20,7 +18,7 @@ export function LeaveApprovalButton({ id }: Readonly<{ id: string }>) {
       } else {
         toast.error(result.message || "Action failed");
       }
-    } catch (_error) {
+    } catch {
       toast.error("An unexpected error occurred");
     } finally {
       setIsPending(null);

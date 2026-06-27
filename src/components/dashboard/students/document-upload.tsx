@@ -72,8 +72,8 @@ export function StudentDocumentUpload({ studentId }: { studentId: string }) {
       setOpen(false);
       setTitle("");
       if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (error: any) {
-      toast.error(error.message || "Something went wrong");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setIsUploading(false);
     }
@@ -128,11 +128,7 @@ export function StudentDocumentUpload({ studentId }: { studentId: string }) {
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isUploading}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isUploading}>
               {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Upload
             </Button>

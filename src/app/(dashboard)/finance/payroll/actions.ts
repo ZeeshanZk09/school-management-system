@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { writeAuditLog } from "@/lib/audit";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
+import type { Decimal } from "@prisma/client/runtime/client";
 
 export async function createSalaryStructure(
   staffId: string,
@@ -16,7 +17,11 @@ export async function createSalaryStructure(
       type: "ALLOWANCE" | "DEDUCTION";
     }[];
   },
-) {
+): Promise<{
+  success: boolean;
+  data?: {};
+  message: string;
+}> {
   try {
     const actor = await requirePermission("finance.manage");
 
@@ -49,7 +54,7 @@ export async function createSalaryStructure(
     });
 
     revalidatePath(`/staff/${staffId}`);
-    return { success: true, data: structure };
+    return { success: true, data: structure, message: "Salary structure created successfully" };
   } catch (error) {
     console.error("Create salary structure error:", error);
     return { success: false, message: "Failed to create salary structure" };
@@ -60,7 +65,22 @@ export async function generateSalarySlip(
   staffId: string,
   periodYear: number,
   periodMonth: number,
-) {
+): Promise<{
+  success: boolean;
+  data?: {
+    id: string;
+    isDeleted: boolean;
+    staffId: string;
+    salaryStructureId: string;
+    periodYear: number;
+    periodMonth: number;
+    grossPay: Decimal;
+    totalDeductions: Decimal;
+    netPay: Decimal;
+    generatedAt: Date;
+  };
+  message: string;
+}> {
   try {
     const actor = await requirePermission("finance.manage");
 
@@ -114,9 +134,9 @@ export async function generateSalarySlip(
     });
 
     revalidatePath(`/staff/${staffId}`);
-    return { success: true, data: slip };
+    return { success: true, data: slip, message: "Salary slip generated successfully" };
   } catch (error) {
-    if ((error as any).code === "P2002") {
+    if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
       return {
         success: false,
         message: "Salary slip already generated for this period",
@@ -131,11 +151,15 @@ export async function recordSalaryDisbursement(
   slipId: string,
   data: {
     amountPaid: number;
-    method: "CASH" | "BANK_TRANSFER" | "CHEQUE" | "ONLINE";
+    method: "BANK_TRANSFER" | "CASH" | "CHEQUE" | "ONLINE";
     referenceNumber?: string;
     paidAt: Date;
   },
-) {
+): Promise<{
+  success: boolean;
+  data?: {};
+  message: string;
+}> {
   try {
     const actor = await requirePermission("finance.manage");
 
@@ -158,7 +182,7 @@ export async function recordSalaryDisbursement(
       actorUserId: actor.id,
     });
 
-    return { success: true, data: disbursement };
+    return { success: true, data: disbursement, message: "Disbursement recorded successfully" };
   } catch (error) {
     console.error("Record disbursement error:", error);
     return { success: false, message: "Failed to record disbursement" };
@@ -169,13 +193,18 @@ export async function exportFinanceCSV(
   type: "collection" | "outstanding",
   month?: number,
   year?: number,
-) {
+): Promise<{
+  success: boolean;
+  csv?: string;
+  data?: {};
+  message: string;
+}> {
   try {
     await requirePermission("finance.read");
     const { startOfMonth, endOfMonth, format } = await import("date-fns");
     const Papa = (await import("papaparse")).default;
 
-    let data: any[] = [];
+    let data: Record<string, number | string>[] = [];
 
     if (type === "collection" && month && year) {
       const startDate = startOfMonth(new Date(year, month - 1));
@@ -228,16 +257,13 @@ export async function exportFinanceCSV(
     }
 
     const csv = Papa.unparse(data);
-    return { success: true, csv };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+    return { success: true, csv, data: { csv }, message: "Finance CSV exported successfully" };
+  } catch (error) {
+    return { success: false, message: (error as Error).message };
   }
 }
 
-export async function bulkDisburseSalaries(
-  periodMonth: number,
-  periodYear: number,
-) {
+export async function bulkDisburseSalaries(periodMonth: number, periodYear: number) {
   try {
     const actor = await requirePermission("finance.manage");
 
@@ -280,7 +306,11 @@ export async function bulkDisburseSalaries(
     });
 
     revalidatePath("/finance/payroll");
-    return { success: true, count: disbursements.length };
+    return {
+      success: true,
+      data: { count: disbursements.length },
+      message: "Bulk disbursement performed successfully",
+    };
   } catch (error) {
     console.error("Bulk disburse error:", error);
     return { success: false, message: "Failed to perform bulk disbursement" };

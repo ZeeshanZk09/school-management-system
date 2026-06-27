@@ -1,23 +1,22 @@
 "use client";
 
 import { debounce } from "lodash";
-import { 
-  Briefcase, 
-  GraduationCap, 
-  Loader2, 
-  Search, 
-  UserPlus, 
-  Wallet, 
+import {
+  Briefcase,
+  GraduationCap,
+  Loader2,
+  Search,
+  UserPlus,
+  Wallet,
   CalendarCheck,
-  ChevronRight,
   User,
   PlusCircle,
   FileText,
   DollarSign,
-  Users
+  Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   CommandDialog,
   CommandGroup,
@@ -27,7 +26,6 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import type { Staff, Student } from "@/lib/generated/prisma/browser";
-import React from "react";
 
 // ============ CONSTANTS ============
 const SEARCH_DEBOUNCE_MS = 300;
@@ -43,97 +41,96 @@ interface SearchResults {
 /**
  * Renders a single action item in the command palette.
  */
-const ActionItem = React.memo(({ 
-  icon: Icon, 
-  title, 
-  description, 
-  onSelect,
-  colorClass
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-  onSelect: () => void;
-  colorClass: string;
-}) => (
-  <CommandItem 
-    onSelect={onSelect}
-    className="flex items-center gap-3 p-3 cursor-pointer"
-  >
-    <div className={`p-2 rounded-lg ${colorClass}`}>
-      <Icon className="h-4 w-4" />
-    </div>
-    <div className="flex flex-col text-left">
-      <span className="font-bold">{title}</span>
-      <span className="text-[10px] text-slate-500">{description}</span>
-    </div>
-    <PlusCircle className="ml-auto h-4 w-4 opacity-30" />
-  </CommandItem>
-));
+const ActionItem = memo(
+  ({
+    icon: Icon,
+    title,
+    description,
+    onSelect,
+    colorClass,
+  }: {
+    icon: React.ComponentType<{ className?: string }>;
+    title: string;
+    description: string;
+    onSelect: () => void;
+    colorClass: string;
+  }) => (
+    <CommandItem onSelect={onSelect} className="flex items-center gap-3 p-3 cursor-pointer">
+      <div className={`p-2 rounded-lg ${colorClass}`}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="flex flex-col text-left">
+        <span className="font-bold">{title}</span>
+        <span className="text-[10px] text-slate-500">{description}</span>
+      </div>
+      <PlusCircle className="ml-auto h-4 w-4 opacity-30" />
+    </CommandItem>
+  ),
+);
 
 ActionItem.displayName = "ActionItem";
 
 /**
  * Renders a search result item (Student or Staff) with quick actions.
  */
-const SearchResultItem = React.memo(({
-  icon: Icon,
-  title,
-  subtitle,
-  path,
-  colorClass,
-  actions,
-  onSelect
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  subtitle: string;
-  path: string;
-  colorClass: string;
-  onSelect: (path: string) => void;
-  actions: {
-    label: string;
+const SearchResultItem = memo(
+  ({
+    icon: Icon,
+    title,
+    subtitle,
+    path,
+    colorClass,
+    actions,
+    onSelect,
+  }: {
     icon: React.ComponentType<{ className?: string }>;
+    title: string;
+    subtitle: string;
     path: string;
-    variant: string;
-  }[];
-}) => (
-  <div className="relative group/item">
-    <CommandItem
-      value={title}
-      onSelect={() => onSelect(path)}
-      className="flex items-center gap-3 p-3 cursor-pointer"
-    >
-      <div className={`p-2 rounded-lg ${colorClass}`}>
-        <Icon className="h-4 w-4" />
-      </div>
-      <div className="flex flex-col text-left">
-        <span className="font-bold">{title}</span>
-        <span className="text-[10px] text-slate-500 uppercase tracking-widest">
-          {subtitle}
-        </span>
-      </div>
-      
-      <div className="ml-auto flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
-        {actions.map((action) => (
-          <Button
-            key={action.label}
-            size="sm"
-            variant="ghost"
-            className={`h-8 px-2 text-[10px] uppercase font-bold ${action.variant}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect(action.path);
-            }}
-          >
-            <action.icon className="h-3 w-3 mr-1" />
-            {action.label}
-          </Button>
-        ))}
-      </div>
-    </CommandItem>
-  </div>
-));
+    colorClass: string;
+    onSelect: (path: string) => void;
+    actions: {
+      label: string;
+      icon: React.ComponentType<{ className?: string }>;
+      path: string;
+      variant: string;
+    }[];
+  }) => (
+    <div className="relative group/item">
+      <CommandItem
+        value={title}
+        onSelect={() => onSelect(path)}
+        className="flex items-center gap-3 p-3 cursor-pointer"
+      >
+        <div className={`p-2 rounded-lg ${colorClass}`}>
+          <Icon className="h-4 w-4" />
+        </div>
+        <div className="flex flex-col text-left">
+          <span className="font-bold">{title}</span>
+          <span className="text-[10px] text-slate-500 uppercase tracking-widest">{subtitle}</span>
+        </div>
+
+        <div className="ml-auto flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+          {actions.map((action) => (
+            <Button
+              key={action.label}
+              size="sm"
+              variant="ghost"
+              className={`h-8 px-2 text-[10px] uppercase font-bold ${action.variant}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(action.path);
+              }}
+            >
+              <action.icon className="h-3 w-3 mr-1" />
+              {action.label}
+            </Button>
+          ))}
+        </div>
+      </CommandItem>
+    </div>
+  ),
+);
 
 SearchResultItem.displayName = "SearchResultItem";
 
@@ -161,23 +158,24 @@ export function GlobalSearch() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const performSearch = useCallback(
-    debounce(async (q: string) => {
-      if (!q.trim()) {
-        setResults({ students: [], staff: [] });
-        return;
-      }
-      setIsLoading(true);
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        setResults(data);
-      } catch (error) {
-        console.error("Search failed:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }, SEARCH_DEBOUNCE_MS),
+  const performSearch = useMemo(
+    () =>
+      debounce(async (q: string) => {
+        if (!q.trim()) {
+          setResults({ students: [], staff: [] });
+          return;
+        }
+        setIsLoading(true);
+        try {
+          const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+          const data = await res.json();
+          setResults(data);
+        } catch (error) {
+          console.error("Search failed:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }, SEARCH_DEBOUNCE_MS),
     [],
   );
 
@@ -185,23 +183,26 @@ export function GlobalSearch() {
     performSearch(query);
   }, [query, performSearch]);
 
-  const onSelect = useCallback((path: string) => {
-    setOpen(false);
-    router.push(path);
-  }, [router]);
+  const onSelect = useCallback(
+    (path: string) => {
+      setOpen(false);
+      router.push(path);
+    },
+    [router],
+  );
 
   return (
     <>
       <Button
         variant="outline"
-        className="relative h-10 w-full justify-start rounded-xl bg-slate-50 dark:bg-slate-900 border-none shadow-sm text-sm text-slate-500 md:w-64 lg:w-80 group transition-all hover:bg-slate-100 dark:hover:bg-slate-800"
+        className="relative h-12 w-full justify-start rounded-xl bg-slate-50 dark:bg-slate-900 border-none shadow-sm text-sm text-slate-500 md:w-64 lg:w-80 group transition-all hover:bg-slate-100 dark:hover:bg-slate-800"
         onClick={() => setOpen(true)}
       >
         <Search className="mr-2 h-4 w-4 opacity-50 group-hover:scale-110 transition-transform" />
         <span className="hidden lg:inline-flex">Search anything...</span>
         <span className="inline-flex lg:hidden">Search...</span>
-        <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 hidden h-5 select-none items-center gap-1 rounded border bg-white dark:bg-slate-950 px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-          <span className="text-xs">⌘</span>K
+        <kbd className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 hidden h-7 select-none items-center gap-1 rounded border bg-white dark:bg-slate-950 p-2 font-mono text-[10px] font-medium opacity-100 sm:flex">
+          <span className="text-xs ">⌘</span>K
         </kbd>
       </Button>
 
@@ -269,9 +270,7 @@ export function GlobalSearch() {
             query.length >= SEARCH_MIN_QUERY_LENGTH &&
             results.students.length === 0 &&
             results.staff.length === 0 && (
-              <div className="py-6 text-center text-sm text-slate-500">
-                No results found.
-              </div>
+              <div className="py-6 text-center text-sm text-slate-500">No results found.</div>
             )}
 
           {results.students.length > 0 && (
@@ -290,14 +289,14 @@ export function GlobalSearch() {
                       label: "Pay Fees",
                       icon: Wallet,
                       path: `/finance/records?query=${student.fullName}`,
-                      variant: "text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      variant: "text-blue-600 hover:text-blue-700 hover:bg-blue-50",
                     },
                     {
                       label: "Profile",
                       icon: User,
                       path: `/students/${student.id}`,
-                      variant: "text-slate-500 hover:text-slate-700"
-                    }
+                      variant: "text-slate-500 hover:text-slate-700",
+                    },
                   ]}
                 />
               ))}
@@ -320,14 +319,14 @@ export function GlobalSearch() {
                       label: "Attendance",
                       icon: CalendarCheck,
                       path: `/attendance/reports?query=${staff.fullName}`,
-                      variant: "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                      variant: "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50",
                     },
                     {
                       label: "Profile",
                       icon: User,
                       path: `/staff/${staff.id}`,
-                      variant: "text-slate-500 hover:text-slate-700"
-                    }
+                      variant: "text-slate-500 hover:text-slate-700",
+                    },
                   ]}
                 />
               ))}

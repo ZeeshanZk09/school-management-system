@@ -6,6 +6,7 @@ import { recordAttendance } from "../actions";
 
 jest.mock("@/lib/auth/permissions", () => ({
   requirePermission: jest.fn(),
+  isTeacherForClass: jest.fn().mockReturnValue(true),
 }));
 
 jest.mock("@/lib/audit", () => ({
@@ -36,16 +37,14 @@ describe("Attendance Actions", () => {
       const mockUser = { id: "user-1" };
       (requirePermission as jest.Mock).mockResolvedValue(mockUser);
 
-      (prisma.$transaction as jest.Mock).mockImplementation(
-        async (callback) => {
-          const tx = {
-            studentAttendance: {
-              upsert: jest.fn().mockResolvedValue({}),
-            },
-          };
-          return callback(tx);
-        },
-      );
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+        const tx = {
+          studentAttendance: {
+            upsert: jest.fn().mockResolvedValue({}),
+          },
+        };
+        return callback(tx);
+      });
 
       const data = {
         classId: "class-1",
@@ -70,9 +69,7 @@ describe("Attendance Actions", () => {
 
     it("returns error on failure", async () => {
       (requirePermission as jest.Mock).mockResolvedValue({ id: "user-1" });
-      (prisma.$transaction as jest.Mock).mockRejectedValue(
-        new Error("DB Error"),
-      );
+      (prisma.$transaction as jest.Mock).mockRejectedValue(new Error("DB Error"));
 
       const data = {
         classId: "class-1",

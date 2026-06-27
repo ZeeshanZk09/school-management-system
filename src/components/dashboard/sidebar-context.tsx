@@ -10,9 +10,7 @@ type SidebarContextType = {
   closeSidebar: () => void;
 };
 
-const SidebarContext = React.createContext<SidebarContextType | undefined>(
-  undefined,
-);
+const SidebarContext = React.createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false);

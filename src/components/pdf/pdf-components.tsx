@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  Font,
-  Image,
-} from "@react-pdf/renderer";
+import { Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import { format } from "date-fns";
 
 // Register fonts if needed (Standard fonts are used here for simplicity)
@@ -34,19 +26,19 @@ export const styles = StyleSheet.create({
     flexDirection: "column",
   },
   schoolName: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: "Helvetica-Bold",
-    color: "#1E293B", // slate-800
+    color: "#0F172A", // slate-900
+    marginBottom: 4,
   },
   schoolDetails: {
-    fontSize: 9,
+    fontSize: 8,
     color: "#64748B", // slate-500
-    marginTop: 2,
+    marginBottom: 2,
   },
   logo: {
     width: 50,
     height: 50,
-    borderRadius: 8,
   },
   titleContainer: {
     marginVertical: 20,
@@ -65,41 +57,45 @@ export const styles = StyleSheet.create({
   },
   footer: {
     position: "absolute",
-    bottom: 30,
+    bottom: 40,
     left: 40,
     right: 40,
-    borderTop: 1,
+    borderTopWidth: 1,
     borderTopColor: "#E2E8F0",
     paddingTop: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     fontSize: 8,
-    color: "#94A3B8", // slate-400
+    color: "#64748B",
   },
   table: {
     width: "auto",
-    marginTop: 10,
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
+    marginTop: 15,
   },
   tableRow: {
+    margin: "auto",
     flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
-    minHeight: 25,
-    alignItems: "center",
   },
   tableHeader: {
     backgroundColor: "#F8FAFC",
-    borderBottomColor: "#E2E8F0",
-    borderBottomWidth: 2,
   },
   tableCell: {
     flex: 1,
-    padding: 4,
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+    padding: 8,
   },
   tableHeaderText: {
     fontFamily: "Helvetica-Bold",
     fontSize: 9,
-    color: "#475569",
   },
   summaryGrid: {
     flexDirection: "row",
@@ -133,7 +129,15 @@ export type PDFSettings = {
   contactPhone?: string | null;
 };
 
-export function PDFHeader({ settings, title, subtitle }: { settings: PDFSettings; title: string; subtitle?: string }) {
+export function PDFHeader({
+  settings,
+  title: _title,
+  subtitle: _subtitle,
+}: {
+  settings: PDFSettings;
+  title: string;
+  subtitle?: string;
+}) {
   return (
     <View style={styles.header}>
       <View style={styles.schoolInfo}>
@@ -145,9 +149,7 @@ export function PDFHeader({ settings, title, subtitle }: { settings: PDFSettings
           </Text>
         )}
       </View>
-      {settings.logoUrl && (
-        <Image src={settings.logoUrl} style={styles.logo} />
-      )}
+      {settings.logoUrl && <Image src={settings.logoUrl} style={styles.logo} />}
     </View>
   );
 }
@@ -161,7 +163,7 @@ export function PDFFooter() {
   );
 }
 
-export function PDFTable({ headers, data }: { headers: string[]; data: any[][] }) {
+export function PDFTable({ headers, data }: { headers: string[]; data: (string | number)[][] }) {
   return (
     <View style={styles.table}>
       <View style={[styles.tableRow, styles.tableHeader]}>

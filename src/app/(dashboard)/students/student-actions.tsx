@@ -39,7 +39,7 @@ export function StudentActions({ studentId }: Readonly<{ studentId: string }>) {
       } else {
         toast.error(result.message || "Failed to delete student record");
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred");
     } finally {
       setIsDeleting(false);
@@ -85,8 +85,8 @@ export function StudentActions({ studentId }: Readonly<{ studentId: string }>) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will mark the student record as deleted. This action can be
-              reversed by an administrator later if needed.
+              This will mark the student record as deleted. This action can be reversed by an
+              administrator later if needed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

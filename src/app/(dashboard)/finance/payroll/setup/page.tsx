@@ -33,18 +33,13 @@ export default async function SalarySetupPage({
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
       <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight font-outfit">
-          Salary Structure Setup
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight font-outfit">Salary Structure Setup</h1>
         <p className="text-slate-500 dark:text-slate-400">
           Configure base pay and components for {staff.fullName}.
         </p>
       </div>
 
-      <SalaryStructureForm
-        staff={staff}
-        existingStructure={staff.salaryStructures[0]}
-      />
+      <SalaryStructureForm staff={staff} existingStructure={staff.salaryStructures[0]} />
     </div>
   );
 }

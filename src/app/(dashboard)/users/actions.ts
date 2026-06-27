@@ -54,9 +54,7 @@ export async function upsertUser(formData: FormData, userId?: string) {
         .map((r) => r.roleId)
         .sort()
         .join(",");
-      const newRoleIds = roleIds
-        .toSorted((a, b) => a.localeCompare(b))
-        .join(",");
+      const newRoleIds = roleIds.toSorted((a, b) => a.localeCompare(b)).join(",");
       if (oldRoleIds !== newRoleIds) {
         await revokeAllUserSessions(userId, "ROLE_CHANGED");
       }
@@ -89,9 +87,12 @@ export async function upsertUser(formData: FormData, userId?: string) {
 
     revalidatePath("/users");
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error upserting user:", error);
-    return { success: false, message: error.message };
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to upsert user",
+    };
   }
 }
 
@@ -116,8 +117,11 @@ export async function resetUserPassword(userId: string) {
 
     await revokeAllUserSessions(userId, "PASSWORD_CHANGED");
     return { success: true };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to reset password",
+    };
   }
 }
 
@@ -149,8 +153,11 @@ export async function toggleUserStatus(userId: string) {
 
     revalidatePath("/users");
     return { success: true, status: newStatus };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to toggle status",
+    };
   }
 }
 
@@ -187,7 +194,10 @@ export async function approveUser(userId: string, roleIds: string[]) {
 
     revalidatePath("/users");
     return { success: true };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to approve user",
+    };
   }
 }

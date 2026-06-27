@@ -119,22 +119,18 @@ describe("Student Actions", () => {
     it("successfully adds a guardian in a transaction", async () => {
       (requirePermission as jest.Mock).mockResolvedValue({ id: "admin-1" });
 
-      (prisma.$transaction as jest.Mock).mockImplementation(
-        async (callback) => {
-          const tx = {
-            guardian: {
-              create: jest
-                .fn()
-                .mockResolvedValue({ id: "guardian-1", fullName: "Jane Doe" }),
-            },
-            studentGuardian: {
-              updateMany: jest.fn().mockResolvedValue({}),
-              create: jest.fn().mockResolvedValue({}),
-            },
-          };
-          return callback(tx);
-        },
-      );
+      (prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+        const tx = {
+          guardian: {
+            create: jest.fn().mockResolvedValue({ id: "guardian-1", fullName: "Jane Doe" }),
+          },
+          studentGuardian: {
+            updateMany: jest.fn().mockResolvedValue({}),
+            create: jest.fn().mockResolvedValue({}),
+          },
+        };
+        return callback(tx);
+      });
 
       const result = await addGuardian("student-1", {
         fullName: "Jane Doe",

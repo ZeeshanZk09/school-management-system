@@ -55,8 +55,9 @@ export function FeeStructureActions({ id }: Readonly<{ id: string }>) {
       !confirm(
         "Are you sure you want to delete this fee structure? This will also hide its components.",
       )
-    )
+    ) {
       return;
+    }
     setIsPending(true);
     const result = await deleteFeeStructure(id);
     if (result.success) {

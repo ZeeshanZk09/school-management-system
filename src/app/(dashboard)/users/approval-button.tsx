@@ -17,12 +17,17 @@ import {
 import { Label } from "@/components/ui/label";
 import { approveUser } from "./actions";
 
+interface RoleOption {
+  id: string;
+  name: string;
+}
+
 export function ApprovalButton({
   userId,
   roles,
 }: Readonly<{
   userId: string;
-  roles: any[];
+  roles: RoleOption[];
 }>) {
   const [open, setOpen] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
@@ -43,7 +48,7 @@ export function ApprovalButton({
       } else {
         toast.error(result.message || "Approval failed");
       }
-    } catch (_error) {
+    } catch {
       toast.error("An unexpected error occurred");
     } finally {
       setIsPending(false);
@@ -66,8 +71,7 @@ export function ApprovalButton({
         <DialogHeader>
           <DialogTitle className="font-outfit">Approve Account</DialogTitle>
           <DialogDescription>
-            Assign initial roles to this user to activate their institutional
-            access.
+            Assign initial roles to this user to activate their institutional access.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -78,10 +82,9 @@ export function ApprovalButton({
                 checked={selectedRoles.includes(role.id)}
                 onCheckedChange={(checked) => {
                   if (checked) setSelectedRoles([...selectedRoles, role.id]);
-                  else
-                    setSelectedRoles(
-                      selectedRoles.filter((id) => id !== role.id),
-                    );
+                  else {
+                    setSelectedRoles(selectedRoles.filter((id) => id !== role.id));
+                  }
                 }}
               />
               <Label htmlFor={role.id} className="font-medium">
@@ -94,11 +97,7 @@ export function ApprovalButton({
           <Button variant="ghost" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button
-            onClick={handleApprove}
-            className="gradient-primary"
-            disabled={isPending}
-          >
+          <Button onClick={handleApprove} className="gradient-primary" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Activate Account
           </Button>

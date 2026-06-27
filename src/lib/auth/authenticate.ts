@@ -16,9 +16,7 @@ export async function authenticateUser(params: {
   }
 
   if (user.status === "DEACTIVATED") {
-    throw new Error(
-      "Your account has been deactivated. Please contact the administrator.",
-    );
+    throw new Error("Your account has been deactivated. Please contact the administrator.");
   }
 
   if (user.status === "PENDING_APPROVAL") {

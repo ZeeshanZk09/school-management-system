@@ -3,8 +3,6 @@
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   Legend,
@@ -15,46 +13,29 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-const COLORS = [
-  "#3b82f6",
-  "#10b981",
-  "#f59e0b",
-  "#6366f1",
-  "#ef4444",
-  "#8b5cf6",
-  "#ec4899",
-];
+const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#6366f1", "#ef4444", "#8b5cf6", "#ec4899"];
+
+interface AttendanceHistoryItem {
+  date: string | Date;
+  rate: number;
+}
 
 export function DashboardCharts({
   attendanceHistory,
   classBreakdown,
-  deptBreakdown,
-}: {
-  attendanceHistory: any[];
+}: Readonly<{
+  attendanceHistory: AttendanceHistoryItem[];
   classBreakdown: Record<string, number>;
   deptBreakdown: Record<string, number>;
-}) {
+}>) {
   const attendanceData = attendanceHistory.map((d) => ({
     date: new Date(d.date).toLocaleDateString("en-US", { weekday: "short" }),
     rate: Math.round(d.rate),
   }));
 
-  const enrollmentData = Object.entries(classBreakdown).map(
-    ([name, value]) => ({
-      name,
-      value,
-    }),
-  );
-
-  const workforceData = Object.entries(deptBreakdown).map(([name, value]) => ({
+  const enrollmentData = Object.entries(classBreakdown).map(([name, value]) => ({
     name,
     value,
   }));
@@ -62,11 +43,9 @@ export function DashboardCharts({
   return (
     <div className="grid gap-8 lg:grid-cols-2">
       {/* Attendance Trend */}
-      <Card className="border-none shadow-sm glass overflow-hidden rounded-[2rem]">
+      <Card className="border-none shadow-sm glass overflow-hidden rounded-4xl">
         <CardHeader className="p-8 pb-0">
-          <CardTitle className="text-2xl font-black font-outfit">
-            Attendance Trend
-          </CardTitle>
+          <CardTitle className="text-2xl font-black font-outfit">Attendance Trend</CardTitle>
           <CardDescription className="font-medium">
             Daily presence rate for the last 7 days.
           </CardDescription>
@@ -81,11 +60,7 @@ export function DashboardCharts({
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="#e2e8f0"
-                />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                 <XAxis
                   dataKey="date"
                   axisLine={false}
@@ -123,11 +98,9 @@ export function DashboardCharts({
       </Card>
 
       {/* Enrollment Distribution */}
-      <Card className="border-none shadow-sm glass overflow-hidden rounded-[2rem]">
+      <Card className="border-none shadow-sm glass overflow-hidden rounded-4xl">
         <CardHeader className="p-8 pb-0">
-          <CardTitle className="text-2xl font-black font-outfit">
-            Enrollment Mix
-          </CardTitle>
+          <CardTitle className="text-2xl font-black font-outfit">Enrollment Mix</CardTitle>
           <CardDescription className="font-medium">
             Students distributed across classes.
           </CardDescription>
@@ -146,10 +119,7 @@ export function DashboardCharts({
                   dataKey="value"
                 >
                   {enrollmentData.map((_entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip
@@ -159,10 +129,7 @@ export function DashboardCharts({
                     boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
                   }}
                 />
-                <Legend
-                  iconType="circle"
-                  wrapperStyle={{ paddingTop: "20px" }}
-                />
+                <Legend iconType="circle" wrapperStyle={{ paddingTop: "20px" }} />
               </PieChart>
             </ResponsiveContainer>
           </div>

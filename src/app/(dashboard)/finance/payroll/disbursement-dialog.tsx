@@ -3,6 +3,7 @@
 import { DollarSign, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { Decimal } from "@prisma/client/runtime/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +32,11 @@ export function DisbursementDialog({
   staffName,
 }: Readonly<{
   children: React.ReactNode;
-  slip: any;
+  slip: {
+    id: string;
+    netPay: Decimal | number;
+    staffId: string;
+  };
   staffName: string;
 }>) {
   const [open, setOpen] = useState(false);
@@ -45,7 +50,7 @@ export function DisbursementDialog({
     const formData = new FormData(e.currentTarget);
     const data = {
       amountPaid: Number.parseFloat(formData.get("amountPaid") as string),
-      method: formData.get("method") as any,
+      method: formData.get("method") as "CASH" | "BANK_TRANSFER" | "CHEQUE" | "ONLINE",
       referenceNumber: formData.get("referenceNumber") as string,
       paidAt: new Date(formData.get("paidAt") as string),
     };
@@ -69,12 +74,8 @@ export function DisbursementDialog({
       <DialogContent className="sm:max-w-[425px] glass border-none">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle className="font-outfit text-2xl">
-              Disburse Salary
-            </DialogTitle>
-            <DialogDescription>
-              Record salary payment for {staffName}.
-            </DialogDescription>
+            <DialogTitle className="font-outfit text-2xl">Disburse Salary</DialogTitle>
+            <DialogDescription>Record salary payment for {staffName}.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -85,7 +86,7 @@ export function DisbursementDialog({
                   id="amountPaid"
                   name="amountPaid"
                   type="number"
-                  defaultValue={Number.parseFloat(slip.netPay)}
+                  defaultValue={Number(slip.netPay)}
                   required
                   className="pl-10 bg-slate-50 dark:bg-slate-900 border-none"
                 />
@@ -135,11 +136,7 @@ export function DisbursementDialog({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (

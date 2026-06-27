@@ -34,11 +34,7 @@ export function DeleteAnnouncementButton({ id }: Readonly<{ id: string }>) {
       disabled={isPending}
       onClick={handleDelete}
     >
-      {isPending ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <Trash2 className="h-4 w-4" />
-      )}
+      {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
     </Button>
   );
 }

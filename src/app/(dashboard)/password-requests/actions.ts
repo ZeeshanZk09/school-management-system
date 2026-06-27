@@ -71,9 +71,12 @@ export async function approvePasswordReset(requestId: string) {
       success: true,
       message: `Password reset approved for ${request.user.fullName}.`,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("[password-requests] Approve error:", error);
-    return { success: false, message: error.message || "Failed to approve." };
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to approve.",
+    };
   }
 }
 
@@ -126,8 +129,11 @@ export async function rejectPasswordReset(requestId: string, note?: string) {
       success: true,
       message: `Password reset rejected for ${request.user.fullName}.`,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("[password-requests] Reject error:", error);
-    return { success: false, message: error.message || "Failed to reject." };
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to reject.",
+    };
   }
 }

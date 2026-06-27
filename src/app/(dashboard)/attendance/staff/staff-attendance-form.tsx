@@ -15,19 +15,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -87,10 +77,7 @@ export function StaffAttendanceForm({
     ),
   );
 
-  const handleStatusChange = (
-    staffId: string,
-    status: StaffAttendanceStatus | null,
-  ) => {
+  const handleStatusChange = (staffId: string, status: StaffAttendanceStatus | null) => {
     if (!status) {
       toast.error("Invalid status selected");
       return;
@@ -118,7 +105,7 @@ export function StaffAttendanceForm({
         markStaffAttendance(staff.id, {
           status: attendance[staff.id].status,
           note: attendance[staff.id].note,
-          date: date,
+          date,
         }),
       );
 
@@ -131,7 +118,7 @@ export function StaffAttendanceForm({
       } else {
         toast.error("Some attendance records failed to save");
       }
-    } catch (_error) {
+    } catch {
       toast.error("Failed to save attendance");
     } finally {
       setIsPending(false);
@@ -143,12 +130,8 @@ export function StaffAttendanceForm({
       <Card className="border-none shadow-sm glass">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-bold font-outfit">
-              Attendance Entry
-            </CardTitle>
-            <CardDescription>
-              Select date and mark status for each staff member.
-            </CardDescription>
+            <CardTitle className="text-xl font-bold font-outfit">Attendance Entry</CardTitle>
+            <CardDescription>Select date and mark status for each staff member.</CardDescription>
           </div>
           <Popover>
             <PopoverTrigger asChild>
@@ -168,10 +151,7 @@ export function StaffAttendanceForm({
                 mode="single"
                 selected={date}
                 onSelect={(d) =>
-                  d &&
-                  router.push(
-                    `/attendance/staff?date=${format(d, "yyyy-MM-dd")}`,
-                  )
+                  d && router.push(`/attendance/staff?date=${format(d, "yyyy-MM-dd")}`)
                 }
                 autoFocus
               />
@@ -212,34 +192,22 @@ export function StaffAttendanceForm({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem
-                          value="PRESENT"
-                          className="text-emerald-600 font-bold"
-                        >
+                        <SelectItem value="PRESENT" className="text-emerald-600 font-bold">
                           <div className="flex items-center gap-2">
                             <CheckCircle className="h-3.5 w-3.5" /> Present
                           </div>
                         </SelectItem>
-                        <SelectItem
-                          value="ABSENT"
-                          className="text-rose-600 font-bold"
-                        >
+                        <SelectItem value="ABSENT" className="text-rose-600 font-bold">
                           <div className="flex items-center gap-2">
                             <XCircle className="h-3.5 w-3.5" /> Absent
                           </div>
                         </SelectItem>
-                        <SelectItem
-                          value="LATE"
-                          className="text-amber-600 font-bold"
-                        >
+                        <SelectItem value="LATE" className="text-amber-600 font-bold">
                           <div className="flex items-center gap-2">
                             <Clock className="h-3.5 w-3.5" /> Late
                           </div>
                         </SelectItem>
-                        <SelectItem
-                          value="ON_LEAVE"
-                          className="text-blue-600 font-bold"
-                        >
+                        <SelectItem value="ON_LEAVE" className="text-blue-600 font-bold">
                           <div className="flex items-center gap-2">
                             <Coffee className="h-3.5 w-3.5" /> On Leave
                           </div>
@@ -252,9 +220,7 @@ export function StaffAttendanceForm({
                       placeholder="Add note..."
                       className="bg-white dark:bg-slate-900 border-none shadow-sm"
                       value={attendance[staff.id].note}
-                      onChange={(e) =>
-                        handleNoteChange(staff.id, e.target.value)
-                      }
+                      onChange={(e) => handleNoteChange(staff.id, e.target.value)}
                     />
                   </TableCell>
                 </TableRow>

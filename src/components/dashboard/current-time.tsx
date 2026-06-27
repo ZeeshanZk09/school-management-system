@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { format } from 'date-fns';
+import { useEffect, useState } from "react";
+import { format } from "date-fns";
 
 export function CurrentTime({ pattern }: { pattern: string }) {
-  const [time, setTime] = useState<string>('');
+  const [time, setTime] = useState<string>("");
 
   useEffect(() => {
     setTime(format(new Date(), pattern));
-    
+
     // Optional: Update every minute if it's a clock
-    if (pattern === 'HH:mm') {
+    if (pattern === "HH:mm") {
       const timer = setInterval(() => {
         setTime(format(new Date(), pattern));
       }, 60000);

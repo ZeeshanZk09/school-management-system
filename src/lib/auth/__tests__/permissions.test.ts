@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import {
@@ -108,9 +109,7 @@ describe("RBAC & Permissions", () => {
       });
       mockCount.mockResolvedValue(0);
 
-      await expect(requirePermission("finance.read")).rejects.toThrow(
-        ForbiddenError,
-      );
+      await expect(requirePermission("finance.read")).rejects.toThrow(ForbiddenError);
     });
 
     it("allows access if permission count > 0", async () => {

@@ -1,15 +1,15 @@
-import { requirePermission } from '@/lib/auth/permissions';
-import prisma from '@/lib/prisma';
-import { getSystemSettings } from '@/lib/settings';
-import { PayrollList } from './payroll-list';
-import { PageHeader } from '@/components/dashboard/page-header';
+import { requirePermission } from "@/lib/auth/permissions";
+import prisma from "@/lib/prisma";
+import { getSystemSettings } from "@/lib/settings";
+import { PayrollList } from "./payroll-list";
+import { PageHeader } from "@/components/dashboard/page-header";
 
 export default async function PayrollPage({
   searchParams,
 }: Readonly<{
   searchParams: Promise<{ month?: string; year?: string }>;
 }>) {
-  await requirePermission('finance.read');
+  await requirePermission("finance.read");
   const params = await searchParams;
   const now = new Date();
   const month = params.month ? Number.parseInt(params.month, 10) : now.getMonth() + 1;
@@ -24,12 +24,12 @@ export default async function PayrollPage({
             isDeleted: false,
             validFrom: { lte: new Date(year, month, 0) },
           },
-          orderBy: { validFrom: 'desc' },
+          orderBy: { validFrom: "desc" },
           take: 1,
           include: { components: true },
         },
       },
-      orderBy: { fullName: 'asc' },
+      orderBy: { fullName: "asc" },
     }),
     prisma.salarySlip.findMany({
       where: { periodMonth: month, periodYear: year, isDeleted: false },
@@ -39,14 +39,21 @@ export default async function PayrollPage({
   ]);
 
   return (
-    <div className='space-y-6 animate-in fade-in duration-500'>
+    <div className="space-y-6 animate-in fade-in duration-500">
       <PageHeader
-        title='Payroll Management'
-        description='Generate and manage monthly salary slips for all staff.'
+        title="Payroll Management"
+        description="Generate and manage monthly salary slips for all staff."
       />
 
       <PayrollList
-        staff={staff}
+        staff={staff.map((s) => ({
+          designation: s.designation || "",
+          fullName: s.fullName || "",
+          id: s.id,
+          staffNumber: s.staffNumber || "",
+          department: s.department || "",
+          salaryStructures: s.salaryStructures || [],
+        }))}
         slips={existingSlips}
         month={month}
         year={year}

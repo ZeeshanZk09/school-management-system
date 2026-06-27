@@ -26,12 +26,17 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { submitLeaveRequest } from "../attendance/staff-actions";
 
+interface LeaveTypeOption {
+  id: string;
+  name: string;
+}
+
 export function LeaveRequestForm({
   children,
   leaveTypes,
 }: Readonly<{
   children: React.ReactNode;
-  leaveTypes: any[];
+  leaveTypes: LeaveTypeOption[];
 }>) {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -74,9 +79,7 @@ export function LeaveRequestForm({
       <DialogContent className="sm:max-w-[425px] glass border-none">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle className="font-outfit text-2xl">
-              Apply for Leave
-            </DialogTitle>
+            <DialogTitle className="font-outfit text-2xl">Apply for Leave</DialogTitle>
             <DialogDescription>
               Submit a leave request for administrative approval.
             </DialogDescription>
@@ -141,11 +144,7 @@ export function LeaveRequestForm({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (

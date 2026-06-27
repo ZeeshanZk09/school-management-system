@@ -39,13 +39,7 @@ const PERMISSION_DEFINITIONS = [
 
 const ROLE_PERMISSION_MAP: Record<string, string[]> = {
   ADMIN: PERMISSION_DEFINITIONS.map((p) => p.name),
-  ACCOUNTANT: [
-    "dashboard.view",
-    "finance.read",
-    "finance.manage",
-    "reports.read",
-    "students.read",
-  ],
+  ACCOUNTANT: ["dashboard.view", "finance.read", "finance.manage", "reports.read", "students.read"],
   TEACHER: [
     "dashboard.view",
     "attendance.read",
@@ -74,12 +68,7 @@ function generateStrongPassword(length = 16): string {
   const digits = "0123456789";
   const charset = `${upper}${lower}${digits}${SYMBOLS}`;
 
-  const base = [
-    randomChar(upper),
-    randomChar(lower),
-    randomChar(digits),
-    randomChar(SYMBOLS),
-  ];
+  const base = [randomChar(upper), randomChar(lower), randomChar(digits), randomChar(SYMBOLS)];
 
   while (base.length < length) {
     base.push(randomChar(charset));
@@ -132,9 +121,7 @@ async function seedRolesAndPermissions(): Promise<void> {
   const roleIdByName = new Map(roles.map((r) => [r.name, r.id]));
   const permissionIdByName = new Map(permissions.map((p) => [p.name, p.id]));
 
-  for (const [roleName, permissionNames] of Object.entries(
-    ROLE_PERMISSION_MAP,
-  )) {
+  for (const [roleName, permissionNames] of Object.entries(ROLE_PERMISSION_MAP)) {
     const roleId = roleIdByName.get(roleName);
     if (!roleId) continue;
 
@@ -177,11 +164,9 @@ async function bootstrapAdminUser(): Promise<void> {
     throw new Error("ADMIN role missing after seed.");
   }
 
-  const rawEmail =
-    process.env.BOOTSTRAP_ADMIN_EMAIL ?? "mzeeshankhan0988@gmail.com";
+  const rawEmail = process.env.BOOTSTRAP_ADMIN_EMAIL ?? "mzeeshankhan0988@gmail.com";
   const bootstrapEmail = rawEmail.trim().toLowerCase();
-  const bootstrapName =
-    process.env.BOOTSTRAP_ADMIN_NAME?.trim() ?? "System Admin";
+  const bootstrapName = process.env.BOOTSTRAP_ADMIN_NAME?.trim() ?? "System Admin";
 
   let bootstrapPassword = process.env.BOOTSTRAP_ADMIN_PASSWORD ?? "";
 

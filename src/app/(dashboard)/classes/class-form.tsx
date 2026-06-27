@@ -85,9 +85,7 @@ export function ClassForm({
                 required
                 className="bg-slate-50 dark:bg-slate-900 border-none"
               />
-              {errors.name && (
-                <p className="text-xs text-rose-500">{errors.name[0]}</p>
-              )}
+              {errors.name && <p className="text-xs text-rose-500">{errors.name[0]}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="code">Class Code</Label>
@@ -99,9 +97,7 @@ export function ClassForm({
                 required
                 className="bg-slate-50 dark:bg-slate-900 border-none uppercase"
               />
-              {errors.code && (
-                <p className="text-xs text-rose-500">{errors.code[0]}</p>
-              )}
+              {errors.code && <p className="text-xs text-rose-500">{errors.code[0]}</p>}
             </div>
           </div>
           <DialogFooter>
@@ -113,11 +109,7 @@ export function ClassForm({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {initialData ? "Update Class" : "Create Class"}
             </Button>

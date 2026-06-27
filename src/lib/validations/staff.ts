@@ -12,9 +12,7 @@ export const staffSchema = z.object({
   email: z.email("Invalid email").optional().nullable().or(z.literal("")),
   phoneNumber: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
-  employmentType: z
-    .enum(["PERMANENT", "CONTRACT", "PART_TIME"])
-    .default("PERMANENT"),
+  employmentType: z.enum(["PERMANENT", "CONTRACT", "PART_TIME"]).default("PERMANENT"),
   joiningDate: z.string().refine((val) => !Number.isNaN(Date.parse(val)), {
     message: "Invalid joining date",
   }),

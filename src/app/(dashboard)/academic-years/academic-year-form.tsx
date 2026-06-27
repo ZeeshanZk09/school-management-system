@@ -54,9 +54,7 @@ export function AcademicYearForm({
     setIsPending(false);
 
     if (result.success) {
-      toast.success(
-        initialData ? "Academic year updated" : "Academic year created",
-      );
+      toast.success(initialData ? "Academic year updated" : "Academic year created");
       setOpen(false);
       router.refresh();
     } else if (result.errors) {
@@ -76,8 +74,8 @@ export function AcademicYearForm({
               {initialData ? "Edit Academic Year" : "New Academic Year"}
             </DialogTitle>
             <DialogDescription>
-              Enter the details for the school session. Active years define
-              current student enrollment contexts.
+              Enter the details for the school session. Active years define current student
+              enrollment contexts.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -91,9 +89,7 @@ export function AcademicYearForm({
                 required
                 className="bg-slate-50 dark:bg-slate-900 border-none"
               />
-              {errors.name && (
-                <p className="text-xs text-rose-500">{errors.name[0]}</p>
-              )}
+              {errors.name && <p className="text-xs text-rose-500">{errors.name[0]}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
@@ -104,17 +100,13 @@ export function AcademicYearForm({
                   type="date"
                   defaultValue={
                     initialData?.startDate
-                      ? new Date(initialData.startDate)
-                          .toISOString()
-                          .split("T")[0]
+                      ? new Date(initialData.startDate).toISOString().split("T")[0]
                       : ""
                   }
                   required
                   className="bg-slate-50 dark:bg-slate-900 border-none"
                 />
-                {errors.startDate && (
-                  <p className="text-xs text-rose-500">{errors.startDate[0]}</p>
-                )}
+                {errors.startDate && <p className="text-xs text-rose-500">{errors.startDate[0]}</p>}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="endDate">End Date</Label>
@@ -124,17 +116,13 @@ export function AcademicYearForm({
                   type="date"
                   defaultValue={
                     initialData?.endDate
-                      ? new Date(initialData.endDate)
-                          .toISOString()
-                          .split("T")[0]
+                      ? new Date(initialData.endDate).toISOString().split("T")[0]
                       : ""
                   }
                   required
                   className="bg-slate-50 dark:bg-slate-900 border-none"
                 />
-                {errors.endDate && (
-                  <p className="text-xs text-rose-500">{errors.endDate[0]}</p>
-                )}
+                {errors.endDate && <p className="text-xs text-rose-500">{errors.endDate[0]}</p>}
               </div>
             </div>
             <div className="flex items-center space-x-2 pt-2">
@@ -145,10 +133,7 @@ export function AcademicYearForm({
                 defaultChecked={initialData?.isActive}
                 className="border-slate-300 dark:border-slate-700"
               />
-              <Label
-                htmlFor="isActive"
-                className="text-sm font-medium leading-none"
-              >
+              <Label htmlFor="isActive" className="text-sm font-medium leading-none">
                 Set as active session
               </Label>
             </div>
@@ -162,11 +147,7 @@ export function AcademicYearForm({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {initialData ? "Update Year" : "Create Year"}
             </Button>

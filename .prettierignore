@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+build
+src/lib/generated/prisma
+coverage
+.agents
+package-lock.json
+skills-lock.json

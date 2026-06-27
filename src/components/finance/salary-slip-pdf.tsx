@@ -1,5 +1,6 @@
 "use client";
 
+import type { Decimal } from "@prisma/client/runtime/client";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { format } from "date-fns";
 
@@ -157,12 +158,54 @@ const months = [
   "December",
 ];
 
-export function SalarySlipPDF({ slip, staff, settings }: any) {
+interface ComponentItem {
+  type: "ALLOWANCE" | "DEDUCTION";
+  label: string;
+  amount: string | number;
+}
+
+interface SalarySlipProps {
+  slip: {
+    id: string;
+    periodMonth: number;
+    periodYear: number;
+    grossPay: string | number | Decimal;
+    totalDeductions: string | number | Decimal;
+    netPay: string | number | Decimal;
+    generatedAt: string | Date;
+    disbursements: Array<{
+      id: string;
+      amountPaid: string | number | Decimal;
+      paidAt: string | Date;
+    }>;
+  };
+  staff: {
+    id: string;
+    fullName: string;
+    staffNumber: string;
+    designation: string;
+    department: string;
+    salaryStructures: Array<{
+      basePay: string | number | Decimal;
+      components: ComponentItem[];
+    }>;
+  };
+  settings: {
+    schoolName: string;
+    addressLine1: string;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+  };
+}
+
+export function SalarySlipPDF({ slip, staff, settings }: Readonly<SalarySlipProps>) {
   const structure = staff.salaryStructures[0];
   const allowances =
-    structure?.components.filter((c: any) => c.type === "ALLOWANCE") || [];
+    structure?.components.filter((c: ComponentItem) => c.type === "ALLOWANCE") || [];
   const deductions =
-    structure?.components.filter((c: any) => c.type === "DEDUCTION") || [];
+    structure?.components.filter((c: ComponentItem) => c.type === "DEDUCTION") || [];
 
   return (
     <Document>
@@ -171,11 +214,9 @@ export function SalarySlipPDF({ slip, staff, settings }: any) {
           <View style={styles.schoolInfo}>
             <Text style={styles.schoolName}>{settings.schoolName}</Text>
             <Text style={styles.address}>{settings.addressLine1}</Text>
-            {settings.addressLine2 && (
-              <Text style={styles.address}>{settings.addressLine2}</Text>
-            )}
+            {settings.addressLine2 && <Text style={styles.address}>{settings.addressLine2}</Text>}
             <Text style={styles.address}>
-              {settings.city}, {settings.state} {settings.postalCode}
+              {settings.city ?? ""}, {settings.state ?? ""} {settings.postalCode ?? ""}
             </Text>
           </View>
           <View style={styles.titleContainer}>
@@ -190,23 +231,15 @@ export function SalarySlipPDF({ slip, staff, settings }: any) {
           <View style={styles.infoBox}>
             <Text style={styles.label}>Employee Details</Text>
             <Text style={styles.value}>{staff.fullName}</Text>
-            <Text style={{ fontSize: 9, marginTop: 2 }}>
-              ID: {staff.id.substring(0, 8)}
-            </Text>
-            <Text style={{ fontSize: 9 }}>
-              Designation: {staff.designation}
-            </Text>
-            <Text style={{ fontSize: 9 }}>
-              Department: {staff.department || "N/A"}
-            </Text>
+            <Text style={{ fontSize: 9, marginTop: 2 }}>ID: {staff.id.substring(0, 8)}</Text>
+            <Text style={{ fontSize: 9 }}>Designation: {staff.designation}</Text>
+            <Text style={{ fontSize: 9 }}>Department: {staff.department || "N/A"}</Text>
           </View>
           <View style={styles.infoBox}>
             <Text style={styles.label}>Slip Details</Text>
-            <Text style={styles.value}>
-              #SLIP-{slip.id.substring(0, 6).toUpperCase()}
-            </Text>
+            <Text style={styles.value}>#SLIP-{slip.id.substring(0, 6).toUpperCase()}</Text>
             <Text style={{ fontSize: 9, marginTop: 2 }}>
-              Generated: {format(new Date(slip.createdAt), "PP")}
+              Generated: {format(new Date(slip.generatedAt), "PP")}
             </Text>
             <Text style={{ fontSize: 9 }}>
               Status: {slip.disbursements.length > 0 ? "PAID" : "GENERATED"}
@@ -214,9 +247,7 @@ export function SalarySlipPDF({ slip, staff, settings }: any) {
           </View>
         </View>
 
-        <Text style={[styles.label, { marginBottom: 8 }]}>
-          Earnings & Allowances
-        </Text>
+        <Text style={[styles.label, { marginBottom: 8 }]}>Earnings & Allowances</Text>
         <View style={styles.table}>
           <View style={styles.tableHeader}>
             <Text style={styles.col1}>Description</Text>
@@ -224,41 +255,28 @@ export function SalarySlipPDF({ slip, staff, settings }: any) {
           </View>
           <View style={styles.tableRow}>
             <Text style={styles.col1}>Base Salary</Text>
-            <Text style={styles.col2}>
-              Rs {Number(structure?.basePay || 0).toLocaleString()}
-            </Text>
+            <Text style={styles.col2}>Rs {Number(structure?.basePay || 0).toLocaleString()}</Text>
           </View>
-          {allowances.map((c: any, i: number) => (
+          {allowances.map((c: ComponentItem, i: number) => (
             <View key={i} style={styles.tableRow}>
               <Text style={styles.col1}>{c.label}</Text>
-              <Text style={styles.col2}>
-                Rs {Number(c.amount).toLocaleString()}
-              </Text>
+              <Text style={styles.col2}>Rs {Number(c.amount).toLocaleString()}</Text>
             </View>
           ))}
         </View>
 
         {deductions.length > 0 && (
           <>
-            <Text style={[styles.label, { marginTop: 20, marginBottom: 8 }]}>
-              Deductions
-            </Text>
+            <Text style={[styles.label, { marginTop: 20, marginBottom: 8 }]}>Deductions</Text>
             <View style={styles.table}>
-              <View
-                style={[
-                  styles.tableHeader,
-                  { backgroundColor: "#e2e8f0", color: "#1e293b" },
-                ]}
-              >
+              <View style={[styles.tableHeader, { backgroundColor: "#e2e8f0", color: "#1e293b" }]}>
                 <Text style={styles.col1}>Description</Text>
                 <Text style={styles.col2}>Amount</Text>
               </View>
-              {deductions.map((c: any, i: number) => (
+              {deductions.map((c: ComponentItem, i: number) => (
                 <View key={i} style={styles.tableRow}>
                   <Text style={styles.col1}>{c.label}</Text>
-                  <Text style={styles.col2}>
-                    Rs {Number(c.amount).toLocaleString()}
-                  </Text>
+                  <Text style={styles.col2}>Rs {Number(c.amount).toLocaleString()}</Text>
                 </View>
               ))}
             </View>
@@ -281,9 +299,7 @@ export function SalarySlipPDF({ slip, staff, settings }: any) {
             </View>
             <View style={styles.netPayBox}>
               <Text style={styles.netPayLabel}>Net Payable</Text>
-              <Text style={styles.netPayAmount}>
-                Rs {Number(slip.netPay).toLocaleString()}
-              </Text>
+              <Text style={styles.netPayAmount}>Rs {Number(slip.netPay).toLocaleString()}</Text>
             </View>
           </View>
         </View>
@@ -298,8 +314,8 @@ export function SalarySlipPDF({ slip, staff, settings }: any) {
         </View>
 
         <Text style={styles.footer}>
-          This is a computer generated document and does not require a physical
-          signature. Generated on {format(new Date(), "PPpp")}
+          This is a computer generated document and does not require a physical signature. Generated
+          on {format(new Date(), "PPpp")}
         </Text>
       </Page>
     </Document>

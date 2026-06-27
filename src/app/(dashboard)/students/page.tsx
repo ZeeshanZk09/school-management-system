@@ -1,6 +1,6 @@
 import { ChevronRight, GraduationCap, Search, UserPlus } from "lucide-react";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -119,7 +119,10 @@ export default async function StudentsPage({
           sections={sections}
           statuses={Object.values(StudentStatus)}
         />
-        <Button asChild className="gradient-primary h-12 px-6 shadow-lg shadow-blue-500/20 rounded-xl">
+        <Button
+          asChild
+          className="gradient-primary h-12 px-6 shadow-lg shadow-blue-500/20 rounded-xl"
+        >
           <Link href="/students/new">
             <UserPlus className="mr-2 h-4 w-4" />
             Add Student
@@ -157,9 +160,7 @@ export default async function StudentsPage({
                 <TableCell colSpan={5} className="h-64 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <GraduationCap className="h-10 w-10 text-slate-300" />
-                    <p className="text-slate-500 font-medium">
-                      No students found.
-                    </p>
+                    <p className="text-slate-500 font-medium">No students found.</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -215,18 +216,11 @@ export default async function StudentsPage({
                           </Badge>
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">
-                          Not Enrolled
-                        </span>
+                        <span className="text-xs text-slate-400 italic">Not Enrolled</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        className={
-                          STATUS_STYLES[student.status] ||
-                          STATUS_STYLES.WITHDRAWN
-                        }
-                      >
+                      <Badge className={STATUS_STYLES[student.status] || STATUS_STYLES.WITHDRAWN}>
                         <div className="h-1.5 w-1.5 rounded-full mr-2 bg-current" />
                         {student.status.replace("_", " ")}
                       </Badge>
@@ -239,9 +233,7 @@ export default async function StudentsPage({
                           size="sm"
                           className="h-8 px-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <Link href={`/students/${student.id}`}>
-                            View Profile
-                          </Link>
+                          <Link href={`/students/${student.id}`}>View Profile</Link>
                         </Button>
                         <StudentActions studentId={student.id} />
                       </div>
@@ -253,11 +245,7 @@ export default async function StudentsPage({
           </TableBody>
         </Table>
         <div className="px-6 border-t bg-slate-50/30 dark:bg-slate-900/30">
-          <Pagination
-            totalItems={totalCount}
-            pageSize={pageSize}
-            currentPage={page}
-          />
+          <Pagination totalItems={totalCount} pageSize={pageSize} currentPage={page} />
         </div>
       </Card>
     </div>

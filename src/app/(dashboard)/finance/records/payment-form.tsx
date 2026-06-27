@@ -79,9 +79,7 @@ export function PaymentForm({
       <DialogContent className="sm:max-w-106.25 glass border-none">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle className="font-outfit text-2xl">
-              Record Fee Payment
-            </DialogTitle>
+            <DialogTitle className="font-outfit text-2xl">Record Fee Payment</DialogTitle>
             <DialogDescription>
               Enter payment details for{" "}
               <span className="font-bold text-slate-900 dark:text-white">
@@ -139,9 +137,7 @@ export function PaymentForm({
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="referenceNumber">
-                Ref # / Cheque # (Optional)
-              </Label>
+              <Label htmlFor="referenceNumber">Ref # / Cheque # (Optional)</Label>
               <Input
                 id="referenceNumber"
                 name="referenceNumber"
@@ -168,11 +164,7 @@ export function PaymentForm({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Submit Payment
             </Button>

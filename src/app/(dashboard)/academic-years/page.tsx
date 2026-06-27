@@ -35,9 +35,7 @@ export default async function AcademicYearsPage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Academic Years
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-outfit">Academic Years</h1>
           <p className="text-slate-500 dark:text-slate-400">
             Manage school sessions and the active academic cycle.
           </p>
@@ -64,10 +62,7 @@ export default async function AcademicYearsPage() {
           <TableBody>
             {academicYears.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="h-32 text-center text-slate-500"
-                >
+                <TableCell colSpan={5} className="h-32 text-center text-slate-500">
                   No academic years found.
                 </TableCell>
               </TableRow>
@@ -78,9 +73,7 @@ export default async function AcademicYearsPage() {
                   className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors"
                 >
                   <TableCell className="font-semibold">{year.name}</TableCell>
-                  <TableCell>
-                    {format(new Date(year.startDate), "PPP")}
-                  </TableCell>
+                  <TableCell>{format(new Date(year.startDate), "PPP")}</TableCell>
                   <TableCell>{format(new Date(year.endDate), "PPP")}</TableCell>
                   <TableCell>
                     {year.isActive ? (
@@ -89,10 +82,7 @@ export default async function AcademicYearsPage() {
                         Active
                       </Badge>
                     ) : (
-                      <Badge
-                        variant="secondary"
-                        className="text-slate-500 px-3 py-1"
-                      >
+                      <Badge variant="secondary" className="text-slate-500 px-3 py-1">
                         Inactive
                       </Badge>
                     )}
@@ -100,11 +90,7 @@ export default async function AcademicYearsPage() {
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 p-0"
-                        >
+                        <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -112,15 +98,11 @@ export default async function AcademicYearsPage() {
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <AcademicYearForm initialData={year}>
-                          <DropdownMenuItem
-                            onSelect={(e) => e.preventDefault()}
-                          >
+                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                             Edit Details
                           </DropdownMenuItem>
                         </AcademicYearForm>
-                        {!year.isActive && (
-                          <DropdownMenuItem>Set as Active</DropdownMenuItem>
-                        )}
+                        {!year.isActive && <DropdownMenuItem>Set as Active</DropdownMenuItem>}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30">
                           Delete Year

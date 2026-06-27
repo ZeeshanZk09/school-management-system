@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-blue-100 via-slate-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-black p-4">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
 
       <Card className="w-full max-w-md shadow-2xl border-none glass ">
         <CardHeader className="space-y-1 text-center">
@@ -41,7 +41,7 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <form action={formAction}>
-          <CardContent className="grid gap-4">
+          <CardContent className="grid gap-4 py-6">
             {state?.message && !state.success && (
               <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium animate-in fade-in zoom-in duration-300">
                 {state.message}
@@ -49,10 +49,7 @@ export default function LoginPage() {
             )}
 
             <div className="grid gap-2">
-              <Label
-                htmlFor="email"
-                className="text-slate-700 dark:text-slate-300"
-              >
+              <Label htmlFor="email" className="text-slate-700 dark:text-slate-300">
                 Email
               </Label>
               <Input
@@ -65,9 +62,7 @@ export default function LoginPage() {
                 disabled={isPending}
               />
               {state?.errors?.email && (
-                <p className="text-xs text-destructive mt-1">
-                  {state.errors.email[0]}
-                </p>
+                <p className="text-xs text-destructive mt-1">{state.errors.email[0]}</p>
               )}
             </div>
 
@@ -97,9 +92,7 @@ export default function LoginPage() {
                 disabled={isPending}
               />
               {state?.errors?.password && (
-                <p className="text-xs text-destructive mt-1">
-                  {state.errors.password[0]}
-                </p>
+                <p className="text-xs text-destructive mt-1">{state.errors.password[0]}</p>
               )}
             </div>
 
@@ -118,10 +111,10 @@ export default function LoginPage() {
               </Label>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="px-6 py-6 ">
             <Button
               type="submit"
-              className="w-full h-11 text-base font-semibold gradient-primary shadow-lg shadow-blue-500/25 border-none"
+              className="w-full h-11 text-base font-semibold gradient-primary shadow-sm shadow-blue-500/25 border-none"
               disabled={isPending}
             >
               {isPending ? (
@@ -139,8 +132,7 @@ export default function LoginPage() {
 
       <div className="fixed bottom-4 text-center w-full">
         <p className="text-xs text-slate-400 dark:text-slate-600">
-          &copy; {new Date().getFullYear()} School Management System. All rights
-          reserved.
+          &copy; {new Date().getFullYear()} School Management System. All rights reserved.
         </p>
       </div>
     </div>

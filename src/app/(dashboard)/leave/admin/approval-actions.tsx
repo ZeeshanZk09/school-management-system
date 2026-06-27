@@ -7,9 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { decideLeaveRequest } from "../../attendance/staff-actions";
 
-export function LeaveApprovalActions({
-  requestId,
-}: Readonly<{ requestId: string }>) {
+export function LeaveApprovalActions({ requestId }: Readonly<{ requestId: string }>) {
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
 
@@ -35,11 +33,7 @@ export function LeaveApprovalActions({
         onClick={() => handleDecision("REJECTED")}
         disabled={isPending}
       >
-        {isPending ? (
-          <Loader2 className="h-3 w-3 animate-spin" />
-        ) : (
-          <X className="mr-1 h-3 w-3" />
-        )}
+        {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="mr-1 h-3 w-3" />}
         Reject
       </Button>
       <Button

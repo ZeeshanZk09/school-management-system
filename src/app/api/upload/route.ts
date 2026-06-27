@@ -6,17 +6,14 @@ import { requireAuth } from "@/lib/auth/permissions";
 
 export async function POST(req: NextRequest) {
   try {
-    const _user = await requireAuth();
+    await requireAuth();
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
-    const module = (formData.get("module") as string) || "general";
+    const moduleName = (formData.get("module") as string) || "general";
 
     if (!file) {
-      return NextResponse.json(
-        { success: false, message: "No file uploaded" },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, message: "No file uploaded" }, { status: 400 });
     }
 
     // Validation
@@ -28,12 +25,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const allowedTypes = [
-      "application/pdf",
-      "image/jpeg",
-      "image/png",
-      "image/jpg",
-    ];
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
         {
@@ -47,7 +39,7 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const uploadDir = join(process.cwd(), "public", "uploads", module);
+    const uploadDir = join(process.cwd(), "public", "uploads", moduleName);
     await mkdir(uploadDir, { recursive: true });
 
     const filename = `${uuidv4()}-${file.name.replaceAll(/\s+/g, "_")}`;
@@ -55,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     await writeFile(path, buffer);
 
-    const publicUrl = `/api/files/${module}/${filename}`;
+    const publicUrl = `/api/files/${moduleName}/${filename}`;
 
     return NextResponse.json({
       success: true,
@@ -64,10 +56,10 @@ export async function POST(req: NextRequest) {
       size: file.size,
       type: file.type,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message: error instanceof Error ? error.message : "Upload failed" },
       { status: 500 },
     );
   }

@@ -14,13 +14,7 @@ import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
@@ -79,9 +73,7 @@ export default async function StaffProfilePage({
           </Avatar>
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight font-outfit">
-                {staff.fullName}
-              </h1>
+              <h1 className="text-3xl font-bold tracking-tight font-outfit">{staff.fullName}</h1>
               <Badge
                 variant="outline"
                 className="bg-emerald-50 text-emerald-700 border-emerald-100"
@@ -141,16 +133,11 @@ export default async function StaffProfilePage({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent
-          value="overview"
-          className="pt-6 grid gap-6 md:grid-cols-3"
-        >
+        <TabsContent value="overview" className="pt-6 grid gap-6 md:grid-cols-3">
           <div className="md:col-span-2 space-y-6">
             <Card className="border-none shadow-sm glass">
               <CardHeader>
-                <CardTitle className="text-lg font-bold">
-                  Personal & Professional Details
-                </CardTitle>
+                <CardTitle className="text-lg font-bold">Personal & Professional Details</CardTitle>
               </CardHeader>
               <CardContent className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-1">
@@ -179,18 +166,14 @@ export default async function StaffProfilePage({
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     Qualifications
                   </p>
-                  <p className="text-sm font-medium">
-                    {staff.qualification || "N/A"}
-                  </p>
+                  <p className="text-sm font-medium">{staff.qualification || "N/A"}</p>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="border-none shadow-sm glass">
               <CardHeader>
-                <CardTitle className="text-lg font-bold">
-                  Contact & Portal Access
-                </CardTitle>
+                <CardTitle className="text-lg font-bold">Contact & Portal Access</CardTitle>
               </CardHeader>
               <CardContent className="grid sm:grid-cols-2 gap-6">
                 <div className="flex items-start gap-3">
@@ -212,9 +195,7 @@ export default async function StaffProfilePage({
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                       Phone Number
                     </p>
-                    <p className="text-sm font-medium">
-                      {staff.phoneNumber || "N/A"}
-                    </p>
+                    <p className="text-sm font-medium">{staff.phoneNumber || "N/A"}</p>
                   </div>
                 </div>
               </CardContent>
@@ -276,22 +257,15 @@ export default async function StaffProfilePage({
               </div>
             ) : (
               staff.classTeacherAssignments.map((a) => (
-                <Card
-                  key={a.id}
-                  className="border-none shadow-sm glass overflow-hidden"
-                >
+                <Card key={a.id} className="border-none shadow-sm glass overflow-hidden">
                   <CardHeader className="bg-primary/5 pb-3">
-                    <CardTitle className="text-base font-bold">
-                      {a.class.name}
-                    </CardTitle>
+                    <CardTitle className="text-base font-bold">{a.class.name}</CardTitle>
                     <CardDescription className="font-bold text-primary">
                       Section {a.section?.name || "All"}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-4">
-                    <p className="text-xs text-slate-500">
-                      Academic Year: {a.academicYear.name}
-                    </p>
+                    <p className="text-xs text-slate-500">Academic Year: {a.academicYear.name}</p>
                   </CardContent>
                 </Card>
               ))
@@ -314,23 +288,15 @@ export default async function StaffProfilePage({
               </div>
             ) : (
               staff.documents.map((doc) => (
-                <Card
-                  key={doc.id}
-                  className="border-none shadow-sm glass group/doc"
-                >
+                <Card key={doc.id} className="border-none shadow-sm glass group/doc">
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
                         <FileText className="h-5 w-5" />
                       </div>
                       <div>
-                        <CardTitle className="text-base font-bold">
-                          {doc.title}
-                        </CardTitle>
-                        <Badge
-                          variant="secondary"
-                          className="text-[10px] uppercase font-bold"
-                        >
+                        <CardTitle className="text-base font-bold">{doc.title}</CardTitle>
+                        <Badge variant="secondary" className="text-[10px] uppercase font-bold">
                           {doc.mimeType}
                         </Badge>
                       </div>
@@ -340,11 +306,7 @@ export default async function StaffProfilePage({
                     <p className="text-xs text-slate-500">
                       Uploaded {format(new Date(doc.uploadedAt || ""), "PP")}
                     </p>
-                    <Button
-                      variant="link"
-                      className="text-primary h-auto p-0"
-                      asChild
-                    >
+                    <Button variant="link" className="text-primary h-auto p-0" asChild>
                       <a href={doc.filePath} target="_blank" rel="noreferrer">
                         View Document
                       </a>
@@ -370,9 +332,7 @@ export default async function StaffProfilePage({
           <div className="grid md:grid-cols-3 gap-6">
             <Card className="md:col-span-1 border-none shadow-sm glass">
               <CardHeader>
-                <CardTitle className="text-base font-bold">
-                  Active Structure
-                </CardTitle>
+                <CardTitle className="text-base font-bold">Active Structure</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {currentSalary ? (
@@ -390,10 +350,7 @@ export default async function StaffProfilePage({
                       {currentSalary.components
                         .filter((c) => c.type === "ALLOWANCE")
                         .map((c) => (
-                          <div
-                            key={c.id}
-                            className="flex justify-between text-sm"
-                          >
+                          <div key={c.id} className="flex justify-between text-sm">
                             <span>{c.label}</span>
                             <span className="font-medium text-emerald-600">
                               +Rs {c.amount.toLocaleString()}
@@ -408,10 +365,7 @@ export default async function StaffProfilePage({
                       {currentSalary.components
                         .filter((c) => c.type === "DEDUCTION")
                         .map((c) => (
-                          <div
-                            key={c.id}
-                            className="flex justify-between text-sm"
-                          >
+                          <div key={c.id} className="flex justify-between text-sm">
                             <span>{c.label}</span>
                             <span className="font-medium text-rose-600">
                               -Rs {c.amount.toLocaleString()}
@@ -421,18 +375,14 @@ export default async function StaffProfilePage({
                     </div>
                   </>
                 ) : (
-                  <p className="text-sm text-slate-400 italic">
-                    No salary structure defined.
-                  </p>
+                  <p className="text-sm text-slate-400 italic">No salary structure defined.</p>
                 )}
               </CardContent>
             </Card>
 
             <Card className="md:col-span-2 border-none shadow-sm glass overflow-hidden">
               <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b flex flex-row items-center justify-between">
-                <CardTitle className="text-base font-bold">
-                  Recent Salary Slips
-                </CardTitle>
+                <CardTitle className="text-base font-bold">Recent Salary Slips</CardTitle>
                 <Button
                   variant="outline"
                   size="sm"
@@ -455,10 +405,7 @@ export default async function StaffProfilePage({
                       >
                         <div className="space-y-1">
                           <p className="font-bold text-slate-900 dark:text-white">
-                            {format(
-                              new Date(slip.periodYear, slip.periodMonth - 1),
-                              "MMMM yyyy",
-                            )}
+                            {format(new Date(slip.periodYear, slip.periodMonth - 1), "MMMM yyyy")}
                           </p>
                           <div className="flex items-center gap-3 text-[10px] uppercase font-bold text-slate-500">
                             <span>Net: Rs {slip.netPay.toLocaleString()}</span>
@@ -476,11 +423,7 @@ export default async function StaffProfilePage({
                             )}
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 text-primary"
-                        >
+                        <Button variant="ghost" size="sm" className="h-8 text-primary">
                           <FileText className="mr-2 h-4 w-4" />
                           Download PDF
                         </Button>

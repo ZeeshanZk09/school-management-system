@@ -23,15 +23,9 @@ export function RegisterForm() {
         </div>
         <div className="space-y-2">
           <h2 className="text-xl font-bold font-outfit">Request Submitted</h2>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">
-            {state.message}
-          </p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">{state.message}</p>
         </div>
-        <Button
-          asChild
-          className="w-full h-11 rounded-xl gradient-primary"
-          variant="outline"
-        >
+        <Button asChild className="w-full h-11 rounded-xl gradient-primary" variant="outline">
           <a href="/login">Return to Login</a>
         </Button>
       </div>

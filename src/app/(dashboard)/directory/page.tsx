@@ -70,9 +70,7 @@ export default async function DirectoryPage({
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            School Directory
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-outfit">School Directory</h1>
           <p className="text-slate-500 dark:text-slate-400">
             Searchable contact directory for students, guardians, and staff.
           </p>
@@ -130,10 +128,7 @@ export default async function DirectoryPage({
               <TableBody>
                 {students.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="h-64 text-center text-slate-400"
-                    >
+                    <TableCell colSpan={5} className="h-64 text-center text-slate-400">
                       No students found.
                     </TableCell>
                   </TableRow>
@@ -172,8 +167,7 @@ export default async function DirectoryPage({
                               variant="secondary"
                               className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-none"
                             >
-                              {enrollment.class.name} -{" "}
-                              {enrollment.section?.name}
+                              {enrollment.class.name} - {enrollment.section?.name}
                             </Badge>
                           ) : (
                             "N/A"
@@ -204,9 +198,7 @@ export default async function DirectoryPage({
                             </div>
                             <div className="flex items-center gap-2 text-xs text-slate-500">
                               <Mail className="h-3 w-3" />
-                              {student.email ||
-                                guardian?.guardian.email ||
-                                "N/A"}
+                              {student.email || guardian?.guardian.email || "N/A"}
                             </div>
                           </div>
                         </TableCell>
@@ -246,10 +238,7 @@ export default async function DirectoryPage({
               <TableBody>
                 {staff.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="h-64 text-center text-slate-400"
-                    >
+                    <TableCell colSpan={5} className="h-64 text-center text-slate-400">
                       No staff members found.
                     </TableCell>
                   </TableRow>
@@ -279,12 +268,8 @@ export default async function DirectoryPage({
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm font-medium">
-                        {s.designation}
-                      </TableCell>
-                      <TableCell className="text-sm text-slate-500">
-                        {s.department}
-                      </TableCell>
+                      <TableCell className="text-sm font-medium">{s.designation}</TableCell>
+                      <TableCell className="text-sm text-slate-500">{s.department}</TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-2 text-xs text-slate-500">

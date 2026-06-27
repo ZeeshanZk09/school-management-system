@@ -22,7 +22,7 @@ export function DashboardHeader({
   user,
 }: Readonly<{
   user: { fullName: string; email?: string | null };
-  settings: any;
+  settings: Record<string, unknown>;
 }>) {
   const { setTheme, theme } = useTheme();
   const router = useRouter();
@@ -40,12 +40,7 @@ export function DashboardHeader({
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-white/80 dark:bg-slate-950/80 backdrop-blur-md px-4 lg:px-8">
       <div className="flex items-center gap-4 flex-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="lg:hidden"
-          onClick={toggleSidebar}
-        >
+        <Button variant="ghost" size="icon" className="lg:hidden" onClick={toggleSidebar}>
           <Menu className="h-5 w-5" />
         </Button>
         <div className="hidden md:block">
@@ -72,13 +67,10 @@ export function DashboardHeader({
           className="relative text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
         >
           <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border-2 border-white dark:border-slate-950"></span>
+          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border-2 border-white dark:border-slate-950" />
         </Button>
 
-        <Separator
-          orientation="vertical"
-          className="h-6 mx-2 hidden sm:block opacity-50"
-        />
+        <Separator orientation="vertical" className="h-6 mx-2 hidden sm:block opacity-50" />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -109,12 +101,8 @@ export function DashboardHeader({
           <DropdownMenuContent className="w-56" align="end">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  {user.fullName}
-                </p>
-                <p className="text-xs leading-none text-muted-foreground">
-                  {user.email}
-                </p>
+                <p className="text-sm font-medium leading-none">{user.fullName}</p>
+                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

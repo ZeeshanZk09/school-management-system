@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  ArrowLeft,
-  CheckCircle,
-  GraduationCap,
-  Loader2,
-  Mail,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle, GraduationCap, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
@@ -30,7 +24,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-blue-100 via-slate-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-black p-4">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
 
       <Card className="w-full max-w-md shadow-2xl border-none glass hover-lift">
         <CardHeader className="space-y-1 text-center">
@@ -56,15 +50,10 @@ export default function ForgotPasswordPage() {
               <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
                 {state.message}
               </p>
-              <p className="text-xs text-slate-400">
-                Check your inbox and spam folder.
-              </p>
+              <p className="text-xs text-slate-400">Check your inbox and spam folder.</p>
             </div>
             <Link href="/login">
-              <Button
-                variant="ghost"
-                className="mt-4 text-primary hover:text-primary/80"
-              >
+              <Button variant="ghost" className="mt-4 text-primary hover:text-primary/80">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Login
               </Button>
@@ -80,10 +69,7 @@ export default function ForgotPasswordPage() {
               )}
 
               <div className="grid gap-2">
-                <Label
-                  htmlFor="email"
-                  className="text-slate-700 dark:text-slate-300"
-                >
+                <Label htmlFor="email" className="text-slate-700 dark:text-slate-300">
                   Email Address
                 </Label>
                 <div className="relative">
@@ -132,8 +118,7 @@ export default function ForgotPasswordPage() {
 
       <div className="fixed bottom-4 text-center w-full">
         <p className="text-xs text-slate-400 dark:text-slate-600">
-          &copy; {new Date().getFullYear()} School Management System. All rights
-          reserved.
+          &copy; {new Date().getFullYear()} School Management System. All rights reserved.
         </p>
       </div>
     </div>

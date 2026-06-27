@@ -13,10 +13,10 @@ export async function recordAttendance(data: {
   attendanceDate: string;
   records: {
     studentId: string;
-    status: "PRESENT" | "ABSENT" | "LATE" | "EXCUSED";
+    status: "ABSENT" | "EXCUSED" | "LATE" | "PRESENT";
     note?: string;
   }[];
-}) {
+}): Promise<{ success: boolean; message?: string }> {
   const user = await requirePermission("attendance.manage");
 
   // Strict role enforcement: Teachers can only mark attendance for their assigned classes
@@ -76,21 +76,20 @@ export async function recordAttendance(data: {
 }
 
 export async function exportAttendanceCSV(
-  type: "student" | "staff",
+  type: "staff" | "student",
   month: number,
   year: number,
   classId?: string,
-) {
+): Promise<{ success: boolean; csv?: string; message?: string }> {
   try {
     await requirePermission("attendance.manage");
-    const { startOfMonth: startOfMonthFn, endOfMonth: endOfMonthFn } =
-      await import("date-fns");
+    const { startOfMonth: startOfMonthFn, endOfMonth: endOfMonthFn } = await import("date-fns");
     const Papa = (await import("papaparse")).default;
 
     const startDate = startOfMonthFn(new Date(year, month - 1));
     const endDate = endOfMonthFn(startDate);
 
-    type AttendanceData = Record<string, string | number>;
+    type AttendanceData = Record<string, number | string>;
     let data: AttendanceData[] = [];
 
     if (type === "student" && classId) {
@@ -110,9 +109,7 @@ export async function exportAttendanceCSV(
       });
 
       data = students.map((s) => {
-        const present = s.attendance.filter(
-          (a) => a.status === "PRESENT",
-        ).length;
+        const present = s.attendance.filter((a) => a.status === "PRESENT").length;
         const absent = s.attendance.filter((a) => a.status === "ABSENT").length;
         const total = s.attendance.length;
         return {
@@ -137,9 +134,7 @@ export async function exportAttendanceCSV(
       });
 
       data = staff.map((s) => {
-        const present = s.attendance.filter(
-          (a) => a.status === "PRESENT",
-        ).length;
+        const present = s.attendance.filter((a) => a.status === "PRESENT").length;
         const absent = s.attendance.filter((a) => a.status === "ABSENT").length;
         return {
           Name: s.fullName,

@@ -1,23 +1,11 @@
 "use client";
 
-import {
-  CheckCircle,
-  Clock,
-  KeyRound,
-  ShieldCheck,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle, Clock, KeyRound, ShieldCheck, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { approvePasswordReset, rejectPasswordReset } from "./actions";
 
 type PasswordRequest = {
@@ -41,12 +29,8 @@ export function PasswordRequestsClient({
 }>) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  const pending = requests.filter(
-    (r) => r.status === "PENDING_APPROVAL" && !r.isExpired,
-  );
-  const processed = requests.filter(
-    (r) => r.status !== "PENDING_APPROVAL" || r.isExpired,
-  );
+  const pending = requests.filter((r) => r.status === "PENDING_APPROVAL" && !r.isExpired);
+  const processed = requests.filter((r) => r.status !== "PENDING_APPROVAL" || r.isExpired);
 
   const handleApprove = async (id: string) => {
     setLoadingId(id);
@@ -118,9 +102,7 @@ export function PasswordRequestsClient({
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight font-outfit">
-          Password Reset Requests
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight font-outfit">Password Reset Requests</h1>
         <p className="text-slate-500 dark:text-slate-400">
           Review and approve password reset requests from users.
         </p>
@@ -131,27 +113,21 @@ export function PasswordRequestsClient({
         <CardHeader className="border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-amber-500" />
-            <CardTitle className="text-xl font-bold font-outfit">
-              Pending Approval
-            </CardTitle>
+            <CardTitle className="text-xl font-bold font-outfit">Pending Approval</CardTitle>
             {pending.length > 0 && (
-              <Badge className="bg-amber-500 text-white ml-2">
-                {pending.length}
-              </Badge>
+              <Badge className="bg-amber-500 text-white ml-2">{pending.length}</Badge>
             )}
           </div>
           <CardDescription>
-            These users have verified their identity and are waiting for your
-            approval to change their password.
+            These users have verified their identity and are waiting for your approval to change
+            their password.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {pending.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <KeyRound className="h-10 w-10 text-slate-300 dark:text-slate-700 mb-3" />
-              <p className="text-sm text-slate-400">
-                No pending password reset requests.
-              </p>
+              <p className="text-sm text-slate-400">No pending password reset requests.</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -167,16 +143,10 @@ export function PasswordRequestsClient({
                       </span>
                       {statusBadge(req.status, req.isExpired)}
                     </div>
-                    <span className="text-xs text-slate-500">
-                      {req.userEmail}
-                    </span>
+                    <span className="text-xs text-slate-500">{req.userEmail}</span>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-xs text-slate-400">
-                        Requested: {req.createdAt}
-                      </span>
-                      <span className="text-xs text-slate-400">
-                        Expires: {req.expiresAt}
-                      </span>
+                      <span className="text-xs text-slate-400">Requested: {req.createdAt}</span>
+                      <span className="text-xs text-slate-400">Expires: {req.expiresAt}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -211,9 +181,7 @@ export function PasswordRequestsClient({
       {processed.length > 0 && (
         <Card className="border-none shadow-sm glass">
           <CardHeader className="border-b border-slate-100 dark:border-slate-800">
-            <CardTitle className="text-lg font-bold font-outfit">
-              History
-            </CardTitle>
+            <CardTitle className="text-lg font-bold font-outfit">History</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -229,13 +197,9 @@ export function PasswordRequestsClient({
                       </span>
                       {statusBadge(req.status, req.isExpired)}
                     </div>
-                    <span className="text-xs text-slate-500">
-                      {req.userEmail}
-                    </span>
+                    <span className="text-xs text-slate-500">{req.userEmail}</span>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-xs text-slate-400">
-                        Requested: {req.createdAt}
-                      </span>
+                      <span className="text-xs text-slate-400">Requested: {req.createdAt}</span>
                       {req.decidedAt && (
                         <span className="text-xs text-slate-400">
                           Decided: {req.decidedAt}

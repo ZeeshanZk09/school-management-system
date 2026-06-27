@@ -1,7 +1,7 @@
 /**
  * Supported log levels.
  */
-type LogLevel = "debug" | "info" | "warn" | "error";
+type LogLevel = "debug" | "error" | "info" | "warn";
 
 /**
  * Structured log context for additional metadata.
@@ -65,11 +65,7 @@ function redactValue(value: unknown): unknown {
 /**
  * Core logging function that handles formatting, redaction, and output.
  */
-function writeLog(
-  level: LogLevel,
-  message: string,
-  context: LogContext = {},
-): void {
+function writeLog(level: LogLevel, message: string, context: LogContext = {}): void {
   if (!shouldLog(level)) {
     return;
   }

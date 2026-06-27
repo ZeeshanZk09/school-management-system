@@ -31,7 +31,7 @@ function hasDatabaseUrl(): boolean {
 /**
  * Fetches global system settings from the database.
  * Results are cached for the duration of the request.
- * 
+ *
  * @returns The current system settings or a default fallback.
  */
 export const getSystemSettings = cache(async () => {

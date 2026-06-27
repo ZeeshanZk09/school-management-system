@@ -33,10 +33,7 @@ export async function submitLeaveRequest(data: {
     });
 
     const requestedDays =
-      Math.ceil(
-        (data.endDate.getTime() - data.startDate.getTime()) /
-          (1000 * 60 * 60 * 24),
-      ) + 1;
+      Math.ceil((data.endDate.getTime() - data.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
     if (!balance || balance.totalDays - balance.usedDays < requestedDays) {
       throw new Error("Insufficient leave balance");
@@ -65,8 +62,11 @@ export async function submitLeaveRequest(data: {
 
     revalidatePath("/leave");
     return { success: true };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+    };
   }
 }
 
@@ -99,8 +99,7 @@ export async function updateLeaveRequestStatus(
       if (status === "APPROVED") {
         const requestedDays =
           Math.ceil(
-            (request.endDate.getTime() - request.startDate.getTime()) /
-              (1000 * 60 * 60 * 24),
+            (request.endDate.getTime() - request.startDate.getTime()) / (1000 * 60 * 60 * 24),
           ) + 1;
 
         await tx.leaveBalance.update({
@@ -128,7 +127,10 @@ export async function updateLeaveRequestStatus(
 
     revalidatePath("/leave");
     return { success: true };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+    };
   }
 }

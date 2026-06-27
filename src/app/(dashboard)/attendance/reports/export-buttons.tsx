@@ -21,8 +21,30 @@ export function AttendanceExportButtons({
   month: number;
   year: number;
   classId?: string;
-  reportData?: any[];
-  settings?: any;
+  reportData?: {
+    id: string;
+    name: string;
+    designation: string | undefined;
+    present: number;
+    absent: number;
+    late: number | undefined;
+    leave: number | undefined;
+    total: number;
+    rate: number | undefined;
+    belowThreshold: boolean | undefined;
+  }[];
+  settings?: {
+    schoolName: string;
+    contactInfo: {
+      email: string;
+      phone: string;
+    };
+    addressLine1: string;
+    contactEmail: string;
+
+    reportTitle: string;
+    schoolLogo?: string;
+  };
   className?: string;
 }>) {
   const [isPending, setIsPending] = useState(false);
@@ -43,10 +65,7 @@ export function AttendanceExportButtons({
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute(
-          "download",
-          `${type}_attendance_${month}_${year}.csv`,
-        );
+        link.setAttribute("download", `${type}_attendance_${month}_${year}.csv`);
         link.style.visibility = "hidden";
         document.body.appendChild(link);
         link.click();
@@ -55,7 +74,7 @@ export function AttendanceExportButtons({
       } else {
         toast.error(result.message || "Export failed");
       }
-    } catch (_error) {
+    } catch {
       toast.error("An error occurred during export");
     } finally {
       setIsPending(false);
@@ -63,8 +82,7 @@ export function AttendanceExportButtons({
   };
 
   // Only show PDF button if we have data and settings
-  const canExportPDF =
-    reportData && reportData.length > 0 && settings;
+  const canExportPDF = reportData && reportData.length > 0 && settings;
 
   return (
     <div className="flex items-center gap-2">
@@ -101,11 +119,7 @@ export function AttendanceExportButtons({
         <Button
           variant="outline"
           className="h-10 bg-white dark:bg-slate-900 border-none shadow-sm opacity-50"
-          onClick={() =>
-            toast.info(
-              "Generate a report first to enable PDF export",
-            )
-          }
+          onClick={() => toast.info("Generate a report first to enable PDF export")}
           disabled={isPending}
         >
           <FileText className="mr-2 h-4 w-4" />

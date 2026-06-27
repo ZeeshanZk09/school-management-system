@@ -34,9 +34,7 @@ export function ThemeToggle() {
     return theme;
   }, [mounted, theme]);
 
-  const currentIndex = THEME_ORDER.indexOf(
-    activeTheme as (typeof THEME_ORDER)[number],
-  );
+  const currentIndex = THEME_ORDER.indexOf(activeTheme as (typeof THEME_ORDER)[number]);
   const nextTheme = THEME_ORDER[(currentIndex + 1) % THEME_ORDER.length];
 
   return (

@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight, Home } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export function Breadcrumbs({ labels = {} }: Readonly<{ labels?: Record<string, string> }>) {
   const pathname = usePathname();
@@ -13,10 +12,7 @@ export function Breadcrumbs({ labels = {} }: Readonly<{ labels?: Record<string, 
 
   return (
     <nav className="flex items-center space-x-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-      <Link
-        href="/"
-        className="flex items-center hover:text-primary transition-colors"
-      >
+      <Link href="/" className="flex items-center hover:text-primary transition-colors">
         <Home className="h-3.5 w-3.5" />
       </Link>
 
@@ -24,8 +20,7 @@ export function Breadcrumbs({ labels = {} }: Readonly<{ labels?: Record<string, 
         const href = `/${paths.slice(0, index + 1).join("/")}`;
         const isLast = index === paths.length - 1;
         const label =
-          labels[path] ||
-          path.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+          labels[path] || path.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 
         // Skip role identifiers in paths if they are parents
         if (path.startsWith("(") && path.endsWith(")")) return null;

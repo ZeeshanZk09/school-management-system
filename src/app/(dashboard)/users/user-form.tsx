@@ -19,24 +19,56 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { resetUserPassword, toggleUserStatus, upsertUser } from "./actions";
 
+interface PermissionRelation {
+  permission: {
+    name: string;
+  };
+}
+
+interface RoleWithPermissions {
+  id: string;
+  name: string;
+  description: string | null;
+  permissions?: PermissionRelation[];
+}
+
+interface UserRoleLink {
+  roleId: string;
+  role?: RoleWithPermissions;
+}
+
+interface UserData {
+  id: string;
+  fullName: string;
+  email: string;
+  status: string;
+  roles?: UserRoleLink[];
+}
+
 export function UserForm({
   children,
   roles = [],
   initialData,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: Readonly<{
   children: React.ReactNode;
-  roles: any[];
-  initialData?: any;
+  roles: RoleWithPermissions[];
+  initialData?: UserData;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }>) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = controlledOnOpenChange ?? setInternalOpen;
   const [isPending, setIsPending] = useState(false);
-  
+
   // Safely initialize selected roles
   const [selectedRoles, setSelectedRoles] = useState<string[]>(() => {
-    if (!initialData || !initialData.roles || !Array.isArray(initialData.roles)) {
+    if (!initialData?.roles || !Array.isArray(initialData.roles)) {
       return [];
     }
-    return initialData.roles.map((r: any) => r.roleId).filter(Boolean);
+    return initialData.roles.map((r: UserRoleLink) => r.roleId).filter(Boolean);
   });
 
   const router = useRouter();
@@ -62,15 +94,12 @@ export function UserForm({
   };
 
   const handleResetPassword = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to reset this user's password to default?",
-      )
-    )
+    if (!confirm("Are you sure you want to reset this user's password to default?")) {
       return;
+    }
 
     setIsPending(true);
-    const result = await resetUserPassword(initialData?.id);
+    const result = await resetUserPassword(initialData?.id || "");
     setIsPending(false);
 
     if (result.success) {
@@ -82,13 +111,11 @@ export function UserForm({
 
   const handleToggleStatus = async () => {
     setIsPending(true);
-    const result = await toggleUserStatus(initialData?.id);
+    const result = await toggleUserStatus(initialData?.id || "");
     setIsPending(false);
 
     if (result.success) {
-      toast.success(
-        `User ${result.status === "ACTIVE" ? "activated" : "deactivated"}`,
-      );
+      toast.success(`User ${result.status === "ACTIVE" ? "activated" : "deactivated"}`);
       router.refresh();
     } else {
       toast.error(result.message);
@@ -149,33 +176,73 @@ export function UserForm({
 
             <fieldset className="grid gap-3">
               <legend className="text-sm font-medium leading-none">
-                System Roles
+                System Roles & Permissions
               </legend>
               <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
                 {roles.map((role) => (
-                  <div key={role.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={role.id}
-                      checked={selectedRoles.includes(role.id)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedRoles([...selectedRoles, role.id]);
-                        } else {
-                          setSelectedRoles(
-                            selectedRoles.filter((id) => id !== role.id),
-                          );
-                        }
-                      }}
-                    />
-                    <Label
-                      htmlFor={role.id}
-                      className="text-xs font-bold cursor-pointer"
-                    >
-                      {role.name}
-                    </Label>
+                  <div
+                    key={role.id}
+                    className="flex flex-col gap-1 border border-slate-100 dark:border-slate-800 p-2.5 rounded-lg bg-white dark:bg-slate-950"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={role.id}
+                        checked={selectedRoles.includes(role.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedRoles([...selectedRoles, role.id]);
+                          } else {
+                            setSelectedRoles(selectedRoles.filter((id) => id !== role.id));
+                          }
+                        }}
+                      />
+                      <Label
+                        htmlFor={role.id}
+                        className="text-xs font-extrabold cursor-pointer text-slate-900 dark:text-white"
+                      >
+                        {role.name}
+                      </Label>
+                    </div>
+                    <span className="text-[10px] text-slate-500 line-clamp-1 pl-6">
+                      {role.description || "System assigned access"}
+                    </span>
                   </div>
                 ))}
               </div>
+
+              {/* Dynamic effective permissions summary */}
+              {selectedRoles.length > 0 && (
+                <div className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 space-y-2">
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                    Granted Permissions Set
+                  </p>
+                  <div className="flex flex-wrap gap-1 max-h-[120px] overflow-y-auto pr-1">
+                    {(() => {
+                      const allPerms = new Set<string>();
+                      for (const roleId of selectedRoles) {
+                        const roleObj = roles.find((r) => r.id === roleId);
+                        if (roleObj?.permissions) {
+                          for (const rp of roleObj.permissions) {
+                            if (rp.permission?.name) {
+                              allPerms.add(rp.permission.name);
+                            }
+                          }
+                        }
+                      }
+                      return Array.from(allPerms)
+                        .sort((a, b) => a.localeCompare(b))
+                        .map((name) => (
+                          <span
+                            key={name}
+                            className="px-2 py-0.5 rounded-md text-[9px] font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400"
+                          >
+                            {name}
+                          </span>
+                        ));
+                    })()}
+                  </div>
+                </div>
+              )}
             </fieldset>
 
             {initialData && (
@@ -208,9 +275,7 @@ export function UserForm({
                     ) : (
                       <CheckCircle className="mr-2 h-3 w-3" />
                     )}
-                    {initialData.status === "ACTIVE"
-                      ? "Deactivate"
-                      : "Activate"}
+                    {initialData.status === "ACTIVE" ? "Deactivate" : "Activate"}
                   </Button>
                 </div>
               </div>
@@ -225,11 +290,7 @@ export function UserForm({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {initialData ? "Update User" : "Create User"}
             </Button>

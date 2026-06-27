@@ -3,6 +3,7 @@
 import { DollarSign, Loader2, Plus, Save, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { Decimal } from "@prisma/client/runtime/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,25 +29,41 @@ export function SalaryStructureForm({
   staff,
   existingStructure,
 }: Readonly<{
-  staff: any;
-  existingStructure?: any;
+  staff: {
+    id: string;
+  };
+  existingStructure?: {
+    basePay: Decimal | number;
+    validFrom: Date;
+    components: {
+      id: string;
+      label: string;
+      amount: Decimal | number;
+      type: string;
+    }[];
+  };
 }>) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
-  const [basePay, setBasePay] = useState(
-    existingStructure?.basePay?.toString() || "0",
-  );
+  const [basePay, setBasePay] = useState(existingStructure?.basePay?.toString() || "0");
   const [validFrom, setValidFrom] = useState(
     existingStructure
       ? new Date(existingStructure.validFrom).toISOString().split("T")[0]
       : new Date().toISOString().split("T")[0],
   );
-  const [components, setComponents] = useState<any[]>(
-    existingStructure?.components?.map((c: any) => ({
+  const [components, setComponents] = useState<
+    {
+      id: string;
+      label: string;
+      amount: string;
+      type: "ALLOWANCE" | "DEDUCTION";
+    }[]
+  >(
+    existingStructure?.components?.map((c) => ({
       id: Math.random().toString(36).substring(7),
       label: c.label,
       amount: c.amount.toString(),
-      type: c.type,
+      type: c.type as "ALLOWANCE" | "DEDUCTION",
     })) || [],
   );
 
@@ -66,9 +83,13 @@ export function SalaryStructureForm({
     setComponents(components.filter((c) => c.id !== id));
   };
 
-  const updateComponent = (index: number, field: string, value: string) => {
+  const updateComponent = (index: number, field: "label" | "amount" | "type", value: string) => {
     const newComponents = [...components];
-    newComponents[index][field] = value;
+    if (field === "type") {
+      newComponents[index].type = value as "ALLOWANCE" | "DEDUCTION";
+    } else {
+      newComponents[index][field] = value;
+    }
     setComponents(newComponents);
   };
 
@@ -113,9 +134,7 @@ export function SalaryStructureForm({
         <Card className="md:col-span-2 border-none shadow-sm glass">
           <CardHeader>
             <CardTitle>Core Details</CardTitle>
-            <CardDescription>
-              Define base pay and its validity period.
-            </CardDescription>
+            <CardDescription>Define base pay and its validity period.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
@@ -148,10 +167,7 @@ export function SalaryStructureForm({
 
             <div className="pt-4 space-y-4">
               <div className="flex items-center justify-between">
-                <Label
-                  htmlFor="salaryComponents"
-                  className="text-base font-bold"
-                >
+                <Label htmlFor="salaryComponents" className="text-base font-bold">
                   Salary Components
                 </Label>
                 <Button
@@ -185,9 +201,7 @@ export function SalaryStructureForm({
                         placeholder="e.g. House Rent"
                         className="bg-slate-50 dark:bg-slate-900 border-none"
                         value={comp.label}
-                        onChange={(e) =>
-                          updateComponent(index, "label", e.target.value)
-                        }
+                        onChange={(e) => updateComponent(index, "label", e.target.value)}
                         required
                       />
                     </div>
@@ -201,9 +215,7 @@ export function SalaryStructureForm({
                       <Select
                         id={`salaryComponents-${index}-type`}
                         value={comp.type}
-                        onValueChange={(val) =>
-                          updateComponent(index, "type", val)
-                        }
+                        onValueChange={(val) => updateComponent(index, "type", val || "")}
                       >
                         <SelectTrigger className="bg-slate-50 dark:bg-slate-900 border-none">
                           <SelectValue />
@@ -226,9 +238,7 @@ export function SalaryStructureForm({
                         type="number"
                         className="bg-slate-50 dark:bg-slate-900 border-none"
                         value={comp.amount}
-                        onChange={(e) =>
-                          updateComponent(index, "amount", e.target.value)
-                        }
+                        onChange={(e) => updateComponent(index, "amount", e.target.value)}
                         required
                       />
                     </div>
@@ -260,9 +270,7 @@ export function SalaryStructureForm({
           <CardContent className="space-y-4">
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Base Salary</span>
-              <span className="font-medium">
-                Rs {Number.parseFloat(basePay).toLocaleString()}
-              </span>
+              <span className="font-medium">Rs {Number.parseFloat(basePay).toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Total Allowances</span>
@@ -278,9 +286,7 @@ export function SalaryStructureForm({
             </div>
             <div className="pt-4 border-t flex justify-between items-end">
               <span className="font-bold">Net Monthly Pay</span>
-              <span className="text-2xl font-black text-primary">
-                Rs {netPay.toLocaleString()}
-              </span>
+              <span className="text-2xl font-black text-primary">Rs {netPay.toLocaleString()}</span>
             </div>
           </CardContent>
           <CardFooter>

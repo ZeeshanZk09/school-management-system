@@ -6,10 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
-import {
-  DeleteFeeComponentButton,
-  FeeStructureActions,
-} from "./delete-buttons";
+import { DeleteFeeComponentButton, FeeStructureActions } from "./delete-buttons";
 import { FeeComponentForm } from "./fee-component-form";
 import { FeeStructureForm } from "./fee-structure-form";
 
@@ -41,9 +38,7 @@ export default async function FeeStructuresPage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            Fee Structures
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-outfit">Fee Structures</h1>
           <p className="text-slate-500 dark:text-slate-400">
             Define fee templates and components for different classes.
           </p>
@@ -60,44 +55,27 @@ export default async function FeeStructuresPage() {
         {structures.length === 0 ? (
           <div className="col-span-full h-64 flex flex-col items-center justify-center bg-white/50 dark:bg-slate-900/50 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
             <DollarSign className="h-12 w-12 text-slate-300 mb-2" />
-            <p className="text-slate-500 font-medium">
-              No fee structures defined yet.
-            </p>
+            <p className="text-slate-500 font-medium">No fee structures defined yet.</p>
           </div>
         ) : (
           structures.map((s) => (
-            <Card
-              key={s.id}
-              className="border-none shadow-sm glass overflow-hidden group"
-            >
+            <Card key={s.id} className="border-none shadow-sm glass overflow-hidden group">
               <CardHeader className="pb-3 border-b bg-slate-50/50 dark:bg-slate-900/50">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="text-lg font-bold">
-                      {s.name}
-                    </CardTitle>
+                    <CardTitle className="text-lg font-bold">{s.name}</CardTitle>
                     <div className="flex items-center gap-2">
-                      <Badge
-                        variant="secondary"
-                        className="text-[10px] font-bold"
-                      >
+                      <Badge variant="secondary" className="text-[10px] font-bold">
                         {s.class.name}
                       </Badge>
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] font-medium"
-                      >
+                      <Badge variant="outline" className="text-[10px] font-medium">
                         {s.academicYear.name}
                       </Badge>
                     </div>
                   </div>
                   <div className="w-[30%] flex items-center justify-end gap-1">
                     <FeeComponentForm feeStructureId={s.id}>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-primary"
-                      >
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-primary">
                         <Plus className="h-4 w-4" />
                       </Button>
                     </FeeComponentForm>
@@ -125,8 +103,7 @@ export default async function FeeStructuresPage() {
                             <span className="text-sm font-bold">{c.label}</span>
                             <span className="text-[10px] text-slate-400 uppercase tracking-tighter flex items-center gap-1">
                               <CalendarDays className="h-2.5 w-2.5" />
-                              Due: {format(new Date(c.dueDate), "PP")} •{" "}
-                              {c.frequency}
+                              Due: {format(new Date(c.dueDate), "PP")} • {c.frequency}
                             </span>
                           </div>
                         </div>

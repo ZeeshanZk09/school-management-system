@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 export async function GET(req: NextRequest) {
   try {
     await requirePermission("students.read");
-    
+
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("query");
 
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
     }));
 
     return NextResponse.json(formatted);
-  } catch (_error) {
+  } catch {
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }

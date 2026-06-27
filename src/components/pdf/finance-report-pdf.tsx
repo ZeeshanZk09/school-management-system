@@ -52,8 +52,41 @@ const styles = StyleSheet.create({
   },
 });
 
+interface CollectionReportItem {
+  id: string;
+  date: string | Date;
+  student: string;
+  class: string;
+  method: string;
+  amount: number;
+}
+
+interface OutstandingReportItem {
+  id: string;
+  student: string;
+  class: string;
+  total: number;
+  outstanding: number;
+}
+
+interface PayrollReportItem {
+  id: string;
+  staff: string;
+  department: string;
+  gross: number;
+  deductions: number;
+  disbursed: number;
+  net: number;
+}
+
+export interface FinanceReportSettings {
+  schoolName: string;
+  addressLine1: string;
+  contactEmail?: string | null;
+}
+
 // ─── Collection Report ─────────────────────────────────────────────────────────
-function CollectionTable({ data }: { data: any[] }) {
+function CollectionTable({ data }: { data: CollectionReportItem[] }) {
   const total = data.reduce((s, r) => s + r.amount, 0);
   return (
     <View style={{ marginTop: 4 }}>
@@ -94,7 +127,7 @@ function CollectionTable({ data }: { data: any[] }) {
 }
 
 // ─── Outstanding Report ────────────────────────────────────────────────────────
-function OutstandingTable({ data }: { data: any[] }) {
+function OutstandingTable({ data }: { data: OutstandingReportItem[] }) {
   const total = data.reduce((s, r) => s + r.outstanding, 0);
   return (
     <View style={{ marginTop: 4 }}>
@@ -109,7 +142,9 @@ function OutstandingTable({ data }: { data: any[] }) {
           <Text style={{ flex: 3 }}>{row.student}</Text>
           <Text style={{ flex: 2 }}>{row.class}</Text>
           <Text style={{ flex: 2 }}>Rs {row.total.toLocaleString()}</Text>
-          <Text style={{ flex: 2, textAlign: "right", fontFamily: "Helvetica-Bold", color: "#dc2626" }}>
+          <Text
+            style={{ flex: 2, textAlign: "right", fontFamily: "Helvetica-Bold", color: "#dc2626" }}
+          >
             Rs {row.outstanding.toLocaleString()}
           </Text>
         </View>
@@ -133,7 +168,7 @@ function OutstandingTable({ data }: { data: any[] }) {
 }
 
 // ─── Payroll Report ────────────────────────────────────────────────────────────
-function PayrollTable({ data }: { data: any[] }) {
+function PayrollTable({ data }: { data: PayrollReportItem[] }) {
   const totalNet = data.reduce((s, r) => s + r.net, 0);
   const totalDisbursed = data.reduce((s, r) => s + r.disbursed, 0);
   return (
@@ -188,10 +223,10 @@ export function FinanceReportPDF({
   settings,
 }: {
   type: "collection" | "outstanding" | "payroll";
-  reportData: any[];
+  reportData: unknown[];
   month?: number;
   year?: number;
-  settings: any;
+  settings: FinanceReportSettings;
 }) {
   const titleMap = {
     collection: "Fee Collection Report",
@@ -199,10 +234,7 @@ export function FinanceReportPDF({
     payroll: "Payroll Summary",
   };
 
-  const periodLabel =
-    month && year
-      ? format(new Date(year, month - 1), "MMMM yyyy")
-      : "All Time";
+  const periodLabel = month && year ? format(new Date(year, month - 1), "MMMM yyyy") : "All Time";
 
   return (
     <Document>
@@ -224,18 +256,16 @@ export function FinanceReportPDF({
         </View>
 
         {/* Table */}
-        {type === "collection" && <CollectionTable data={reportData} />}
-        {type === "outstanding" && <OutstandingTable data={reportData} />}
-        {type === "payroll" && <PayrollTable data={reportData} />}
+        {type === "collection" && <CollectionTable data={reportData as CollectionReportItem[]} />}
+        {type === "outstanding" && (
+          <OutstandingTable data={reportData as OutstandingReportItem[]} />
+        )}
+        {type === "payroll" && <PayrollTable data={reportData as PayrollReportItem[]} />}
 
         {/* Footer */}
         <View style={styles.footer} fixed>
           <Text>Generated on {format(new Date(), "PPp")}</Text>
-          <Text
-            render={({ pageNumber, totalPages }) =>
-              `Page ${pageNumber} of ${totalPages}`
-            }
-          />
+          <Text render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
         </View>
       </Page>
     </Document>

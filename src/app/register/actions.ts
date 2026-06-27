@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import { hashPassword } from "@/lib/security/password";
 import { getSystemSettings } from "@/lib/settings";
 
-export async function registerUser(_prevState: any, formData: FormData) {
+export async function registerUser(_prevState: unknown, formData: FormData) {
   try {
     const settings = await getSystemSettings();
     if (!settings.allowSelfRegistration) {
@@ -48,14 +48,13 @@ export async function registerUser(_prevState: any, formData: FormData) {
 
     return {
       success: true,
-      message:
-        "Registration successful! Your account is awaiting administrative approval.",
+      message: "Registration successful! Your account is awaiting administrative approval.",
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Registration error:", error);
     return {
       success: false,
-      message: error.message || "An unexpected error occurred",
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
     };
   }
 }

@@ -5,20 +5,33 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateSettings } from "./actions";
 
+interface SystemSettingsData {
+  schoolName?: string | null;
+  schoolLogoUrl?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  postalCode?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  allowSelfRegistration?: boolean;
+  attendanceSessions?: unknown;
+  smtpEmail?: string | null;
+  smtpAppPassword?: string | null;
+}
+
 export default function SettingsPage({
   initialData,
-}: Readonly<{ initialData: any }>) {
+}: Readonly<{
+  initialData?: SystemSettingsData | null;
+}>) {
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
 
@@ -43,9 +56,7 @@ export default function SettingsPage({
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight font-outfit">
-            System Settings
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-outfit">System Settings</h1>
           <p className="text-slate-500 dark:text-slate-400">
             Configure global school information and administrative parameters.
           </p>
@@ -63,8 +74,7 @@ export default function SettingsPage({
                 </CardTitle>
               </div>
               <CardDescription>
-                This information will appear on PDF headers, receipts, and
-                salary slips.
+                This information will appear on PDF headers, receipts, and salary slips.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 grid gap-6 md:grid-cols-2">
@@ -73,7 +83,7 @@ export default function SettingsPage({
                 <Input
                   id="schoolName"
                   name="schoolName"
-                  defaultValue={initialData?.schoolName}
+                  defaultValue={initialData?.schoolName ?? undefined}
                   required
                   className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
                 />
@@ -83,7 +93,7 @@ export default function SettingsPage({
                 <Input
                   id="schoolLogoUrl"
                   name="schoolLogoUrl"
-                  defaultValue={initialData?.schoolLogoUrl}
+                  defaultValue={initialData?.schoolLogoUrl ?? undefined}
                   placeholder="https://..."
                   className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
                 />
@@ -94,7 +104,7 @@ export default function SettingsPage({
                   id="contactEmail"
                   name="contactEmail"
                   type="email"
-                  defaultValue={initialData?.contactEmail}
+                  defaultValue={initialData?.contactEmail ?? undefined}
                   required
                   className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
                 />
@@ -104,7 +114,7 @@ export default function SettingsPage({
                 <Input
                   id="contactPhone"
                   name="contactPhone"
-                  defaultValue={initialData?.contactPhone}
+                  defaultValue={initialData?.contactPhone ?? undefined}
                   required
                   className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
                 />
@@ -114,7 +124,7 @@ export default function SettingsPage({
                 <Input
                   id="city"
                   name="city"
-                  defaultValue={initialData?.city}
+                  defaultValue={initialData?.city ?? undefined}
                   className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
                 />
               </div>
@@ -123,7 +133,7 @@ export default function SettingsPage({
                 <Input
                   id="addressLine1"
                   name="addressLine1"
-                  defaultValue={initialData?.addressLine1}
+                  defaultValue={initialData?.addressLine1 ?? undefined}
                   required
                   className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
                 />
@@ -133,7 +143,7 @@ export default function SettingsPage({
                 <Input
                   id="addressLine2"
                   name="addressLine2"
-                  defaultValue={initialData?.addressLine2}
+                  defaultValue={initialData?.addressLine2 ?? undefined}
                   className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
                 />
               </div>
@@ -149,9 +159,8 @@ export default function SettingsPage({
                 </CardTitle>
               </div>
               <CardDescription>
-                Configure Gmail SMTP for sending password reset emails and
-                notifications. Use a Gmail App Password (not your regular
-                password).
+                Configure Gmail SMTP for sending password reset emails and notifications. Use a
+                Gmail App Password (not your regular password).
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 grid gap-6 md:grid-cols-2">
@@ -173,15 +182,13 @@ export default function SettingsPage({
                   name="smtpAppPassword"
                   type="password"
                   placeholder={
-                    initialData?.smtpAppPassword
-                      ? "••••••••••••••••"
-                      : "Enter Gmail App Password"
+                    initialData?.smtpAppPassword ? "••••••••••••••••" : "Enter Gmail App Password"
                   }
                   className="bg-slate-50/50 dark:bg-slate-900/50 border-none"
                 />
                 <p className="text-xs text-slate-400">
-                  Generate an App Password from your Google Account → Security →
-                  2-Step Verification → App Passwords.
+                  Generate an App Password from your Google Account → Security → 2-Step Verification
+                  → App Passwords.
                 </p>
               </div>
             </CardContent>

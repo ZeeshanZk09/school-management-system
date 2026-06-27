@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Loader2, Search, UserPlus } from "lucide-react";
+import { Loader2, Search, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -16,6 +16,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { linkSiblings } from "../actions";
 
+interface SearchResult {
+  id: string;
+  fullName: string;
+  admissionNumber: string;
+  currentClass?: string;
+}
+
 export function SiblingForm({
   studentId,
   children,
@@ -25,7 +32,7 @@ export function SiblingForm({
 }>) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -42,8 +49,8 @@ export function SiblingForm({
       const response = await fetch(`/api/students/search?query=${encodeURIComponent(query)}`);
       const data = await response.json();
       // Filter out current student
-      setResults(data.filter((s: any) => s.id !== studentId));
-    } catch (_error) {
+      setResults(data.filter((s: SearchResult) => s.id !== studentId));
+    } catch {
       toast.error("Failed to search students");
     } finally {
       setIsSearching(false);
@@ -70,7 +77,8 @@ export function SiblingForm({
         <DialogHeader>
           <DialogTitle className="text-xl font-bold font-outfit">Link Sibling</DialogTitle>
           <DialogDescription>
-            Search for another student to link them as a sibling. They will share guardian information and fee records can be grouped.
+            Search for another student to link them as a sibling. They will share guardian
+            information and fee records can be grouped.
           </DialogDescription>
         </DialogHeader>
 
@@ -84,12 +92,16 @@ export function SiblingForm({
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
-          <Button 
-            type="submit" 
-            className="w-full gradient-primary shadow-lg" 
+          <Button
+            type="submit"
+            className="w-full gradient-primary shadow-lg"
             disabled={isSearching}
           >
-            {isSearching ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
+            {isSearching ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Search className="h-4 w-4 mr-2" />
+            )}
             Search Student
           </Button>
         </form>
@@ -98,7 +110,7 @@ export function SiblingForm({
           {results.length === 0 && !isSearching && query.length >= 3 && (
             <p className="text-center text-sm text-slate-500 py-4">No students found.</p>
           )}
-          
+
           {results.map((student) => (
             <div
               key={student.id}
@@ -117,7 +129,11 @@ export function SiblingForm({
                 disabled={isPending}
                 onClick={() => handleLink(student.id)}
               >
-                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+                {isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <UserPlus className="h-4 w-4" />
+                )}
               </Button>
             </div>
           ))}

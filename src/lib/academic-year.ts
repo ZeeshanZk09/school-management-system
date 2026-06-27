@@ -14,7 +14,7 @@ export const getActiveAcademicYear = cache(async () => {
 
 /**
  * Formats an academic year object into a displayable string.
- * 
+ *
  * @param academicYear - The academic year object to format.
  * @returns A formatted string or a fallback message.
  */

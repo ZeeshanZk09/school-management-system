@@ -83,8 +83,7 @@ export function SectionForm({
               {initialData ? "Edit Section" : "New Section"}
             </DialogTitle>
             <DialogDescription>
-              Add a section to the class. You can specify a student capacity for
-              each section.
+              Add a section to the class. You can specify a student capacity for each section.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -98,9 +97,7 @@ export function SectionForm({
                 required
                 className="bg-slate-50 dark:bg-slate-900 border-none"
               />
-              {errors.name && (
-                <p className="text-xs text-rose-500">{errors.name[0]}</p>
-              )}
+              {errors.name && <p className="text-xs text-rose-500">{errors.name[0]}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="capacity">Capacity (Optional)</Label>
@@ -112,9 +109,7 @@ export function SectionForm({
                 placeholder="e.g. 40"
                 className="bg-slate-50 dark:bg-slate-900 border-none"
               />
-              {errors.capacity && (
-                <p className="text-xs text-rose-500">{errors.capacity[0]}</p>
-              )}
+              {errors.capacity && <p className="text-xs text-rose-500">{errors.capacity[0]}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="classTeacherId">Class Teacher</Label>
@@ -132,9 +127,7 @@ export function SectionForm({
                 ))}
               </select>
               {errors.classTeacherId && (
-                <p className="text-xs text-rose-500">
-                  {errors.classTeacherId[0]}
-                </p>
+                <p className="text-xs text-rose-500">{errors.classTeacherId[0]}</p>
               )}
             </div>
           </div>
@@ -147,11 +140,7 @@ export function SectionForm({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="gradient-primary"
-              disabled={isPending}
-            >
+            <Button type="submit" className="gradient-primary" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {initialData ? "Update Section" : "Create Section"}
             </Button>

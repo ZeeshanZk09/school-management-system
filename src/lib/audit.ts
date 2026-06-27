@@ -1,8 +1,8 @@
-import prisma from '@/lib/prisma';
-import { getClientIp, getClientUserAgent } from './security/request';
-import { Prisma } from './generated/prisma/client';
+import prisma from "@/lib/prisma";
+import { getClientIp, getClientUserAgent } from "./security/request";
+import { Prisma } from "./generated/prisma/client";
 
-type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'ERROR';
+type AuditAction = "CREATE" | "DELETE" | "ERROR" | "UPDATE";
 
 interface AuditLogInput {
   actorUserId: string | null;
@@ -28,7 +28,7 @@ function normalizeJsonValue(value: unknown): Prisma.InputJsonValue {
     return cloned.toISOString();
   }
 
-  return cloned as Prisma.InputJsonValue;
+  return cloned;
 }
 
 /**
@@ -58,7 +58,7 @@ export async function writeAuditLog(input: AuditLogInput): Promise<void> {
  */
 export async function writeAuthEvent(params: {
   userId?: string | null;
-  eventType: 'LOGIN' | 'LOGOUT';
+  eventType: "LOGIN" | "LOGOUT";
   ipAddress?: string | null;
   userAgent?: string | null;
 }): Promise<void> {

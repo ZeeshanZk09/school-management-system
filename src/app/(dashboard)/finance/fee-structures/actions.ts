@@ -5,12 +5,19 @@ import { z } from "zod";
 import { writeAuditLog } from "@/lib/audit";
 import { requirePermission } from "@/lib/auth/permissions";
 import prisma from "@/lib/prisma";
-import {
-  feeComponentSchema,
-  feeStructureSchema,
-} from "@/lib/validations/finance";
+import { feeComponentSchema, feeStructureSchema } from "@/lib/validations/finance";
 
-export async function createFeeStructure(data: any) {
+export async function createFeeStructure(data: {
+  name: string;
+  classId: string;
+  academicYearId: string;
+  isActive: boolean;
+}): Promise<{
+  success: boolean;
+  errors?: Record<string, string[]>;
+  message?: string;
+  structureId?: string;
+}> {
   const user = await requirePermission("finance.manage");
 
   const validated = feeStructureSchema.safeParse(data);
@@ -36,12 +43,22 @@ export async function createFeeStructure(data: any) {
 
     revalidatePath("/finance/fee-structures");
     return { success: true, structureId: structure.id };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to create fee structure" };
   }
 }
 
-export async function addFeeComponent(data: any) {
+export async function addFeeComponent(data: {
+  feeStructureId: string;
+  label: string;
+  amount: number;
+  dueDate: string;
+  frequency: string;
+}): Promise<{
+  success: boolean;
+  errors?: Record<string, string[]>;
+  message?: string;
+}> {
   const user = await requirePermission("finance.manage");
 
   const validated = feeComponentSchema.safeParse(data);
@@ -83,7 +100,10 @@ export async function addFeeComponent(data: any) {
   }
 }
 
-export async function deleteFeeComponent(id: string) {
+export async function deleteFeeComponent(id: string): Promise<{
+  success: boolean;
+  message?: string;
+}> {
   const user = await requirePermission("finance.manage");
 
   try {
@@ -101,12 +121,15 @@ export async function deleteFeeComponent(id: string) {
 
     revalidatePath("/finance/fee-structures");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to delete fee component" };
   }
 }
 
-export async function deleteFeeStructure(id: string) {
+export async function deleteFeeStructure(id: string): Promise<{
+  success: boolean;
+  message?: string;
+}> {
   const user = await requirePermission("finance.manage");
 
   try {
@@ -124,7 +147,7 @@ export async function deleteFeeStructure(id: string) {
 
     revalidatePath("/finance/fee-structures");
     return { success: true };
-  } catch (_error) {
+  } catch {
     return { success: false, message: "Failed to delete fee structure" };
   }
 }
